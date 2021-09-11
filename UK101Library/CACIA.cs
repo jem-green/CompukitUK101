@@ -15,8 +15,11 @@ namespace UK101Library
      * A0 = 0 Read = Read status,  Write = Write command.
      * A0 = 1 Read = Read received data, Write = Send data
      */
+
     public class CACIA : CMemoryBusDevice
     {
+        #region Fields
+
         // I/O modes:
         public const byte IO_MODE_6820_FILE = 1; // Use filesystem
         public const byte IO_MODE_6820_MIDI = 2; // Use a MIDI interface
@@ -43,6 +46,65 @@ namespace UK101Library
         const byte ACIA_CONTROL_PROTOCOL_MASK = 0x1C;           // Protocol mask, Bits, parity and stop bits
         const byte ACIA_CONTROL_DIVISION_MASK = 0x03;           // Counter division bits.
         const byte ACIA_CONTROL_MASTER_RESET = 0x03;            // Master reset command.
+
+
+        public string[] sourceCode = null;
+
+        public MemoryStream inStream;
+        public MemoryStream outStream;
+
+        private DispatcherTimer timer;
+        private byte ACIAStatus;
+        public String[] Lines { get; set; }
+        public Int16 line { get; set; }
+        private Int16 pos;
+        private byte Command;
+        private MainPage mainPage;
+        private byte mode;
+        private byte keyDownCount;
+
+        // MIDI
+        private byte[] midiBuffer;
+        private byte inpointer;
+        private byte outpointer;
+        byte[] midiOutMessage = new byte[3];
+        byte midiByteNumber = 0;
+
+        #endregion
+        #region Constructors
+
+        public CACIA(MainPage mainPage)
+        {
+            this.mainPage = mainPage;
+            basicProg = new BasicProg();
+            Lines = null;
+            ReadOnly = false;
+            ACIAStatus = 0x00;
+            line = 0;
+            pos = 0;
+            timer = new DispatcherTimer();
+            timer.Interval = new TimeSpan(0, 0, 0, 0, 10);// 33);
+            timer.Tick += Timer_Tick;
+            SetFlag(ACIA_STATUS_RDRF);
+            midiBuffer = new byte[256];
+            inpointer = 0;
+            outpointer = 0;
+            keyDownCount = 0;
+            FileInputStream = null;
+            FileOutputStream = null;
+        }
+
+        #endregion
+        #region Properties
+
+        public BasicProg basicProg { get; set; }
+        //public string[] CurrentFile { get; set; }
+        public Stream FileInputStream { get; set; }
+        public long FileInputStreamLength { get; set; }
+        public Stream FileOutputStream { get; set; }
+
+        #endregion
+        #region Methods
 
         public byte Mode
         {
@@ -76,55 +138,6 @@ namespace UK101Library
             }
         }
 
-        public BasicProg basicProg { get; set; }
-        //public string[] CurrentFile { get; set; }
-        public Stream FileInputStream { get; set; }
-        public long FileInputStreamLength { get; set; }
-        public Stream FileOutputStream { get; set; }
-
-        public string[] sourceCode = null;
-
-        public MemoryStream inStream;
-        public MemoryStream outStream;
-
-        private DispatcherTimer timer;
-        private byte ACIAStatus;
-        public String[] Lines { get; set; }
-        public Int16 line { get; set; }
-        private Int16 pos;
-        private byte Command;
-        private MainPage mainPage;
-        private byte mode;
-        private byte keyDownCount;
-
-        // MIDI
-        private byte[] midiBuffer;
-        private byte inpointer;
-        private byte outpointer;
-        byte[] midiOutMessage = new byte[3];
-        byte midiByteNumber = 0;
-
-        public CACIA(MainPage mainPage)
-        {
-            this.mainPage = mainPage;
-            basicProg = new BasicProg();
-            Lines = null;
-            ReadOnly = false;
-            ACIAStatus = 0x00;
-            line = 0;
-            pos = 0;
-            timer = new DispatcherTimer();
-            timer.Interval = new TimeSpan(0, 0, 0, 0, 10);// 33);
-            timer.Tick += Timer_Tick;
-            SetFlag(ACIA_STATUS_RDRF);
-            midiBuffer = new byte[256];
-            inpointer = 0;
-            outpointer = 0;
-            keyDownCount = 0;
-            FileInputStream = null;
-            FileOutputStream = null;
-        }
-
         // Processor wants to read data or status:
         public override byte Read()
         {
@@ -147,8 +160,8 @@ namespace UK101Library
                                 {
                                     // Special treatment.
                                     // People useD to put "RUN" at end of listing in order to run the app,
-                                    // folloed by on last line containing only one space.
-                                    // The manual states procedure to use if "RUN" and pace is not inlcuded
+                                    // followed by on last line containing only one space.
+                                    // The manual states procedure to use if "RUN" and pace is not included
                                     // in listing only, and the user is told to get back to normal (not load)
                                     // mode by pressing space and then enter.
                                     // However, this does not work here, so if a "RUN" line is encountered
@@ -419,6 +432,9 @@ namespace UK101Library
             }
         }
 
+        #endregion
+        #region Private
+
         // Clock for simulating speed and IRQ:
         // Todo: remove the IRQ part, processor can send commands to do that.
         private void Timer_Tick(object sender, object e)
@@ -444,6 +460,8 @@ namespace UK101Library
                     break;
             }
         }
+
+        #endregion
 
         ///////////////////////////////////////////////////////////////////////////////////
         // Helpers:
