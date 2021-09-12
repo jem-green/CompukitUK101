@@ -20,10 +20,11 @@ namespace UK101Console
 
         static void Main(string[] args)
         {
+            Console.CursorVisible = false;
+
             mainPage = new MainPage();
             CSignetic6502 = new CSignetic6502(mainPage);
             CSignetic6502.MemoryBus.VDU.InitCVDU(mainPage);
-            CSignetic6502.MemoryBus.ACIA.Lines = CSignetic6502.MemoryBus.ACIA.basicProg.test;
             CSignetic6502.Reset();
 
             // Create a Timer object that knows to call our TimerCallback
@@ -41,7 +42,6 @@ namespace UK101Console
                     if (key.Key == ConsoleKey.Escape)
                     {
                         CSignetic6502.Reset();
-                        break;
                     }
                     else
                     {
@@ -67,15 +67,51 @@ namespace UK101Console
                         if ((key.Modifiers & ConsoleModifiers.Shift) != 0)
                         {
                             CSignetic6502.MemoryBus.Keyboard.PressKey((byte)0x12);
-                        }
-
-                        if (key.Key == ConsoleKey.Enter)
-                        {
-                            CSignetic6502.MemoryBus.Keyboard.PressKey(13);
+                            if (key.Key == ConsoleKey.D1)
+                            {
+                                CSignetic6502.MemoryBus.Keyboard.PressKey(0x31); // 1
+                            }
+                            else if (key.Key == ConsoleKey.D2)
+                            {
+                                CSignetic6502.MemoryBus.Keyboard.PressKey(0x32); // 2
+                            }
+                            else if (key.Key == ConsoleKey.D3)
+                            {
+                                CSignetic6502.MemoryBus.Keyboard.PressKey(0x33); // 3
+                            }
+                            else if (key.Key == ConsoleKey.D4)
+                            {
+                                CSignetic6502.MemoryBus.Keyboard.PressKey(0x34); // 4
+                            }
+                            else if (key.Key == ConsoleKey.D5)
+                            {
+                                CSignetic6502.MemoryBus.Keyboard.PressKey(0x35); // 5
+                            }
+                            else if (key.Key == ConsoleKey.D6)
+                            {
+                                CSignetic6502.MemoryBus.Keyboard.PressKey(0xba); // 6
+                            }
+                            else if (key.Key == ConsoleKey.D7)
+                            {
+                                CSignetic6502.MemoryBus.Keyboard.PressKey(0x36); // 7
+                            }
+                            else if (key.Key == ConsoleKey.D8)
+                            {
+                                CSignetic6502.MemoryBus.Keyboard.PressKey(0x37); // 8
+                            }
+                            else if (key.Key == ConsoleKey.D9)
+                            {
+                                CSignetic6502.MemoryBus.Keyboard.PressKey(0x38); // 9
+                            }
+                            else if (key.Key == ConsoleKey.D0)
+                            {
+                                CSignetic6502.MemoryBus.Keyboard.PressKey(0x39); // 0
+                            }
                         }
                         else
                         {
                             CSignetic6502.MemoryBus.Keyboard.PressKey((byte)key.KeyChar);
+
                         }
                     }
                 }
@@ -83,23 +119,61 @@ namespace UK101Console
                 {
                     if (key.Key != ConsoleKey.NoName)
                     {
-                        if (count > 1000)
+                        Thread.Sleep(200);
+
+                        if ((key.Modifiers & ConsoleModifiers.Shift) != 0)
                         {
-                            CSignetic6502.MemoryBus.Keyboard.ReleaseKey((byte)key.KeyChar);
-
-                            if ((key.Modifiers & ConsoleModifiers.Shift) != 0)
+                            CSignetic6502.MemoryBus.Keyboard.ReleaseKey((byte)0x12);
+                            if (key.Key == ConsoleKey.D1)
                             {
-                                CSignetic6502.MemoryBus.Keyboard.ReleaseKey((byte)0x12);
+                                CSignetic6502.MemoryBus.Keyboard.ReleaseKey(0x31); // 1
                             }
-
-                            key = new ConsoleKeyInfo((char)0, ConsoleKey.NoName, false, false, false);
-                            count = 0;
+                            else if (key.Key == ConsoleKey.D2)
+                            {
+                                CSignetic6502.MemoryBus.Keyboard.ReleaseKey(0x32); // 2
+                            }
+                            else if (key.Key == ConsoleKey.D3)
+                            {
+                                CSignetic6502.MemoryBus.Keyboard.ReleaseKey(0x33); // 3
+                            }
+                            else if (key.Key == ConsoleKey.D4)
+                            {
+                                CSignetic6502.MemoryBus.Keyboard.ReleaseKey(0x34); // 4
+                            }
+                            else if (key.Key == ConsoleKey.D5)
+                            {
+                                CSignetic6502.MemoryBus.Keyboard.ReleaseKey(0x35); // 5
+                            }
+                            else if (key.Key == ConsoleKey.D6)
+                            {
+                                CSignetic6502.MemoryBus.Keyboard.ReleaseKey(0xba); // 6
+                            }
+                            else if (key.Key == ConsoleKey.D7)
+                            {
+                                CSignetic6502.MemoryBus.Keyboard.ReleaseKey(0x36); // 7
+                            }
+                            else if (key.Key == ConsoleKey.D8)
+                            {
+                                CSignetic6502.MemoryBus.Keyboard.ReleaseKey(0x37); // 8
+                            }
+                            else if (key.Key == ConsoleKey.D9)
+                            {
+                                CSignetic6502.MemoryBus.Keyboard.ReleaseKey(0x38); // 9
+                            }
+                            else if (key.Key == ConsoleKey.D0)
+                            {
+                                CSignetic6502.MemoryBus.Keyboard.ReleaseKey(0x39); // 0
+                            }
                         }
                         else
                         {
-                            count++;
+                            CSignetic6502.MemoryBus.Keyboard.ReleaseKey((byte)key.KeyChar);
                         }
-                    }
+
+
+                        key = new ConsoleKeyInfo((char)0, ConsoleKey.NoName, false, false, false);
+                        count = 0;
+                    }          
                 }
             }
 

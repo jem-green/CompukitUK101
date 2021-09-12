@@ -9,7 +9,12 @@ namespace UK101Library
     public partial class BasicProg
     {
         public string[] test = new string[] {
-                "10 REM Hello"
+            "",
+            "",
+            "10 REM Hello Test",
+            "20 PRINT \"Hello World\"",
+            "30 GOTO 20",
+            "OK",
             };
     }
 }

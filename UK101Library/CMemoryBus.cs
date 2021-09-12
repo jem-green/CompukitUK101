@@ -86,7 +86,7 @@ namespace UK101Library
             ROM8000.EndsAt = 0x8FFF;
             Device[8] = ROM8000;
 
-            //MicToMidi = new MicToMidi(mainPage);
+            ///MicToMidi = new MicToMidi(mainPage);
             //MicToMidi.StartsAt = 0x6001;
             //MicToMidi.EndsAt = 0x6001;
             //Device[9] = MicToMidi;

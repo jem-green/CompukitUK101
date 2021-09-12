@@ -27,14 +27,14 @@ namespace UK101Library
         public const byte IO_MODE_6820_SERIAL = 8; // Use serial interface
 
         // Status register flags:
-        const byte ACIA_STATUS_IRQ = 0x80; // ACIA wishes to interrupt processor
-        const byte ACIA_STATUS_PE = 0x40; // A parity error has occurred
-        const byte ACIA_STATUS_OVRN = 0x20; // Receiver overrun, character not read before next came in
-        const byte ACIA_STATUS_FE = 0x10;   // A framing error has occurred
-        const byte ACIA_STATUS_CTS = 0x08;  // Must be LOW for clear to send. A high also forces a low TDRE
-        const byte ACIA_STATUS_DCD = 0x04;  // Is LOW when clear to send. Dos not reset until CPU read status AND data.
-        const byte ACIA_STATUS_TDRE = 0x02; // Is HIGH when a transmit is finished. Goes low when writing new data to send.
-        public const byte ACIA_STATUS_RDRF = 0x01; // Is HIGH when a character has been read in and is ready to fetch.
+        const byte ACIA_STATUS_IRQ = 0x80;          // ACIA wishes to interrupt processor
+        const byte ACIA_STATUS_PE = 0x40;           // A parity error has occurred
+        const byte ACIA_STATUS_OVRN = 0x20;         // Receiver overrun, character not read before next came in
+        const byte ACIA_STATUS_FE = 0x10;           // A framing error has occurred
+        const byte ACIA_STATUS_CTS = 0x08;          // Must be LOW for clear to send. A high also forces a low TDRE
+        const byte ACIA_STATUS_DCD = 0x04;          // Is LOW when clear to send. Dos not reset until CPU read status AND data.
+        const byte ACIA_STATUS_TDRE = 0x02;         // Is HIGH when a transmit is finished. Goes low when writing new data to send.
+        public const byte ACIA_STATUS_RDRF = 0x01;  // Is HIGH when a character has been read in and is ready to fetch.
 
         // Control register:
         const byte ACIA_CONTROL_ENABLE_IRQ = 0x80;              // A HIGH enables receive interrupt

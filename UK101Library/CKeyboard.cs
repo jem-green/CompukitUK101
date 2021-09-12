@@ -63,7 +63,7 @@ namespace UK101Library
                 col = 0;
                 while (col < 8 && !found)
                 {
-                    if (Matrix.Bytes[row][col] == Key)
+                    if (Matrix._caps[row][col] == Key)
                     {
                         found = true;
                     }
@@ -98,7 +98,7 @@ namespace UK101Library
                 col = 0;
                 while (col < 8 && !found)
                 {
-                    if (Matrix.Bytes[row][col] == Key)
+                    if (Matrix._caps[row][col] == Key)
                     {
                         found = true;
                     }
