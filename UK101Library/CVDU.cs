@@ -10,8 +10,32 @@ namespace UK101Library
 {
     public class CVDU : CMemoryBusDevice
     {
+        #region Variables
+
         public bool inScene;
+        public byte[] pData;
+        public byte pCharData;
+        public bool Changed;
+        public MainPage mainPage;
+        private byte numberOfLines;
+
+
+        #endregion
+        #region Constructor
+        public CVDU()
+        {
+            inScene = false;
+            pCharData = 0;
+            RAMSize = 4096;
+            pData = new byte[RAMSize];
+        }
+
+        #endregion
+
+        #region Properties
+
         public UInt16 RAMSize { get; set; }
+
         public byte NumberOfLines
         {
             set
@@ -45,6 +69,9 @@ namespace UK101Library
                 }
             }
         }
+
+        #endregion
+        #region Methods
 
         private void AddChar(byte row, byte col)
         {
@@ -96,27 +123,11 @@ namespace UK101Library
                 //mainPage.CSignetic6502.MemoryBus.RAM.pData[0x0226] = 0xd3;
             }
         }
-
-        public byte[] pData;
-        public byte pCharData;
-        public bool Changed;
-        public MainPage mainPage;
-
-        private byte numberOfLines;
-
-        public CVDU()
-        {
-            inScene = false;
-            pCharData = 0;
-            RAMSize = 4096;
-            pData = new byte[RAMSize];
-        }
-
         public void InitCVDU(MainPage mainPage)
         {
 
             numberOfLines = 32;
-
+            this.mainPage = mainPage;
             Random random = new Random(43);
             byte[] garbage = new byte[32 * 64];
             random.NextBytes(garbage);
@@ -152,5 +163,7 @@ namespace UK101Library
         {
             return pData[Address - StartsAt];
         }
+
+        #endregion
     }
 }

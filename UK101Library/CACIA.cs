@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Runtime.InteropServices.WindowsRuntime;
 using System.Text;
+using System.Threading;
 using System.Windows.Threading;
 //using Windows.Storage.Streams;
 //using Windows.UI.Xaml;
@@ -53,7 +54,8 @@ namespace UK101Library
         public MemoryStream inStream;
         public MemoryStream outStream;
 
-        private DispatcherTimer timer;
+        //private DispatcherTimer timer;
+        private Timer _timer;
         private byte ACIAStatus;
         public String[] Lines { get; set; }
         public Int16 line { get; set; }
@@ -70,6 +72,8 @@ namespace UK101Library
         byte[] midiOutMessage = new byte[3];
         byte midiByteNumber = 0;
 
+        readonly object _lockObject = new Object();
+
         #endregion
         #region Constructors
 
@@ -82,9 +86,15 @@ namespace UK101Library
             ACIAStatus = 0x00;
             line = 0;
             pos = 0;
-            timer = new DispatcherTimer();
-            timer.Interval = new TimeSpan(0, 0, 0, 0, 10);// 33);
-            timer.Tick += Timer_Tick;
+
+            // 12/09/2021 JPG change the timer
+
+            //timer = new DispatcherTimer();
+            //timer.Interval = new TimeSpan(0, 0, 0, 0, 10);// 33);
+            //timer.Tick += Timer_Tick;
+
+            _timer = new Timer(Timer_Tick, null, Timeout.Infinite, 10); // Create the Timer delay starting
+
             SetFlag(ACIA_STATUS_RDRF);
             midiBuffer = new byte[256];
             inpointer = 0;
@@ -150,7 +160,7 @@ namespace UK101Library
                 switch (mode)
                 {
                     case IO_MODE_6820_TAPE:
-                        timer.Start();
+                        _timer.Change(0, 10);
                         ResetFlag(ACIA_STATUS_RDRF);
                         if (line < Lines.Length)
                         {
@@ -328,7 +338,7 @@ namespace UK101Library
                 {
                     // Reset because Rx or Tx IRQ disabled or MasterReset issued:
                     ResetFlag(ACIA_STATUS_IRQ);
-                    timer.Stop();
+                    _timer.Change(Timeout.Infinite, 10);
                 }
 
                 // Set RTS (not implemented on communications side yet).
@@ -437,27 +447,31 @@ namespace UK101Library
 
         // Clock for simulating speed and IRQ:
         // Todo: remove the IRQ part, processor can send commands to do that.
-        private void Timer_Tick(object sender, object e)
+        private void Timer_Tick(object sender)
         {
-            switch (mode)
+            // Create a lock to prevent from being called multiple times simultaneously
+            lock (_lockObject)
             {
-                case IO_MODE_6820_TAPE:
-                    timer.Stop();
-                    SetFlag(ACIA_STATUS_RDRF);
-                    //if ((Command & ACIA_CONTROL_ENABLE_IRQ) != 0x00)
-                    //{
-                    //    SetFlag(ACIA_STATUS_IRQ);
-                    //}
-                    break;
-                case IO_MODE_6820_MIDI:
-                    // MIDI in is 'clocked' by the incoming MIDI data itself.
-                    timer.Stop();
-                    SetFlag(ACIA_STATUS_TDRE); // Transmit timing handled by Composer
-                    break;
-                case IO_MODE_6820_FILE:
-                    timer.Stop();
-                    SetFlag(ACIA_STATUS_TDRE); // Transmit timing handled by Composer
-                    break;
+                switch (mode)
+                {
+                    case IO_MODE_6820_TAPE:
+                        _timer.Change(Timeout.Infinite, 10);
+                        SetFlag(ACIA_STATUS_RDRF);
+                        //if ((Command & ACIA_CONTROL_ENABLE_IRQ) != 0x00)
+                        //{
+                        //    SetFlag(ACIA_STATUS_IRQ);
+                        //}
+                        break;
+                    case IO_MODE_6820_MIDI:
+                        // MIDI in is 'clocked' by the incoming MIDI data itself.
+                        _timer.Change(Timeout.Infinite, 10);
+                        SetFlag(ACIA_STATUS_TDRE); // Transmit timing handled by Composer
+                        break;
+                    case IO_MODE_6820_FILE:
+                        _timer.Change(Timeout.Infinite, 10);
+                        SetFlag(ACIA_STATUS_TDRE); // Transmit timing handled by Composer
+                        break;
+                }
             }
         }
 

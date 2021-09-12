@@ -1,4 +1,4 @@
-namespace Compukit_UK101_UWP
+namespace UK101Library
 {
 	public partial class BasicProg
 	{

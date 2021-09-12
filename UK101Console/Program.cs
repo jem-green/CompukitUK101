@@ -11,28 +11,23 @@ namespace UK101Console
 {
     class Program
     {
-        static MainPage mainPage;
-        static Int32 ProcessorCycles = 0;
-        static bool Hold = false;
-        static private Timer _timer = null;
-        static CSignetic6502 CSignetic6502;
-        static protected readonly object _lockObject = new Object();
-
         static void Main(string[] args)
         {
             Console.CursorVisible = false;
 
-            mainPage = new MainPage();
-            CSignetic6502 = new CSignetic6502(mainPage);
+            MainPage mainPage = new MainPage();
+            CSignetic6502 CSignetic6502 = new CSignetic6502(mainPage);
+            mainPage.CSignetic6502 = CSignetic6502; // Store the core processor dont like this, might just inject the processor
+            CClock CClock = new CClock(mainPage);
             CSignetic6502.MemoryBus.VDU.InitCVDU(mainPage);
+            CSignetic6502.MemoryBus.VDU.NumberOfLines = 16;
             CSignetic6502.Reset();
 
-            // Create a Timer object that knows to call our TimerCallback
-            // method once every 2000 milliseconds.
-            _timer = new Timer(Timer_Tick, null, 0, 1);
+            CClock.Hold = false;
+            CClock.Start();
 
             ConsoleKeyInfo key = new ConsoleKeyInfo((char)0, ConsoleKey.NoName, false, false, false);
-            int count = 0;
+
             while (1 == 1)
             {
                 if (Console.KeyAvailable == true)
@@ -42,6 +37,15 @@ namespace UK101Console
                     if (key.Key == ConsoleKey.Escape)
                     {
                         CSignetic6502.Reset();
+                    }
+                    else if (key.Key == ConsoleKey.F1)
+                    {
+                        CSignetic6502.MemoryBus.ACIA.Mode = CACIA.IO_MODE_6820_TAPE;
+                    }
+                    else if (key.Key == ConsoleKey.F2)
+                    {
+                        CSignetic6502.MemoryBus.ACIA.Lines = CSignetic6502.MemoryBus.ACIA.basicProg.Maze;
+                        CSignetic6502.MemoryBus.ACIA.line = 0;
                     }
                     else
                     {
@@ -170,9 +174,8 @@ namespace UK101Console
                             CSignetic6502.MemoryBus.Keyboard.ReleaseKey((byte)key.KeyChar);
                         }
 
-
                         key = new ConsoleKeyInfo((char)0, ConsoleKey.NoName, false, false, false);
-                        count = 0;
+
                     }          
                 }
             }
@@ -182,21 +185,5 @@ namespace UK101Console
             manualResetEvent.WaitOne();
 
         }
-
-        private static void Timer_Tick(object sender)
-        {
-            lock (_lockObject)
-            {
-                while (ProcessorCycles < 20000)
-                {
-                    if (!Hold)
-                    {
-                        ProcessorCycles += CSignetic6502.SingleStep();
-                    }
-                }
-                ProcessorCycles -= 20000;
-            }
-        }
-
     }
 }
