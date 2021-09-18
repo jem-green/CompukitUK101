@@ -1,7 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Drawing;
-using System.Drawing.Imaging;
 using System.Text;
 //using Windows.UI.Xaml;
 //using Windows.UI.Xaml.Controls;
@@ -10,7 +8,7 @@ using System.Text;
 
 namespace UK101Library
 {
-    public class CVDU : CMemoryBusDevice, IVideoDisplayUnit
+    public class VDU : CMemoryBusDevice, IVideoDisplayUnit
     {
         #region Variables
 
@@ -20,22 +18,16 @@ namespace UK101Library
         public bool Changed;
         public MainPage mainPage;
         private byte numberOfLines;
-        private CHARGEN chargen;
 
 
         #endregion
         #region Constructor
-        public CVDU()
+        public VDU()
         {
             inScene = false;
             pCharData = 0;
             RAMSize = 4096;
             pData = new byte[RAMSize];
-
-            // Load
-
-            chargen = new CHARGEN(0x0);
-
         }
 
         #endregion
@@ -52,24 +44,24 @@ namespace UK101Library
                     numberOfLines = value;
                     if (numberOfLines == 16)
                     {
-                        //Console.Clear();
-                        //for (byte row = 0; row < 16; row++)
-                        //{
-                        //    for (byte col = 0; col < 64; col++)
-                        //    {
-                        //        AddChar(row, col);
-                        //    }
-                        //}
+                        Console.Clear();
+                        for (byte row = 0; row < 16; row++)
+                        {
+                            for (byte col = 0; col < 64; col++)
+                            {
+                                AddChar(row, col);
+                            }
+                        }
                     }
                     else
                     {
-                        //for (byte row = 16; row < 32; row++)
-                        //{
-                        //    for (byte col = 0; col < 64; col++)
-                        //    {
-                        //        AddChar(row, col);
-                        //    }
-                        //}
+                        for (byte row = 16; row < 32; row++)
+                        {
+                            for (byte col = 0; col < 64; col++)
+                            {
+                                AddChar(row, col);
+                            }
+                        }
 
                     }
                     SetScreenSize();
@@ -95,7 +87,6 @@ namespace UK101Library
         // CEGMON will reinitialize thos at reset, so to make screen 16 lines 
         // we have to patch CEGMON:
         // 0xfbc0 (in CEGMON file byte 0x3c0 (960)) = 0xd7 for 32 lines and 0x37 for 16 lines.
-
         public void SetScreenSize()
         {
             if (numberOfLines == 16)
@@ -133,80 +124,33 @@ namespace UK101Library
             Random random = new Random(43);
             byte[] garbage = new byte[32 * 64];
             random.NextBytes(garbage);
-
-            // simulate the random data
-
+            for (Int32 row = 0; row < 32; row++)
+            {
+                for (Int32 col = 0; col < 64; col++)
+                {
+                    Console.CursorLeft = col;
+                    Console.CursorTop = row;
+                    Int32 charNumber = garbage[row * 16 + col];
+                    Console.Write((char)charNumber);
+                }
+            }
         }
 
         public void ClearScreen()
         {
-            // May need to clear the screen
-        }
-
-        public Bitmap Generate()
-        {
-            // Need to get the scaling factor sorted
-
-            int _width = 64;
-            int _height = 32;
-            int Horizontal = 8;
-            int Vertical = 8;
-
-            Bitmap bmp = new Bitmap(_width * Horizontal, _height * Vertical, PixelFormat.Format8bppIndexed);
-
-            BitmapData bmpCanvas = bmp.LockBits(new Rectangle(0, 0, bmp.Width, bmp.Height), ImageLockMode.WriteOnly, PixelFormat.Format8bppIndexed);
-
-            // Get the address of the first line.
-
-            IntPtr ptr = bmpCanvas.Scan0;
-
-            // Declare an array to hold the bytes of the bitmap.
-
-            int size = bmp.Width * bmp.Height;
-            byte[] rgbValues = new byte[size];
-
-            int rows = _height;
-            int columns = _width;
-            int hbits = 8;
-            int vbits = 8;
-
-            // work across character by character
-
-            for (int row = 0; row < rows; row++)
-            {
-                for (int column = 0; column < columns; column++)
-                {
-                    byte character = pData[column + row * columns];
-                    if (character != 32)
-                    {
-                        for (int i = 0; i < vbits; i++) // rows
-                        {
-                            byte data = chargen.pData[character * vbits + i];
-                            for (int j = hbits - 1; j > -1; j--) // columns
-                            {
-                                byte val = (byte)(data & (byte)Math.Pow(2, 7 - j));
-                                if (val > 0)
-                                {
-                                    rgbValues[(row * hbits + i) * columns * vbits + column * vbits + j] = 255;
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-
-            // Copy the 256 bit values back to the bitmap
-            System.Runtime.InteropServices.Marshal.Copy(rgbValues, 0, ptr, size);
-
-            bmp.UnlockBits(bmpCanvas);
-
-            return (bmp);
+            Console.Clear();
         }
 
         public override void Write(byte InData)
         {
             pData[Address - StartsAt] = InData;
-            mainPage.pictureBox.Invalidate();
+
+            Int32 position = Address - StartsAt;
+            byte col = (byte)(position % 64);
+            byte row = (byte)(position / 64);
+            Console.CursorLeft = col;
+            Console.CursorTop = row;
+            Console.Write((char)InData);
         }
 
         public override byte Read()

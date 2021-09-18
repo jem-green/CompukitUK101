@@ -66,6 +66,7 @@ namespace UK101Library
                     if (Matrix._caps[row][col] == Key)
                     {
                         found = true;
+                        break;
                     }
                     else
                     {
@@ -101,6 +102,7 @@ namespace UK101Library
                     if (Matrix._caps[row][col] == Key)
                     {
                         found = true;
+                        break;
                     }
                     else
                     {

@@ -16,6 +16,7 @@ namespace UK101Console
             Console.CursorVisible = false;
 
             MainPage mainPage = new MainPage();
+
             CSignetic6502 CSignetic6502 = new CSignetic6502(mainPage);
             mainPage.CSignetic6502 = CSignetic6502; // Store the core processor dont like this, might just inject the processor
             CClock CClock = new CClock(mainPage);
@@ -66,7 +67,6 @@ namespace UK101Console
                         // Ctrl right  = 0x1d  send to UK101 as 0x11
                         // Arrow up    = 0x48  send to UK101 as 0xba
                         // Enter       = 0x1c  send to UK101 as 0x0d
-
 
                         if ((key.Modifiers & ConsoleModifiers.Shift) != 0)
                         {

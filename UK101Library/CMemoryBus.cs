@@ -16,6 +16,9 @@ namespace UK101Library
         public BASIC3 Basic3;
         public BASIC4 Basic4;
         public CRAM RAM;
+
+        // Want to reference a different VDU here
+
         public CVDU VDU;
         public CKeyboard Keyboard;
         public CACIA ACIA;
@@ -55,6 +58,8 @@ namespace UK101Library
             Keyboard.StartsAt = 0xDF00;
             Keyboard.EndsAt = 0xDF00;
             Device[2] = Keyboard;
+
+            // Want to reference a different VDU here
 
             VDU = new CVDU();
             VDU.StartsAt = 0xD000;

@@ -35,6 +35,8 @@
   <ItemGroup>
     <Reference Include="System" />
     <Reference Include="System.Core" />
+    <Reference Include="System.Drawing" />
+    <Reference Include="System.Windows.Forms" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
     <Reference Include="Microsoft.CSharp" />
@@ -94,7 +96,10 @@
     <Compile Include="C6502Assembler.cs" />
     <Compile Include="CACIA.cs" />
     <Compile Include="CClock.cs" />
+    <Compile Include="CharGen\CHARGEN.cs" />
     <Compile Include="CKeyboard.cs" />
+    <Compile Include="CVDU - Copy.cs" />
+    <Compile Include="IVideoDisplayUnit.cs" />
     <Compile Include="MainPage.cs" />
     <Compile Include="CMemoryBus.cs" />
     <Compile Include="CMemoryBusDevice.cs" />
