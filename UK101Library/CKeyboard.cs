@@ -4,10 +4,53 @@ using System.Text;
 
 namespace UK101Library
 {
+    /*
+* The keyboard matrix has the following layout:
+*
+*
+*
+*                         01111  0111  1011  1101  1110
+*         127   191   223   239   247   251   253   254
+*          C7    C6    C5    C4    C3    C2    C1    C0
+*           |     |     |     |     |     |     |     |
+*         ! |   " |   # |   $ |   % |   & |   ' |     |
+*         1 |   2 |   3 |   4 |   5 |   6 |   7 |     |
+*  R7 ------+-----+-----+-----+-----+-----+-----+-----+
+*         ( |   ) |(1)  |   * |   = | RUB |     |     |
+*         8 |   9 |   0 |   : |   - | OUT |     |     |
+*  R6 ------+-----+-----+-----+-----+-----+-----+-----+
+*         > |   \ |     |(2)  |     |     |     |     |
+*         . |   L |   O |   ^ |  CR |     |     |     |
+*  R5 ------+-----+-----+-----+-----+-----+-----+-----+
+*           |     |     |     |     |     |     |     |
+*         W |   E |   R |   T |   Y |   U |   I |     |
+*  R4 ------+-----+-----+-----+-----+-----+-----+-----+
+*           |     |     |     |     |  LF |   [ |     |
+*         S |   D |   F |   G |   H |   J |   K |     |
+*  R3 ------+-----+-----+-----+-----+-----+-----+-----+
+*           | ETX |     |     |     |   ] |   < |     |
+*         X |   C |   V |   B |   N |   M |   , |     |
+*  R2 ------+-----+-----+-----+-----+-----+-----+-----+
+*           |     |     |     |   ? |   + |   @ |     |
+*         Q |   A |   Z |space|   / |   ; |   P |     |
+*  R1 ------+-----+-----+-----+-----+-----+-----+-----+
+*      (3)  |     |(4)  |     |     | left|right|SHIFT|
+*           | CTRL|     |     |     |SHIFT|SHIFT| LOCK|
+*  R0 ------+-----+-----+-----+-----+-----+-----+-----+
+*  
+*  (1) Both MONUK02 and CEGMON decode shift-0 as @
+*  
+* Notes for Ohio Superboard II keyboard:
+*  (2) This key is labelled LINE FEED
+*  (3) This position is the REPEAT key
+*  (4) This position is the ESC key
+*/
+
+
     public class CKeyboard : CMemoryBusDevice
     {
-        //private byte[][] Matrix;  //[8][8];
-        public byte[] Keystates; //[8];
+
+        public byte[] Keystates;
         public KeyboardMatrix Matrix;
         private byte lastInData = 0xff;
         public Boolean loadResetIsNeeded { get; set; }
@@ -15,22 +58,7 @@ namespace UK101Library
         public CKeyboard()
         {
             loadResetIsNeeded = false;
-
-            //// Setup Matrix:
-            //int row, col;
-            //Matrix = new byte[8][];
             Matrix = new KeyboardMatrix();
-
-            //for (row = 0; row < 8; row++)
-            //{
-            //    Matrix[row] = new byte[8];
-
-            //    for (col = 0; col < 8; col++)
-            //    {
-            //        // Matrix[7 - row][7 - col] = binFile.pData[row * 8 + col];
-            //        Matrix[row][col] = keyboardMatrix.bytes[row * 8 + col];
-            //    }
-            //}
             Keystates = new byte[8];
             Reset();
         }
@@ -48,6 +76,11 @@ namespace UK101Library
             Keystates[7] = 0xFF;
         }
 
+        public void PressKey(byte row, byte col)
+        {
+            Keystates[row] = (byte)(Keystates[row] ^ (0x80 >> (col))); // E.g. 1110 1111 ^ 0000 0100 = 1110 1011
+        }
+
         public void PressKey(byte Key)
         {
             //byte temp1, temp2;
@@ -63,7 +96,7 @@ namespace UK101Library
                 col = 0;
                 while (col < 8 && !found)
                 {
-                    if (Matrix._caps[row][col] == Key)
+                    if (Matrix._capslock[row][col] == Key)
                     {
                         found = true;
                         break;
@@ -87,6 +120,11 @@ namespace UK101Library
             }
         }
 
+        public void ReleaseKey(byte row, byte col)
+        {
+            Keystates[row] = (byte)(Keystates[row] | (0x80 >> col)); // E.g. 1110 1011 | 0000 0100 = 1110 1111
+        }
+
         public void ReleaseKey(byte Key)
         {
             // Remove key from Keystates.
@@ -99,7 +137,7 @@ namespace UK101Library
                 col = 0;
                 while (col < 8 && !found)
                 {
-                    if (Matrix._caps[row][col] == Key)
+                    if (Matrix._capslock[row][col] == Key)
                     {
                         found = true;
                         break;

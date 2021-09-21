@@ -5,18 +5,18 @@ using System.Runtime.InteropServices.WindowsRuntime;
 using System.Text;
 using System.Threading;
 using System.Windows.Threading;
-//using Windows.Storage.Streams;
-//using Windows.UI.Xaml;
-//using Windows.Storage;
+
+/**
+ * A0 = RS
+ * A0 = 0 Read = Read status,  Write = Write command.
+ * A0 = 1 Read = Read received data, Write = Send data
+ */
 
 namespace UK101Library
 {
-    /**
-     * A0 = RS
-     * A0 = 0 Read = Read status,  Write = Write command.
-     * A0 = 1 Read = Read received data, Write = Send data
-     */
-
+    /// <summary>
+    /// ACIA is detailed as a 6850
+    /// </summary>
     public class CACIA : CMemoryBusDevice
     {
         #region Fields
@@ -63,7 +63,6 @@ namespace UK101Library
         private byte Command;
         private MainPage mainPage;
         private byte mode;
-        private byte keyDownCount;
 
         // MIDI
         private byte[] midiBuffer;
@@ -99,7 +98,6 @@ namespace UK101Library
             midiBuffer = new byte[256];
             inpointer = 0;
             outpointer = 0;
-            keyDownCount = 0;
             FileInputStream = null;
             FileOutputStream = null;
         }
@@ -160,7 +158,7 @@ namespace UK101Library
                 switch (mode)
                 {
                     case IO_MODE_6820_TAPE:
-                        _timer.Change(0, 10);
+                        _timer.Change(0, 10);   // Start the timer
                         ResetFlag(ACIA_STATUS_RDRF);
                         if (line < Lines.Length)
                         {
@@ -353,95 +351,6 @@ namespace UK101Library
             }
         }
 
-        // MIDI inport:
-        // The Composer only accepts what a JUNO 106 could send
-        // and only key events and only on channel 0.
-        // Key off events from JUNO 106 are key on with velocity 0!
-        // If more than one key was pressed JUNO 106 sends an
-        // all keys off message after the last key 'off' message.
-        // Juno 106 had a 61 keys keyboard ranging from 0x24 to 0x60;
-        // JUNO 106 also set an 'all keys off' when last key was released.
-        public void MidiInPort_MessageReceived(byte[] data)
-        {
-            if (mode == IO_MODE_6820_MIDI && data.Length == 3)
-            {
-                // Key event in JUNO 106 key range?
-                if ((data[0] & 0xe0) == 0x80 && data[1] >= 0x24 && data[1] <= 0x60)
-                {
-                    // Channel must be 0 for Composer to work:
-                    data[0] = (byte)(data[0] & 0xf0);
-
-                    // New style key-off is not allowed:
-                    if (data[0] == 0x80)
-                    {
-                        data[0] = 0x90;
-                        data[2] = 0x00;
-                    }
-
-                    // Velocity on must be 0x40 for Composer to work:
-                    if (data[2] > 0x00)
-                    {
-                        data[2] = 0x40;
-                    }
-
-                    // Put in buffer:
-                    midiBuffer[inpointer++] = data[0];
-                    midiBuffer[inpointer++] = data[1];
-                    midiBuffer[inpointer++] = data[2];
-
-                    // Echo to synth:
-                    if (data[2] == 0x40)
-                    {
-                        //mainPage.Midi.NoteOn(0x00, data[1], 0x40);
-                    }
-                    else
-                    {
-                        //mainPage.Midi.NoteOff(0x00, data[1]);
-                    }
-
-                    // Shall we add an 'all keys off' message?
-                    if (data[2] == 0)
-                    {
-                        keyDownCount--;
-                    }
-                    else
-                    {
-                        keyDownCount++;
-                    }
-                    if (keyDownCount == 0)
-                    {
-                        midiBuffer[inpointer++] = 0xb0;
-                        midiBuffer[inpointer++] = 78;
-                        midiBuffer[inpointer++] = 00;
-                    }
-
-                    // Tell Composer that data is available:
-                    SetFlag(ACIA_STATUS_RDRF);
-                }
-                // Pedal hold event?
-                else if ((data[0] & 0xf0) == 0xb0 && data[1] == 0x40)
-                {
-                    // Hold pedal event
-                    if (data[2] < 0x40)
-                    {
-                        data[2] = 0x00;
-                    }
-                    else
-                    {
-                        data[2] = 0x7f;
-                    }
-
-                    // Put in buffer:
-                    midiBuffer[inpointer++] = data[0];
-                    midiBuffer[inpointer++] = data[1];
-                    midiBuffer[inpointer++] = data[2];
-
-                    // Tell Composer that data is available:
-                    SetFlag(ACIA_STATUS_RDRF);
-                }
-            }
-        }
-
         #endregion
         #region Private
 
@@ -455,7 +364,7 @@ namespace UK101Library
                 switch (mode)
                 {
                     case IO_MODE_6820_TAPE:
-                        _timer.Change(Timeout.Infinite, 10);
+                        _timer.Change(Timeout.Infinite, 10);    // Stop the timer
                         SetFlag(ACIA_STATUS_RDRF);
                         //if ((Command & ACIA_CONTROL_ENABLE_IRQ) != 0x00)
                         //{

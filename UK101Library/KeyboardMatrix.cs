@@ -3,27 +3,87 @@ namespace UK101Library
     // Update the matrix to use just ascii characters < 127
 	public class KeyboardMatrix
 	{
-        public byte[][] _caps = new byte[][] {
-            new byte[] { 0x31, 0x32, 0x33, 0x34, 0x35, 0x36, 0x37, 0x00 }, // 1 2 3 4 5 6 7 x   Emty positions contains no switches
-            new byte[] { 0x38, 0x39, 0x30, 0xbb, 0xdb, 0x08, 0x00, 0x00 }, // 8 9 0 : - < x x   < = rub out
-            new byte[] { 0x2e, 0x4c, 0x4f, 0x5e, 0x0d, 0x00, 0x00, 0x00 }, // . L O ^ < x x x   ^ = up arrow < = cr/enter
-            new byte[] { 0x57, 0x45, 0x52, 0x54, 0x59, 0x55, 0x49, 0x00 }, // W E R T Y U I x
-            new byte[] { 0x53, 0x44, 0x46, 0x47, 0x48, 0x4a, 0x4b, 0x00 }, // S D F G H J K x
-            new byte[] { 0x58, 0x43, 0x56, 0x42, 0x4e, 0x4d, 0x2c, 0x00 }, // X C V B N M , x
-            new byte[] { 0x51, 0x41, 0x5a, 0x20, 0x2f, 0x3b, 0x50, 0x00 }, // Q A Z   / ; P x   * = Space
-            new byte[] { 0x00, 0x11, 0x00, 0x00, 0x00, 0x12, 0x10, 0x14 }, // x c x x x l r #   c = Ctrl, l = L-shift, r = R-shift, # = Caps lock
+    /*
+        * The keyboard matrix has the following layout:
+        *
+        *          C7    C6    C5    C4    C3    C2    C1    C0
+        *           |     |     |     |     |     |     |     |
+        *         ! |   " |   # |   $ |   % |   & |   ' |     |
+        *         1 |   2 |   3 |   4 |   5 |   6 |   7 |     |
+        *  R7 ------+-----+-----+-----+-----+-----+-----+-----+
+        *         ( |   ) |(1)  |   * |   = | RUB |     |     |
+        *         8 |   9 |   0 |   : |   - | OUT |     |     |
+        *  R6 ------+-----+-----+-----+-----+-----+-----+-----+
+        *         > |   \ |     |(2)  |     |     |     |     |
+        *         . |   L |   O |   ^ |  CR |     |     |     |
+        *  R5 ------+-----+-----+-----+-----+-----+-----+-----+
+        *           |     |     |     |     |     |     |     |
+        *         W |   E |   R |   T |   Y |   U |   I |     |
+        *  R4 ------+-----+-----+-----+-----+-----+-----+-----+
+        *           |     |     |     |     |  LF |   [ |     |
+        *         S |   D |   F |   G |   H |   J |   K |     |
+        *  R3 ------+-----+-----+-----+-----+-----+-----+-----+
+        *           | ETX |     |     |     |   ] |   < |     |
+        *         X |   C |   V |   B |   N |   M |   , |     |
+        *  R2 ------+-----+-----+-----+-----+-----+-----+-----+
+        *           |     |     |     |   ? |   + |   @ |     |
+        *         Q |   A |   Z |space|   / |   ; |   P |     |
+        *  R1 ------+-----+-----+-----+-----+-----+-----+-----+
+        *      (3)  |     |(4)  |     |     | left|right|SHIFT|
+        *           | CTRL|     |     |     |SHIFT|SHIFT| LOCK|
+        *  R0 ------+-----+-----+-----+-----+-----+-----+-----+
+        *  
+        *  (1) Both MONUK02 and CEGMON decode shift-0 as @
+        *  
+        * Notes for Ohio Superboard II keyboard:
+        *  (2) This key is labelled LINE FEED
+        *  (3) This position is the REPEAT key
+        *  (4) This position is the ESC key
+        */
+
+        /// <summary>
+        /// Keycode when capslock is applied
+        /// </summary>
+        public byte[][] _capslock = new byte[][] {
+            new byte[] { 0x31, 0x32, 0x33, 0x34, 0x35, 0x36, 0x37, 0x00 }, // 1 2 3 4 5 6 7     Emty positions contains no switches
+            new byte[] { 0x38, 0x39, 0x30, 0xbb, 0xdb, 0x08, 0x00, 0x00 }, // 8 9 0 : - ~       ~ = rub out
+            new byte[] { 0x2e, 0x4c, 0x4f, 0x5e, 0x0d, 0x00, 0x00, 0x00 }, // . L O ^ ~         ^ = up arrow ~ = cr/enter
+            new byte[] { 0x57, 0x45, 0x52, 0x54, 0x59, 0x55, 0x49, 0x00 }, // W E R T Y U I  
+            new byte[] { 0x53, 0x44, 0x46, 0x47, 0x48, 0x4a, 0x4b, 0x00 }, // S D F G H J K  
+            new byte[] { 0x58, 0x43, 0x56, 0x42, 0x4e, 0x4d, 0x2c, 0x00 }, // X C V B N M ,  
+            new byte[] { 0x51, 0x41, 0x5a, 0x20, 0x2f, 0x3b, 0x50, 0x00 }, // Q A Z ~ / ; P     ~ = Space
+            new byte[] { 0x00, 0x11, 0x00, 0x00, 0x00, 0x12, 0x10, 0x14 }, //   ~       ~ ~ ~   ~ = Ctrl, l = L-shift, r = R-shift, # = Caps lock
         };
 
+
+        /// <summary>
+        /// Keycode with nothing pressed
+        /// </summary>
         public byte[][] _normal = new byte[][] {
             new byte[] { 0x31, 0x32, 0x33, 0x34, 0x35, 0x36, 0x37, 0x00 }, // 1 2 3 4 5 6 7    Emty positions contains no switches
-            new byte[] { 0x38, 0x39, 0x30, 0xbb, 0xdb, 0x08, 0x00, 0x00 }, // 8 9 0 : - <      < = rub out
-            new byte[] { 0xbe, 0x4c, 0x4f, 0xba, 0x0d, 0x00, 0x00, 0x00 }, // . L O ^ <        ^ = up arrow < = cr/enter
-            new byte[] { 0x57, 0x45, 0x52, 0x54, 0x59, 0x55, 0x49, 0x00 }, // W E R T Y U I
-            new byte[] { 0x53, 0x44, 0x46, 0x47, 0x48, 0x4a, 0x4b, 0x00 }, // S D F G H J K
-            new byte[] { 0x58, 0x43, 0x56, 0x42, 0x4e, 0x32, 0xbc, 0x00 }, // X C V B N M ,
-            new byte[] { 0x51, 0x41, 0x5a, 0x20, 0xbd, 0xc0, 0x50, 0x00 }, // Q A Z * / ; P    * = Space
-            new byte[] { 0x00, 0x11, 0x00, 0x00, 0x00, 0x12, 0x10, 0x14 }, //   *       * * *  * = Ctrl, L-shift, R-shift, Caps lock
+            new byte[] { 0x38, 0x39, 0x30, 0xbb, 0xdb, 0x08, 0x00, 0x00 }, // 8 9 0 : - ~      ~ = rub out
+            new byte[] { 0xbe, 0x4c, 0x4f, 0xba, 0x0d, 0x00, 0x00, 0x00 }, // . l o ^ ~        ^ = up arrow ~ = cr/enter
+            new byte[] { 0x57, 0x45, 0x52, 0x54, 0x59, 0x55, 0x49, 0x00 }, // w e r t y u i
+            new byte[] { 0x53, 0x44, 0x46, 0x47, 0x48, 0x4a, 0x4b, 0x00 }, // s d f g h j k
+            new byte[] { 0x58, 0x43, 0x56, 0x42, 0x4e, 0x32, 0xbc, 0x00 }, // x c v b n m ,
+            new byte[] { 0x51, 0x41, 0x5a, 0x20, 0xbd, 0xc0, 0x50, 0x00 }, // q a z ~ / ; p    ~ = Space
+            new byte[] { 0x00, 0x11, 0x00, 0x00, 0x00, 0x12, 0x10, 0x14 }, //   ~       ~ ~ ~  ~ = Ctrl, L-shift, R-shift, Caps lock
         };
+
+        /// <summary>
+        /// Keycode with shift pressed
+        /// </summary>
+        public byte[][] _shift = new byte[][] {
+            new byte[] { 0x31, 0x32, 0x33, 0x34, 0x35, 0x36, 0x37, 0x00 }, // ! " # $ % & /    Emty positions contains no switches
+            new byte[] { 0x38, 0x39, 0x30, 0xbb, 0xdb, 0x08, 0x00, 0x00 }, // ( ) 0 * = ~      ~ = rub out
+            new byte[] { 0xbe, 0x4c, 0x4f, 0xba, 0x0d, 0x00, 0x00, 0x00 }, // > \ O ^ ~        ^ = up arrow ~ = cr/enter
+            new byte[] { 0x57, 0x45, 0x52, 0x54, 0x59, 0x55, 0x49, 0x00 }, // W E R T Y U I  
+            new byte[] { 0x53, 0x44, 0x46, 0x47, 0x48, 0x4a, 0x4b, 0x00 }, // S D F G H J K  
+            new byte[] { 0x58, 0x43, 0x56, 0x42, 0x4e, 0x4d, 0x2c, 0x00 }, // X C V B N M <  
+            new byte[] { 0x51, 0x41, 0x5a, 0x20, 0xbd, 0xc0, 0x50, 0x00 }, // Q A Z ~ ? + @    ~ = Space
+            new byte[] { 0x00, 0x11, 0x00, 0x00, 0x00, 0x12, 0x10, 0x14 }, //   ~       ~ ~ ~  ~ = Ctrl, L-shift, R-shift, Caps lock
+        };
+
         //public byte[][] Bytes = new byte[][] {
         //    new byte[] { 0x00, 0x31, 0x32, 0x33, 0x34, 0x35, 0x36, 0x37, 0x00 }, // 1 2 3 4 5 6 7    Emty positions contains no switches
         //    new byte[] { 0x00, 0x38, 0x39, 0x30, 0xbb, 0xdb, 0x08, 0x00, 0x00 }, // 8 9 0 : - <      < = rub out
@@ -34,6 +94,7 @@ namespace UK101Library
         //    new byte[] { 0x00, 0x51, 0x41, 0x5a, 0x20, 0xbd, 0xc0, 0x50, 0x00 }, // Q A Z * / ; P    * = Space
         //    new byte[] { 0x00, 0x00, 0x11, 0x00, 0x00, 0x00, 0x12, 0x10, 0x14 }, //   *       * * *  * = Ctrl, L-shift, R-shift, Caps lock
         //};
+
         //public byte[][] Bytes = new byte[][] {
         //    new byte[] { 0x00, 0x11, 0x00, 0x00, 0x00, 0x12, 0x10, 0x14 }, //   *       * * *  * = Ctrl, L-shift, R-shift, Caps lock
         //    new byte[] { 0x51, 0x41, 0x5a, 0x20, 0xbd, 0xc0, 0x50, 0x00 }, // Q A Z * / ; P    * = Space
