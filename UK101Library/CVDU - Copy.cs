@@ -8,7 +8,7 @@ using System.Text;
 
 namespace UK101Library
 {
-    public class VDU : CMemoryBusDevice, IVideoDisplayUnit
+    public class VDU : CMemoryBusDevice
     {
         #region Variables
 

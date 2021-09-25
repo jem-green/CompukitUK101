@@ -22,6 +22,9 @@ namespace UK101Form
 
         CSignetic6502 CSignetic6502;
         KeyboardMatrix KeyboardMatrix;
+        Tape tape;
+
+
         byte _row = 2;
         byte _column = 3;
 
@@ -49,6 +52,10 @@ namespace UK101Form
 
             this.KeyPreview = true;
             KeyboardMatrix = new KeyboardMatrix();
+
+            tape = new Tape(mainPage);
+
+            pictureBox1.Invalidate();
 
         }
 
@@ -80,13 +87,24 @@ namespace UK101Form
             }
             else if (keyCode == Keys.F2)
             {
-                CSignetic6502.MemoryBus.ACIA.Lines = CSignetic6502.MemoryBus.ACIA.basicProg.Gunfight;
-                CSignetic6502.MemoryBus.ACIA.line = 0;
+                //CSignetic6502.MemoryBus.ACIA.Lines = CSignetic6502.MemoryBus.ACIA.basicProg.Gunfight;
+                //CSignetic6502.MemoryBus.ACIA.line = 0;
             }
             else if (keyCode == Keys.F3)
             {
-                CSignetic6502.MemoryBus.Keyboard.PressKey(7, 7);
-                CSignetic6502.MemoryBus.Keyboard.PressKey(_row, _column);
+                CSignetic6502.MemoryBus.ACIA.Mode = CACIA.IO_MODE_6820_FILE;
+            }
+            else if (keyCode == Keys.F4)
+            {
+                tape.Record();
+            }
+            else if (keyCode == Keys.F5)
+            {
+                tape.Stop("test.bas");
+            }
+            else if (keyCode == Keys.F6)
+            {
+                tape.Play("basic\\gunfight.bas");
             }
             else
             {

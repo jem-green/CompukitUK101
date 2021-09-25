@@ -1,10 +1,3 @@
-namespace UK101Library
-{
-	public partial class BasicProg 
-	{
-		public string[] SpaceInvaders = new string[] {
-			"",
-			"",
 			" 10 GOSUB2000:PRINT\"SPACE INVADERS!!!\"",
 			" 20 PRINT\"-----------------\":PRINT:INPUT\"INSTRUCTIONS\";Q$",
 			" 30 IFLEFT$(Q$,1)=\"N\"THEN100",

@@ -3,15 +3,22 @@ using System.Collections.Generic;
 using System.Drawing;
 using System.Drawing.Imaging;
 using System.Text;
-//using Windows.UI.Xaml;
-//using Windows.UI.Xaml.Controls;
-//using Windows.UI.Xaml.Media;
-//using Windows.UI.Xaml.Media.Imaging;
+using System.Threading;
 
 namespace UK101Library
 {
-    public class CVDU : CMemoryBusDevice, IVideoDisplayUnit
+    /// <summary>
+    /// This is the VDU RAM
+    /// </summary>
+    public class CVDU : CMemoryBusDevice
     {
+        // There are some elements here that i would
+        // like to separate out so that the display can
+        // have specific settings that just read the VDU data
+        // The advantage currently is that the display isnt polling
+        // the memory but gets a notification when the data changes
+
+
         #region Variables
 
         public bool inScene;
@@ -136,6 +143,18 @@ namespace UK101Library
 
             // simulate the random data
 
+            int rows = 32;
+            int columns = 64;
+
+            for (int row = 0; row < rows; row++)
+            {
+                for (int column = 0; column < columns; column++)
+                {
+                    pData[column + row * columns] = garbage[column + row * columns];
+                }
+            }
+            mainPage.pictureBox.Invalidate();
+            Thread.Sleep(1000);
         }
 
         public void ClearScreen()

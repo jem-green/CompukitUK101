@@ -65,6 +65,12 @@
     <Compile Include="Basic\GraphicAid.cs" />
     <Compile Include="Basic\GraphPlotter.cs" />
     <Compile Include="Basic\Gunfight.cs" />
+    <Content Include="Basic\Gunfight.bas">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Basic\Hangman.bas">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
     <Compile Include="Basic\Hangman.cs" />
     <Compile Include="Basic\Hexapawn.cs" />
     <Compile Include="Basic\King.cs" />
@@ -99,14 +105,12 @@
     <Compile Include="CharGen\CHARGEN.cs" />
     <Compile Include="CKeyboard.cs" />
     <Compile Include="CVDU - Copy.cs" />
-    <Compile Include="IVideoDisplayUnit.cs" />
     <Compile Include="MainPage.cs" />
     <Compile Include="CMemoryBus.cs" />
     <Compile Include="CMemoryBusDevice.cs" />
     <Compile Include="CRAM.cs" />
     <Compile Include="CSignetic6502.cs" />
     <Compile Include="CVDU.cs" />
-    <Compile Include="KeyboardMatrix.cs" />
     <Compile Include="MemoryMap.cs" />
     <Compile Include="MicToMidi.cs" />
     <Compile Include="MIDI.cs" />

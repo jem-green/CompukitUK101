@@ -51,14 +51,12 @@ namespace UK101Library
     {
 
         public byte[] Keystates;
-        public KeyboardMatrix Matrix;
         private byte lastInData = 0xff;
         public Boolean loadResetIsNeeded { get; set; }
 
         public CKeyboard()
         {
             loadResetIsNeeded = false;
-            Matrix = new KeyboardMatrix();
             Keystates = new byte[8];
             Reset();
         }
@@ -81,82 +79,9 @@ namespace UK101Library
             Keystates[row] = (byte)(Keystates[row] ^ (0x80 >> (col))); // E.g. 1110 1111 ^ 0000 0100 = 1110 1011
         }
 
-        public void PressKey(byte Key)
-        {
-            //byte temp1, temp2;
-
-            // Add key in Keystates.
-            // Find the position of this keycap in the Matrix:
-            UInt16 row = 0;
-            UInt16 col = 0; ;
-            bool found = false;
-
-            while (row < 8 && !found)
-            {
-                col = 0;
-                while (col < 8 && !found)
-                {
-                    if (Matrix._capslock[row][col] == Key)
-                    {
-                        found = true;
-                        break;
-                    }
-                    else
-                    {
-                        col++;
-                    }
-                }
-                if (!found)
-                {
-                    row++;
-                }
-            }
-            if (found)
-            {
-                //temp1 = Keystates[row];
-                // Reset corresponding bit to indicate key down:
-                Keystates[row] = (byte)(Keystates[row] ^ (0x80 >> (col))); // E.g. 1110 1111 ^ 0000 0100 = 1110 1011
-                //temp2 = Keystates[row];
-            }
-        }
-
         public void ReleaseKey(byte row, byte col)
         {
             Keystates[row] = (byte)(Keystates[row] | (0x80 >> col)); // E.g. 1110 1011 | 0000 0100 = 1110 1111
-        }
-
-        public void ReleaseKey(byte Key)
-        {
-            // Remove key from Keystates.
-            // Find the position of this keycap in the Matrix:
-            UInt16 row = 0;
-            UInt16 col = 0;
-            bool found = false;
-            while (row < 8 && !found)
-            {
-                col = 0;
-                while (col < 8 && !found)
-                {
-                    if (Matrix._capslock[row][col] == Key)
-                    {
-                        found = true;
-                        break;
-                    }
-                    else
-                    {
-                        col++;
-                    }
-                }
-                if (!found)
-                {
-                    row++;
-                }
-            }
-            if (found)
-            {
-                // Set corresponding bit to indicate key up:
-                Keystates[row] = (byte)(Keystates[row] | (0x80 >> col)); // E.g. 1110 1011 | 0000 0100 = 1110 1111
-            }
         }
 
         public override byte Read()

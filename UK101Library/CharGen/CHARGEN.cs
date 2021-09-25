@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace UK101Library
 {
-    class CHARGEN : CMemoryBusDevice
+    public class CHARGEN : CMemoryBusDevice
     {
         public UInt16 ROMSize { get; set; }
 

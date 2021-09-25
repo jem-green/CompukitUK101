@@ -11,6 +11,9 @@ namespace UK101Console
 {
     class Program
     {
+        CSignetic6502 CSignetic6502;
+        KeyboardMatrix KeyboardMatrix;
+
         static void Main(string[] args)
         {
             Console.CursorVisible = false;
@@ -18,6 +21,8 @@ namespace UK101Console
             MainPage mainPage = new MainPage();
 
             CSignetic6502 CSignetic6502 = new CSignetic6502(mainPage);
+            KeyboardMatrix KeyboardMatrix;
+
             mainPage.CSignetic6502 = CSignetic6502; // Store the core processor dont like this, might just inject the processor
             CClock CClock = new CClock(mainPage);
             CSignetic6502.MemoryBus.VDU.InitCVDU(mainPage);

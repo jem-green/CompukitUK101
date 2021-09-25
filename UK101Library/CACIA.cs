@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Runtime.InteropServices.WindowsRuntime;
 using System.Text;
@@ -12,6 +13,56 @@ using System.Windows.Threading;
  * A0 = 1 Read = Read received data, Write = Send data
  */
 
+   /*
+    *                      6850
+    *                +------\/------+
+    *             1 -|Vss       !CTS|- 24
+    *             2 -|RxD       !DCD|- 23
+    *             3 -|RxClk       D0|- 22
+    *             4 -|TxClk       D1|- 21
+    *             5 -|!RTS        D2|- 20
+    *             6 -|TxD         D3|- 19
+    *             7 -|!IRQ        D4|- 18
+    *             8 -|CS0         D5|- 17
+    *             9 -|!CS2        D6|- 16
+    *            10 -|CS1         D7|- 15
+    *            11 -|RS           E|- 14
+    *            12 -|Vcc        R/W|- 13
+    *                +--------------+ 
+    *
+    * address 0 read	= data bits 0-7
+    * address 0 write   = data bits 0-7
+    *
+    * address 1 write
+    * DB0 = divide sel 0      00 = /1	 10 = /64
+    * DB1 = divide sel 1	  01 = /16	 11 = master reset
+    * DB2 = word sel 0		 000 = 7e2	011 = 7o1		110 = 8e1
+    * DB3 = word sel 1		 001 = 7o2	100 = 8n2		111 = 8o1
+    * DB4 = word sel 2		 010 = 7e1	101 = 8n1
+    * DB5 = transmit ctrl 0 00 = -RTS low xmit irq disable
+    * DB6 = transmit ctrl 1 01 = -RTS low xmit irq enable
+    *                       10 = -RTS high xmit irq disable
+    *                       11 = -RTS low, xmit a break lvl, irq disable
+    * DB7 = receive irq enable
+    *
+    * address 1 read
+    * DB0 = RX buff full
+    * DB1 = TX buff empty
+    * DB2 = -DCD			(1 when DCD not present)
+    * DB3 = -CTS			(1 when transmit is inhibited)
+    * DB4 = Framing error	(1 when error, lack of start/stop bits or break condition)
+    * DB5 = RX overrun
+    * DB6 = Parity Error    (1 when # of 1 bits != selected parity)
+    * DB7 = IRQ             (1 when IRQ present)  cleared by read of rx or write to tx
+    *
+    * rxIRQ is set when Receive Data Register is full, overrun, or there is a low to high 
+    * transition on the DCD signal line.
+    *
+    * txIRQ is set when the Transmit Data Register is empty,
+    *
+    */
+
+
 namespace UK101Library
 {
     /// <summary>
@@ -22,10 +73,10 @@ namespace UK101Library
         #region Fields
 
         // I/O modes:
-        public const byte IO_MODE_6820_FILE = 1; // Use filesystem
-        public const byte IO_MODE_6820_MIDI = 2; // Use a MIDI interface
-        public const byte IO_MODE_6820_TAPE = 4; // Use internal classes
-        public const byte IO_MODE_6820_SERIAL = 8; // Use serial interface
+        public const byte IO_MODE_6820_FILE = 1;    // Use filesystem
+        public const byte IO_MODE_6820_MIDI = 2;    // Use a MIDI interface
+        public const byte IO_MODE_6820_TAPE = 4;    // Use internal classes
+        public const byte IO_MODE_6820_SERIAL = 8;  // Use serial interface
 
         // Status register flags:
         const byte ACIA_STATUS_IRQ = 0x80;          // ACIA wishes to interrupt processor
@@ -49,7 +100,7 @@ namespace UK101Library
         const byte ACIA_CONTROL_MASTER_RESET = 0x03;            // Master reset command.
 
 
-        public string[] sourceCode = null;
+       // public string[] sourceCode = null;
 
         public MemoryStream inStream;
         public MemoryStream outStream;
@@ -57,19 +108,10 @@ namespace UK101Library
         //private DispatcherTimer timer;
         private Timer _timer;
         private byte ACIAStatus;
-        public String[] Lines { get; set; }
-        public Int16 line { get; set; }
-        private Int16 pos;
+
         private byte Command;
         private MainPage mainPage;
         private byte mode;
-
-        // MIDI
-        private byte[] midiBuffer;
-        private byte inpointer;
-        private byte outpointer;
-        byte[] midiOutMessage = new byte[3];
-        byte midiByteNumber = 0;
 
         readonly object _lockObject = new Object();
 
@@ -80,11 +122,9 @@ namespace UK101Library
         {
             this.mainPage = mainPage;
             basicProg = new BasicProg();
-            Lines = null;
+            //Lines = null;
             ReadOnly = false;
             ACIAStatus = 0x00;
-            line = 0;
-            pos = 0;
 
             // 12/09/2021 JPG change the timer
 
@@ -95,9 +135,9 @@ namespace UK101Library
             _timer = new Timer(Timer_Tick, null, Timeout.Infinite, 10); // Create the Timer delay starting
 
             SetFlag(ACIA_STATUS_RDRF);
-            midiBuffer = new byte[256];
-            inpointer = 0;
-            outpointer = 0;
+            //midiBuffer = new byte[256];
+            //inpointer = 0;
+            //outpointer = 0;
             FileInputStream = null;
             FileOutputStream = null;
         }
@@ -105,8 +145,6 @@ namespace UK101Library
         #endregion
         #region Properties
 
-        public BasicProg basicProg { get; set; }
-        //public string[] CurrentFile { get; set; }
         public Stream FileInputStream { get; set; }
         public long FileInputStreamLength { get; set; }
         public Stream FileOutputStream { get; set; }
@@ -160,90 +198,110 @@ namespace UK101Library
                     case IO_MODE_6820_TAPE:
                         _timer.Change(0, 10);   // Start the timer
                         ResetFlag(ACIA_STATUS_RDRF);
-                        if (line < Lines.Length)
+                        if (FileInputStream.Position < FileInputStream.Length)
                         {
-                            if (pos > Lines[line].Length - 1)
-                            {
-                                if (Lines[line] == "RUN")
-                                {
-                                    // Special treatment.
-                                    // People useD to put "RUN" at end of listing in order to run the app,
-                                    // followed by on last line containing only one space.
-                                    // The manual states procedure to use if "RUN" and pace is not included
-                                    // in listing only, and the user is told to get back to normal (not load)
-                                    // mode by pressing space and then enter.
-                                    // However, this does not work here, so if a "RUN" line is encountered
-                                    // we must tell keyboard input routine to reset the load:
-                                    mainPage.CSignetic6502.MemoryBus.Keyboard.loadResetIsNeeded = true;
-                                }
-                                line++;
-                                pos = 0;
-                                GC.Collect();
-                                return 0x0d;
-                            }
-                            else
-                            {
-                                b = (byte)Lines[line][pos++];
-                                return b;
-                            }
-                        }
-                        return 0x00;
-                    case IO_MODE_6820_MIDI:
-                        // If this is the last byte received for now, set flag to indicate 'no data available':
-                        if ((byte)(outpointer + 1) == inpointer)
-                        {
-                            ResetFlag(ACIA_STATUS_RDRF);
-                        }
-                        return midiBuffer[outpointer++];
-                    case IO_MODE_6820_SERIAL:
-                        if (inStream != null)
-                        {
-                            Byte = inStream.ReadByte();
+                            Byte = (byte)FileInputStream.ReadByte();
                             if (Byte > -1)
                             {
+                                Debug.WriteLine("Byte=" + Byte);
+                                if ((Byte == 0x0d) || (Byte == 0x0a))
+                                {
+                                    GC.Collect();
+                                    return 0x0d;
+                                }
                                 return (byte)Byte;
                             }
-                            else
-                            {
-                                inStream.Close();
-                                inStream = null;
-                            }
                         }
-                        return 0x00;
-                    case IO_MODE_6820_FILE:
-                        //while (CharNumber >= CurrentFile[LineNumber].Length)
+                        else
+                        {
+                            FileInputStream.Close();
+                            FileInputStream = null;
+                        }
+
+
+                        //if (line < Lines.Length)
                         //{
-                        //    CharNumber = 0;
-                        //    LineNumber++;
-                        //}
-                        //if (LineNumber < CurrentFile.Length)
-                        //{
-                        //    if (CurrentFile[LineNumber][CharNumber++] != 0x0a)
+                        //    if (pos > Lines[line].Length - 1)
                         //    {
-                        //        return (byte)CurrentFile[LineNumber][CharNumber];
+                        //        if (Lines[line] == "RUN")
+                        //        {
+                        //            // Special treatment.
+                        //            // People useD to put "RUN" at end of listing in order to run the app,
+                        //            // followed by on last line containing only one space.
+                        //            // The manual states procedure to use if "RUN" and pace is not included
+                        //            // in listing only, and the user is told to get back to normal (not load)
+                        //            // mode by pressing space and then enter.
+                        //            // However, this does not work here, so if a "RUN" line is encountered
+                        //            // we must tell keyboard input routine to reset the load:
+                        //            mainPage.CSignetic6502.MemoryBus.Keyboard.loadResetIsNeeded = true;
+                        //        }
+                        //        line++;
+                        //        pos = 0;
+                        //        GC.Collect();
+                        //        return 0x0d;
+                        //    }
+                        //    else
+                        //    {
+                        //        b = (byte)Lines[line][pos++];
+                        //        return b;
                         //    }
                         //}
-                        if (FileInputStream != null)
+                        return 0x00;
+                    case IO_MODE_6820_SERIAL:
                         {
-                            Byte = FileInputStream.ReadByte();
-                            // BASIC uses only 0d for line feeds, remove 0a:
-                            if (Byte == 10)
+                            if (inStream != null)
+                            {
+                                Byte = inStream.ReadByte();
+                                if (Byte > -1)
+                                {
+                                    return (byte)Byte;
+                                }
+                                else
+                                {
+                                    inStream.Close();
+                                    inStream = null;
+                                }
+                            }
+                            return 0x00;
+                        }
+                    case IO_MODE_6820_FILE:
+                        {
+                            //while (CharNumber >= CurrentFile[LineNumber].Length)
+                            //{
+                            //    CharNumber = 0;
+                            //    LineNumber++;
+                            //}
+                            //if (LineNumber < CurrentFile.Length)
+                            //{
+                            //    if (CurrentFile[LineNumber][CharNumber++] != 0x0a)
+                            //    {
+                            //        return (byte)CurrentFile[LineNumber][CharNumber];
+                            //    }
+                            //}
+                            if (FileInputStream != null)
                             {
                                 Byte = FileInputStream.ReadByte();
+                                // BASIC uses only 0d for line feeds, remove 0a:
+                                if (Byte == 10)
+                                {
+                                    Byte = FileInputStream.ReadByte();
+                                }
+                                if (Byte > -1)
+                                {
+                                    return (byte)Byte;
+                                }
+                                else
+                                {
+                                    FileInputStream.Close();
+                                    FileInputStream = null;
+                                }
                             }
-                            if (Byte > -1)
-                            {
-                                return (byte)Byte;
-                            }
-                            else
-                            {
-                                FileInputStream.Close();
-                                FileInputStream = null;
-                            }
+                            return 0xff;
                         }
-                        return 0xff;
                     default:
-                        return 0xff;
+                        {
+                            return 0xff;
+                        }
                 }
             }
             else
@@ -252,23 +310,22 @@ namespace UK101Library
                 switch (mode)
                 {
                     case IO_MODE_6820_TAPE:
-                        if (line < Lines.Length)
                         {
-                            return ACIAStatus;
-                        }
-                        else
-                        {
-                            return 0;
-                        }
-                    case IO_MODE_6820_MIDI:
-                        if ((ACIAStatus & ACIA_STATUS_TDRE) == ACIA_STATUS_TDRE)
-                        {
-                            SetFlag(ACIA_STATUS_TDRE);
-                            return ACIAStatus;
-                        }
-                        else
-                        {
-                            return ACIAStatus;
+                            if (FileInputStream != null)
+                            {
+                                if (FileInputStream.Position < FileInputStream.Length)
+                                {
+                                    return (ACIAStatus);
+                                }
+                                else
+                                {
+                                    return (0);
+                                }
+                            }
+                            else
+                            {
+                                return (0);
+                            }
                         }
                     case IO_MODE_6820_FILE:
                         return ACIAStatus;
@@ -291,24 +348,10 @@ namespace UK101Library
                 switch (mode)
                 {
                     case IO_MODE_6820_TAPE:
-                        break;
-                    case IO_MODE_6820_MIDI:
-                        if ((InData & 0x80) == 0x80)
+                        if (outStream != null)
                         {
-                            midiByteNumber = 0;
+                            outStream.WriteByte(InData);
                         }
-                        midiBuffer[midiByteNumber++] = InData;
-                        if (midiByteNumber > 2)
-                        {
-                            if (midiBuffer[0] == 0x90 && midiBuffer[1] > 0)
-                            {
-                                //mainPage.Midi.NoteOn(0, midiBuffer[1], midiBuffer[2]);
-                            }
-                            midiByteNumber = 0;
-                        }
-                        //byte[] buffer = new byte[] { InData };
-                        //IBuffer ibuffer = buffer.AsBuffer();
-                        //mainPage.Midi.midiOutPort.SendBuffer(ibuffer);
                         break;
                     case IO_MODE_6820_SERIAL:
                         if (outStream != null)
@@ -384,23 +427,24 @@ namespace UK101Library
             }
         }
 
-        #endregion
-
         ///////////////////////////////////////////////////////////////////////////////////
         // Helpers:
         ///////////////////////////////////////////////////////////////////////////////////
 
         // Set a flag:
-        public void SetFlag(byte Flag)
+        private void SetFlag(byte Flag)
         {
             ACIAStatus = (byte)(ACIAStatus | Flag);
         }
 
         // Reset a flag:
-        public void ResetFlag(byte Flag)
+        private void ResetFlag(byte Flag)
         {
             ACIAStatus = (byte)(ACIAStatus & ~Flag);
         }
+
+        #endregion
+
     }
 
     //public class OneByteBuffer : IBuffer
