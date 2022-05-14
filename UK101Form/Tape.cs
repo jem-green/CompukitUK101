@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -20,58 +21,145 @@ namespace UK101Form
         // First port the file mechnism to here
         // then consider refactoring
 
-        MainPage _mainPage;
         private Timer _timer;
         MemoryStream _memoryStream;
-        BinaryWriter binaryWriter;
+        BinaryWriter _binaryWriter;
         readonly object _lockObject = new Object();
+        TapeMode _mode = TapeMode.Stopped;
+        IPeripheralIO _peripheralIO;
+        string _filename = "";
+
+        [Flags]
+        public enum TapeMode : byte
+        {
+            Stopped = 0,
+            Playing  = 1,
+            Recording = 2
+        }
 
         #endregion
         #region Constructors
 
-        public Tape(MainPage mainPage)
+        public Tape(IPeripheralIO peripheralIO)
         {
-            _mainPage = mainPage;
-            basicProg = new BasicProg();
-            Lines = null;
-            _timer = new Timer(Timer_Tick, null, Timeout.Infinite, 10); // Create the Timer delay starting
-            
+            _peripheralIO = peripheralIO;
+            _timer = new Timer(Timer_Tick, null, Timeout.Infinite, 10); // Create the Timer, delay starting     
         }
 
         #endregion
         #region Propertes
 
-        public BasicProg basicProg { get; set; }
-        public String[] Lines { get; set; }
-        public Int16 line { get; set; }
+        public TapeMode Mode
+        {
+            get
+            {
+                return (_mode);
+            }
+        }
+
+        public string Filename
+        {
+            get
+            {
+                return (_filename);
+            }
+            set
+            {
+                _filename = value;
+            }
+        }
+
+        public bool IsPlaying
+        {
+            get
+            {
+                return ((_mode & TapeMode.Playing) == TapeMode.Playing);
+            }
+        }
+
+        public bool IsRecoding
+        {
+            get
+            {
+                return ((_mode & TapeMode.Recording) == TapeMode.Recording);
+            }
+        }
+
+        public bool IsStopped
+        {
+            get
+            {
+                return ((_mode & TapeMode.Stopped) == TapeMode.Stopped);
+            }
+        }
 
         #endregion
+        #region Methods
 
-
-        public void Load()
+        public void Open()
         {
+            _timer.Change(0, 10);
+        }
 
+        public void Close()
+        {
+            _timer.Change(Timeout.Infinite, Timeout.Infinite);
+            _timer.Dispose();
+            _timer = null;
+        }
+
+        public void Stop()
+        {
+            Stop(_filename);
         }
 
         public void Stop(string filename)
         {
-            if (File.Exists(filename) == true)
-            {
-                try
-                {
-                    File.Delete(filename);
-                }
-                catch
-                {
-                    throw new Exception("File exists");
-                }
-            }
+            // If recording then when the tape is stopped
+            // save the data
 
-            _memoryStream.Seek(0, SeekOrigin.Begin);
-            using (FileStream fs = new FileStream(filename, FileMode.OpenOrCreate))
+            if (_mode == TapeMode.Recording)
             {
-                _memoryStream.CopyTo(fs);
-                fs.Flush();
+                if (File.Exists(filename) == true)
+                {
+                    try
+                    {
+                        File.Delete(filename);
+                    }
+                    catch
+                    {
+                        throw new Exception("File exists");
+                    }
+                }
+
+                _memoryStream.Seek(0, SeekOrigin.Begin);
+                using (FileStream fs = new FileStream(filename, FileMode.OpenOrCreate))
+                {
+                    _memoryStream.CopyTo(fs);
+                    fs.Flush();
+                }
+                
+                // Was transmitting to tape
+                // Not sure how well this needs closing and disposing of
+                _peripheralIO.Transmit.Close();
+                _peripheralIO.Transmit.Dispose();
+                _peripheralIO.Transmit = null;
+                _memoryStream.Close();
+                _memoryStream.Dispose();
+                _memoryStream = null;
+                _mode = TapeMode.Stopped;
+            }
+            else if (_mode == TapeMode.Playing)
+            {
+                // Was recieving from tape
+                // Not sure how well this needs closing and disposing of
+                _peripheralIO.Receive.Close();
+                _peripheralIO.Receive.Dispose();
+                _peripheralIO.Receive = null;
+                _memoryStream.Close();
+                _memoryStream.Dispose();
+                _memoryStream = null;
+                _mode = TapeMode.Stopped;
             }
         }
 
@@ -79,31 +167,56 @@ namespace UK101Form
         {
             // Create a file stream
             // How do we detect when the stream has stopped being
-            // written to by the ACIA
+            // written to by the ACIA. The answer is you cannot so
+            // its a manual stop. The UK101 logic appeears to be
+            // use LOAD command to stop the ACIA
 
-            _memoryStream = new MemoryStream();
-            _memoryStream.Seek(0, SeekOrigin.Begin);
-            _mainPage.CSignetic6502.MemoryBus.ACIA.FileOutputStream = _memoryStream;
+            if (_mode == TapeMode.Stopped)
+            {
+                _mode = TapeMode.Recording;
+                _memoryStream = new MemoryStream();
+                _memoryStream.Seek(0, SeekOrigin.Begin);
+                _peripheralIO.Transmit = _memoryStream;     // Transmit to tape
+            }
+            else
+            {
+                Debug.WriteLine("Tape is not stopped");
+            }
+        }
 
+        public void Play()
+        {
+            Play(_filename);
         }
 
         public void Play(string filename)
         {
-            if (File.Exists(filename) == true)
+            if (_mode == TapeMode.Stopped)
             {
-                _memoryStream = new MemoryStream();
-                FileStream file = new FileStream(filename, FileMode.Open, FileAccess.Read);
+                if (File.Exists(filename) == true)
+                {
+                    _mode = TapeMode.Playing;
+                    _memoryStream = new MemoryStream();
+                    FileStream file = new FileStream(filename, FileMode.Open, FileAccess.Read);
 
-                file.CopyTo(_memoryStream);
-                _memoryStream.Seek(0, SeekOrigin.Begin);    // Move to the beginning of the file
-                _mainPage.CSignetic6502.MemoryBus.ACIA.FileInputStream = _memoryStream;
+                    file.CopyTo(_memoryStream);
+                    _memoryStream.Seek(0, SeekOrigin.Begin);   
+                                                             
+                    _peripheralIO.Receive = _memoryStream;  // Recieve from tape
+                }
+                else
+                {
+                    Debug.WriteLine("File missing");
+                }
             }
             else
             {
-                throw new Exception("File missing");
+                Debug.WriteLine("Tape is not stopped");
             }
         }
 
+        #endregion
+        #region Private
 
         private void Timer_Tick(object sender)
         {
@@ -117,12 +230,19 @@ namespace UK101Form
                     if (data != -1)
                     {
                         b = (byte)data;
-                        binaryWriter.Write(b);
-                        binaryWriter.Flush();
+
+                        // Slightly different approach was to 
+                        // write out the bytes as they were added to the 
+                        // memory stream by the ACIA. Currently have chosen
+                        // a stop method and do the write at the end
+
+                        _binaryWriter.Write(b);
+                        _binaryWriter.Flush();
                     }
                 }
                 while (1 == 1);
             }
         }
+        #endregion
     }
 }

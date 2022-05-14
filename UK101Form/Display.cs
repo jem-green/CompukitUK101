@@ -1,10 +1,7 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Drawing;
 using System.Drawing.Imaging;
-using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
 using UK101Library;
 
 namespace UK101Form
@@ -16,35 +13,163 @@ namespace UK101Form
         // library as it will depend on the client view form/console/app
 
         // The UK1010 block digram indicates that
-        // VdURAM -> CHARGEN -> PISO -> SYNC -> UHF MOD - TV
+        // VdURAM -> CHARGEN -> PISO -> SYNC -> UHF MOD - TV(display)
 
         // 
 
         // PISO - parallel in serial out
-
         // So we can cover
         // start offset - simulate the elements that cannot be viewed by the TV
         // end offset - 
         // lines - simulate a 16 line or 32 line display depending on the country
         // scaling to make readable on the PC.
 
-        CHARGEN _chargen;
-        int _width = 64;
-        int _height = 32;
-        int Horizontal = 8;
-        int Vertical = 8;
-        MainPage _mainPage;
+        #region Event handling
 
-        public Display(MainPage mainPage)
+        /// <summary>
+        /// Occurs when the Zmachine recives a message.
+        /// </summary>
+        public event EventHandler<TextEventArgs> TextReceived;
+
+        /// <summary>
+        /// Handles the actual event
+        /// </summary>
+        /// <param name="e"></param>
+        protected virtual void OnTextReceived(TextEventArgs e)
         {
-            _mainPage = mainPage;
+            EventHandler<TextEventArgs> handler = TextReceived;
+            if (handler != null)
+                handler(this, e);
+        }
+
+        #endregion
+        #region Fields
+
+        private CHARGEN _chargen;
+
+        private int _columns = 64;      // Full display width for memory calculation
+        private int _rows = 32;         // Full display height for memory calculation
+
+        private int _width = 64;        // width of visible display
+        private int _height = 32;       // height of visible display
+        private int _left = 0;          // Left offset of start of visible display
+        private int _top = 0;           // top offset of start of visbible dsiplay
+
+        private int _horizontal = 8;    // Number of pixels
+        private int _vertical = 8;      // Number of pixels
+
+        private byte[] _store;
+
+        IPeripheralIO _peripheralIO;
+
+        #endregion
+        #region Consructors
+
+        // Not much like dependency injection
+
+        public Display()
+        {
+            _store = new byte[_columns * _rows];
+        }
+
+        #endregion
+        #region Properties
+
+        public int Columns
+        {
+            get
+            { 
+                return _columns;
+            }
+            set
+            {
+                _columns = value;
+            }
+        }
+
+        public int Rows
+        {
+            get
+            {
+                return _rows;
+            }
+            set
+            {
+                _rows = value;
+            }
+        }
+
+        public int Width
+        {
+            get
+            { 
+                return _width;
+            }
+            set
+            {
+                _width = value;
+            }
+        }
+
+
+        public int Height
+        {
+            get
+            {
+                return _height;
+            }
+            set
+            {
+                _height = value;
+            }
+        }
+
+        public int Left
+        {
+            get
+            { 
+                return _left;
+            }
+            set
+            { 
+                _left = value;
+            }
+        }
+
+        public int Top
+        {
+            get 
+            {
+                return _top;
+            }
+            set
+            {
+                _top = value;
+            }
+        }
+
+
+        public CHARGEN CharacterGenerator
+        {
+            set
+            {
+                _chargen = value;
+            }
+        }
+
+        #endregion
+        #region Methods
+
+        public void Write(int column, int row, byte character)
+        {
+            _store[column + row * _columns] = character;
         }
 
         public Bitmap Generate()
         {
             // Need to get the scaling factor sorted
 
-            Bitmap bmp = new Bitmap(_width * Horizontal, _height * Vertical, PixelFormat.Format8bppIndexed);
+            Bitmap bmp = new Bitmap(_width * _horizontal, _height * _vertical, PixelFormat.Format8bppIndexed);
 
             BitmapData bmpCanvas = bmp.LockBits(new Rectangle(0, 0, bmp.Width, bmp.Height), ImageLockMode.WriteOnly, PixelFormat.Format8bppIndexed);
 
@@ -57,18 +182,18 @@ namespace UK101Form
             int size = bmp.Width * bmp.Height;
             byte[] rgbValues = new byte[size];
 
-            int rows = _height;
-            int columns = _width;
+            int rows = _rows;
+            int columns = _columns;
             int hbits = 8;
             int vbits = 8;
 
             // work across character by character
 
-            for (int row = 0; row < rows; row++)
+            for (int row = _top; row < _height; row++)
             {
-                for (int column = 0; column < columns; column++)
+                for (int column = _left; column < _width; column++)
                 {
-                    byte character = _mainPage.CSignetic6502.MemoryBus.VDU.pData[column + row * columns];
+                    byte character = _store[column + row * _columns];
                     if (character != 32)
                     {
                         for (int i = 0; i < vbits; i++) // rows
@@ -79,7 +204,7 @@ namespace UK101Form
                                 byte val = (byte)(data & (byte)Math.Pow(2, 7 - j));
                                 if (val > 0)
                                 {
-                                    rgbValues[(row * hbits + i) * columns * vbits + column * vbits + j] = 255;
+                                    rgbValues[(row * hbits + i) * _width * vbits + column * vbits + j] = 255;
                                 }
                             }
                         }
@@ -95,6 +220,6 @@ namespace UK101Form
             return (bmp);
         }
 
-
+        #endregion
     }
 }

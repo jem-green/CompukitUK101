@@ -11,6 +11,20 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UK101Form", "UK101Form\UK10
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "KansasCityStandard", "KansasCityStandard\KansasCityStandard.csproj", "{5675D2D9-1ED0-473F-99CD-AD25C96A79F5}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "ThirdParty", "ThirdParty", "{1A536CAC-4DC8-4F69-9869-19F9A1A2A5BB}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Tracer", "Tracer", "{42D0CA52-03BC-4FAB-8E0C-95DC21CF9962}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "netcoreapp3.1", "netcoreapp3.1", "{2EAB893F-7ACD-4111-9BCE-C780635FB5D3}"
+	ProjectSection(SolutionItems) = preProject
+		ThirdParty\Tracer\netcoreapp3.1\TracerLibrary.dll = ThirdParty\Tracer\netcoreapp3.1\TracerLibrary.dll
+	EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "net452", "net452", "{DEDF82F2-D191-460D-B2C6-891B922B691F}"
+	ProjectSection(SolutionItems) = preProject
+		ThirdParty\Tracer\net452\TracerLibrary.dll = ThirdParty\Tracer\net452\TracerLibrary.dll
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -36,6 +50,11 @@ Global
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{42D0CA52-03BC-4FAB-8E0C-95DC21CF9962} = {1A536CAC-4DC8-4F69-9869-19F9A1A2A5BB}
+		{2EAB893F-7ACD-4111-9BCE-C780635FB5D3} = {42D0CA52-03BC-4FAB-8E0C-95DC21CF9962}
+		{DEDF82F2-D191-460D-B2C6-891B922B691F} = {42D0CA52-03BC-4FAB-8E0C-95DC21CF9962}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {B352E6C5-3BC1-4A8E-9810-B7BB6263E21F}

@@ -27,11 +27,8 @@ namespace UK101Library
         //public List<String> MidiInputDevices { get; set; }
         //public List<String> MidiOutputDevices { get; set; }
 
-        private MainPage mainPage;
-
-        public MIDI(MainPage mainPage)
+        public MIDI()
         {
-            this.mainPage = mainPage;
         }
 
         // Constructor using a combobox for full device watch:

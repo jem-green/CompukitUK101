@@ -30,11 +30,10 @@ namespace UK101Library
         void GetBuffer(out byte* buffer, out uint capacity);
     }
 
-    public class MicToMidi : CMemoryBusDevice
+    public class MicToMidi : MemoryBusDevice
     {
         //AudioDeviceInputNode MicToMidiInput { get; set; }
 
-        private MainPage mainPage;
         //private AudioGraph audioGraph;
         //private AudioDeviceInputNode deviceInputNode;
         //private AudioFrameOutputNode frameOutputNode;
@@ -43,9 +42,8 @@ namespace UK101Library
         //private Int32 periodLengthUK101;
 
 
-        public MicToMidi(MainPage mainPage)
+        public MicToMidi()
         {
-            this.mainPage = mainPage;
             //Init();
         }
 

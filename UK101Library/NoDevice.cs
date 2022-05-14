@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace UK101Library
 {
-    public class NoDevice : CMemoryBusDevice
+    public class NoDevice : MemoryBusDevice
     {
         public override byte Read()
         {

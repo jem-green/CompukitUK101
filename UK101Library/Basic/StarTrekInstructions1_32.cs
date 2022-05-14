@@ -1,4 +1,4 @@
-namespace UK101Library
+namespace CompukitLibrary
 {
 	public partial class BasicProg 
 	{

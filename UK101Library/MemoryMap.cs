@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace UK101Library
 {
-    class MemoryMap
+    public class MemoryMap
     {
         public byte[] Map = new byte[0x10000];
 
@@ -18,7 +18,7 @@ namespace UK101Library
                 {
                     Map[Address] = 0;
                 }
-                else if (Address >= 0xf000 && Address <= 0xf0ff)
+                else if (Address >= 0xf000 && Address <= 0xf0ff)    // ACAI Device[1]
                 {
                     Map[Address] = 1;
                 }
@@ -26,7 +26,7 @@ namespace UK101Library
                 {
                     Map[Address] = 2;
                 }
-                else if (Address >= 0xd000 && Address <= 0xd7ff)
+                else if (Address >= 0xd000 && Address <= 0xd7ff)    // VDU Device[3]
                 {
                     Map[Address] = 3;
                 }

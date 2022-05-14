@@ -1,0 +1,137 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Drawing;
+using System.Drawing.Imaging;
+using System.Text;
+using System.Threading;
+
+namespace UK101Library
+{
+    /// <summary>
+    /// This is the VDU RAM
+    /// </summary>
+    public class VDU : MemoryBusDevice
+    {
+        // There are some elements here that i would
+        // like to separate out so that the display can
+        // have specific settings that just read the VDU data
+        // The advantage currently is that the display isnt polling
+        // the memory but gets a notification when the data changes
+
+
+        #region Variables
+
+        public bool inScene;
+        public byte[] pData;
+        public byte pCharData;
+        public bool Changed;
+        private IPeripheralIO _peripheralIO;
+        private byte numberOfLines;
+
+        #endregion
+        #region Constructor
+        public VDU(IPeripheralIO peripheralIO)
+        {
+            _peripheralIO = peripheralIO;
+            RAMSize = 4096;
+            pData = new byte[RAMSize];
+        }
+
+        #endregion
+        #region Properties
+
+        public UInt16 RAMSize { get; set; }
+
+        #endregion
+        #region Methods
+
+        // Window size in CEGMON is stored at 0x0222 - 0x0226 (546 - 550):
+        // SWIDTH column width (-1)     0x0222 = 0x2f (47)
+        // SLTOP low byte of top        0x0223 = 0x0c (12)
+        // SHTOP high byte of top       0x0224 = 0xd0 (208)
+        // SLBASE low byte of base      0x0225 = 0xcc (204)
+        // SHBASE high byte of base     0x0226 = 0xd3 (211)
+        // Number of lines in CEGMON is stored at 0X0223 (547) and 0x0225 (549)
+        // 0x0c (12), 0xcc (204) = 32 lines
+        // 0x0c (12), 0xa0 (160) = 16 lines
+        // Cursor Y position in 0x0200 (512)
+        // CEGMON will reinitialize thos at reset, so to make screen 16 lines 
+        // we have to patch CEGMON:
+        // 0xfbc0 (in CEGMON file byte 0x3c0 (960)) = 0xd7 for 32 lines and 0x37 for 16 lines.
+        public void SetScreenSize(int lines)
+        {
+            if (lines == 16)
+            {
+                //mainPage.CSignetic6502.MemoryBus.Monitor.pData[0x3bc] = 0x2f;
+                //mainPage.CSignetic6502.MemoryBus.Monitor.pData[0x3bd] = 0x4c;
+                //mainPage.CSignetic6502.MemoryBus.Monitor.pData[0x3be] = 0xd0;
+                //mainPage.CSignetic6502._memoryBus.Monitor.pData[0x3bf] = 0x8c;
+                //mainPage.CSignetic6502._memoryBus.Monitor.pData[0x3c0] = 0xd3;
+                //mainPage.CSignetic6502.MemoryBus.RAM.pData[0x0222] = 0x47;
+                //mainPage.CSignetic6502.MemoryBus.RAM.pData[0x0223] = 0x0c;
+                //mainPage.CSignetic6502.MemoryBus.RAM.pData[0x0224] = 0xd0;
+                //mainPage.CSignetic6502.MemoryBus.RAM.pData[0x0225] = 0xcc;
+                //mainPage.CSignetic6502.MemoryBus.RAM.pData[0x0226] = 0xd1;
+            }
+            else
+            {
+                //mainPage.CSignetic6502.MemoryBus.Monitor.pData[0x3bc] = 0x2f;
+                //mainPage.CSignetic6502.MemoryBus.Monitor.pData[0x3bd] = 0x4c;
+                //mainPage.CSignetic6502.MemoryBus.Monitor.pData[0x3be] = 0xd0;
+                //mainPage.CSignetic6502._memoryBus.Monitor.pData[0x3bf] = 0x8c;
+                //mainPage.CSignetic6502._memoryBus.Monitor.pData[0x3c0] = 0xd7;
+                //mainPage.CSignetic6502.MemoryBus.RAM.pData[0x0222] = 0x47;
+                //mainPage.CSignetic6502.MemoryBus.RAM.pData[0x0223] = 0x0c;
+                //mainPage.CSignetic6502.MemoryBus.RAM.pData[0x0224] = 0xd0;
+                //mainPage.CSignetic6502.MemoryBus.RAM.pData[0x0225] = 0xcc;
+                //mainPage.CSignetic6502.MemoryBus.RAM.pData[0x0226] = 0xd3;
+            }
+        }
+
+
+        public void Init()
+        {
+
+            Random random = new Random(43);
+            byte[] garbage = new byte[32 * 64];
+            random.NextBytes(garbage);
+
+            // simulate the random data
+
+            int rows = 32;
+            int columns = 64;
+
+            for (int row = 0; row < rows; row++)
+            {
+                for (int column = 0; column < columns; column++)
+                {
+                    pData[column + row * columns] = garbage[column + row * columns];
+                    _peripheralIO.Out(row, column, garbage[column + row * columns],false);
+                }
+            }
+        }
+
+        public void ClearScreen()
+        {
+            // May need to clear the screen
+        }
+
+        public override void Write(byte InData)
+        {
+            Int32 position = Address - StartsAt;
+            pData[position] = InData;;
+            byte column = (byte)(position % 64);
+            byte row = (byte)(position / 64);
+            _peripheralIO.Out(row, column, InData, true);
+        }
+
+        public override byte Read()
+        {
+            return pData[Address - StartsAt];
+        }
+
+        #endregion
+        #region Private
+        #endregion
+    }
+}

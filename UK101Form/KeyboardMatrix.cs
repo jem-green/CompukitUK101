@@ -107,6 +107,8 @@ namespace UK101Form
             _normal = new Dictionary<Keys, Key>();
             _shift = new Dictionary<Keys, Key>();
 
+            // Row zero
+
             _normal.Add(Keys.D1, new Key(Keys.D1, 0, 0, false));                // 1
             _normal.Add(Keys.D2, new Key(Keys.D2, 0, 1, false));                // 2
             _normal.Add(Keys.D3, new Key(Keys.D3, 0, 2, false));                // 3
@@ -115,18 +117,26 @@ namespace UK101Form
             _normal.Add(Keys.D6, new Key(Keys.D6, 0, 5, false));                // 6
             _normal.Add(Keys.D7, new Key(Keys.D7, 0, 6, false));                // 7
 
+            // Row One
+
             _normal.Add(Keys.D8, new Key(Keys.D8, 1, 0, false));                // 8
             _normal.Add(Keys.D9, new Key(Keys.D9, 1, 1, false));                // 9
             _normal.Add(Keys.D0, new Key(Keys.D0, 1, 2, false));                // 0
-
+            //_normal.Add(Keys.Oem1, new Key(Keys.Oem1, 1, 3, false));          // :
             _normal.Add(Keys.OemMinus, new Key(Keys.OemMinus, 1, 4, false));    // -
             _normal.Add(Keys.Back, new Key(Keys.Delete, 1, 5, false));          // RUB OUT
+
+            // Row Two
 
             _normal.Add(Keys.OemPeriod, new Key(Keys.OemPeriod, 2, 0, false));  // .
             _normal.Add(Keys.L, new Key(Keys.L, 2, 1, false));                  // l
             _normal.Add(Keys.O, new Key(Keys.O, 2, 2, false));                  // o
             _normal.Add(Keys.Up, new Key(Keys.Up, 2, 3, false));                // ^
             _normal.Add(Keys.Enter, new Key(Keys.Enter, 2, 4, false));          // CR
+            // 5 - Nothing
+            // 6 - Nothing
+
+            // Row Three
 
             _normal.Add(Keys.W, new Key(Keys.W, 3, 0, false));                  // w
             _normal.Add(Keys.E, new Key(Keys.E, 3, 1, false));                  // e
@@ -136,6 +146,8 @@ namespace UK101Form
             _normal.Add(Keys.U, new Key(Keys.U, 3, 5, false));                  // u
             _normal.Add(Keys.I, new Key(Keys.I, 3, 6, false));                  // i
 
+            // Row Four
+
             _normal.Add(Keys.S, new Key(Keys.S, 4, 0, false));                  // s
             _normal.Add(Keys.D, new Key(Keys.D, 4, 1, false));                  // d
             _normal.Add(Keys.F, new Key(Keys.F, 4, 2, false));                  // f
@@ -143,6 +155,8 @@ namespace UK101Form
             _normal.Add(Keys.H, new Key(Keys.H, 4, 4, false));                  // h
             _normal.Add(Keys.J, new Key(Keys.J, 4, 5, false));                  // j
             _normal.Add(Keys.K, new Key(Keys.K, 4, 6, false));                  // k
+
+            // Row Five
 
             _normal.Add(Keys.X, new Key(Keys.X, 5, 0, false));                  // x
             _normal.Add(Keys.C, new Key(Keys.C, 5, 1, false));                  // c
@@ -152,6 +166,8 @@ namespace UK101Form
             _normal.Add(Keys.M, new Key(Keys.M, 5, 5, false));                  // m
             _normal.Add(Keys.Oemcomma, new Key(Keys.Oemcomma, 5, 6, false));    // ,
 
+            // Row Six
+
             _normal.Add(Keys.Q, new Key(Keys.Q, 6, 0, false));                  // q
             _normal.Add(Keys.A, new Key(Keys.A, 6, 1, false));                  // a
             _normal.Add(Keys.Z, new Key(Keys.Z, 6, 2, false));                  // z
@@ -160,10 +176,18 @@ namespace UK101Form
             _normal.Add(Keys.Oem1, new Key(Keys.Oem1, 6, 5, false));            // ;
             _normal.Add(Keys.P, new Key(Keys.P, 6, 6, false));                  // p
 
-            _normal.Add(Keys.ControlKey, new Key(Keys.ControlKey, 7, 1, false));  // CTRL
-            _normal.Add(Keys.LShiftKey, new Key(Keys.LShiftKey, 7, 5, false));    // Left SHIFT
-            _normal.Add(Keys.RShiftKey, new Key(Keys.RShiftKey, 7, 6, false));    // Right SHIFT
-            _normal.Add(Keys.Capital, new Key(Keys.Capital, 7, 7, false));        // SHIFT-LOCK
+            // Row Seven
+
+            // 0 - Nothing
+            _normal.Add(Keys.ControlKey, new Key(Keys.ControlKey, 7, 1, false)); 
+			// 2 - Nothing
+            // 3 - Nothing
+            // 4 - Nothing // CTRL
+            _normal.Add(Keys.LShiftKey, new Key(Keys.LShiftKey, 7, 5, false));  // Left SHIFT
+            _normal.Add(Keys.RShiftKey, new Key(Keys.RShiftKey, 7, 6, false));  // Right SHIFT
+            _normal.Add(Keys.Capital, new Key(Keys.Capital, 7, 7, false));      // SHIFT-LOCK
+                                                                                      //_normal.Add(ConsoleKey.Pause, new Key(ConsoleKey.Pause, 7, 6, false));    // Right SHIFT
+                                                                                      //_normal.Add(ConsoleKey.Capital, new Key(ConsoleKey.Capital, 7, 7, false));        // SHIFT-LOCK
 
             // Special keys
 
@@ -229,20 +253,23 @@ namespace UK101Form
             _shift.Add(Keys.Oemplus, new Key(Keys.Oemplus, 6, 5, true));            // +
             _shift.Add(Keys.P, new Key(Keys.P, 6, 6, true));                        // P
             
+            // Row Seven
 
+            // 0 - Nothing
             _shift.Add(Keys.ControlKey, new Key(Keys.ControlKey, 7, 1, false));     // CTRL
+            // 2 - Nothing
+            // 3 - Nothing
+            // 4 - Nothing
             _shift.Add(Keys.LShiftKey, new Key(Keys.LShiftKey, 7, 5, false));       // Left SHIFT
             _shift.Add(Keys.RShiftKey, new Key(Keys.RShiftKey, 7, 6, false));       // Right SHIFT
             _shift.Add(Keys.Capital, new Key(Keys.Capital, 7, 7, false));           // SHIFT-LOCK
 
             // Special keys
-
-
-            _shift.Add(Keys.Oem1, new Key(Keys.Oem1, 1, 3, false));                 // :
+			
+			_shift.Add(Keys.Oem1, new Key(Keys.Oem1, 1, 3, false));                 // :
             _shift.Add(Keys.OemMinus, new Key(Keys.OemMinus, 1, 4, false));         // -
             _shift.Add(Keys.D6, new Key(Keys.D6, 5, 4, true));                      // ^
             _shift.Add(Keys.Oem3, new Key(Keys.Oem3, 6, 6, true));                  // @
-
             _shift.Add(Keys.Oem8, new Key(Keys.Oem8, 4, 5, true));                  // unknown
         }
 
@@ -263,6 +290,5 @@ namespace UK101Form
             catch { }
             return (key);
         }
-
     }
 }

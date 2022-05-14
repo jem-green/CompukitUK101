@@ -2,7 +2,7 @@ using System;
 
 namespace UK101Library
 {
-	public class BASIC2 : CMemoryBusDevice
+	public class BASIC2 : MemoryBusDevice
 	{
         public UInt16 ROMSize { get; set; }
 

@@ -43,6 +43,10 @@
     <Reference Include="System.Data" />
     <Reference Include="System.Net.Http" />
     <Reference Include="System.Xml" />
+    <Reference Include="TracerLibrary, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\ThirdParty\Tracer\netcoreapp3.1\TracerLibrary.dll</HintPath>
+    </Reference>
     <Reference Include="WindowsBase" />
   </ItemGroup>
   <ItemGroup>
@@ -65,10 +69,11 @@
     <Compile Include="Basic\GraphicAid.cs" />
     <Compile Include="Basic\GraphPlotter.cs" />
     <Compile Include="Basic\Gunfight.cs" />
+    <Compile Include="Keyboard.cs" />
+    <Compile Include="Parameter.cs" />
+    <Compile Include="TextEventArgs.cs" />
+    <Compile Include="UK101.cs" />
     <Content Include="Basic\Gunfight.bas">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="Basic\Hangman.bas">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
     <Compile Include="Basic\Hangman.cs" />
@@ -78,7 +83,6 @@
     <Compile Include="Basic\Mastermind.cs" />
     <Compile Include="Basic\Maze.cs" />
     <Compile Include="Basic\MoonLanding.cs" />
-    <Compile Include="Basic\Mugwump.cs" />
     <Compile Include="Basic\Nim.cs" />
     <Compile Include="Basic\NoughtsAndCrosses.cs" />
     <Compile Include="Basic\OnScreenEditor.cs" />
@@ -98,19 +102,16 @@
     <Compile Include="Basic\Surround.cs" />
     <Compile Include="Basic\TankBattle.cs" />
     <Compile Include="Basic\TheTowerOfBrahma32.cs" />
-    <Compile Include="BasicProg.cs" />
     <Compile Include="C6502Assembler.cs" />
-    <Compile Include="CACIA.cs" />
-    <Compile Include="CClock.cs" />
+    <Compile Include="ACIA.cs" />
+    <Compile Include="Clock.cs" />
     <Compile Include="CharGen\CHARGEN.cs" />
-    <Compile Include="CKeyboard.cs" />
-    <Compile Include="CVDU - Copy.cs" />
-    <Compile Include="MainPage.cs" />
-    <Compile Include="CMemoryBus.cs" />
-    <Compile Include="CMemoryBusDevice.cs" />
-    <Compile Include="CRAM.cs" />
-    <Compile Include="CSignetic6502.cs" />
-    <Compile Include="CVDU.cs" />
+    <Compile Include="VDU.cs" />
+    <Compile Include="IPeripheralIO.cs" />
+    <Compile Include="MemoryBus.cs" />
+    <Compile Include="MemoryBusDevice.cs" />
+    <Compile Include="RAM.cs" />
+    <Compile Include="Signetic6502.cs" />
     <Compile Include="MemoryMap.cs" />
     <Compile Include="MicToMidi.cs" />
     <Compile Include="MIDI.cs" />
