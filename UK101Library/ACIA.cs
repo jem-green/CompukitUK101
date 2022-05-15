@@ -77,7 +77,6 @@ using System.Windows.Threading;
  *
  */
 
-
 namespace UK101Library
 {
     /// <summary>
@@ -554,15 +553,5 @@ namespace UK101Library
         }
 
         #endregion
-
     }
-
-    //public class OneByteBuffer : IBuffer
-    //{
-    //    public uint Capacity { get { return capacity; } set { capacity = value; } }
-
-    //    public uint Length { get { return capacity; } set { capacity = value; } }
-
-    //    uint capacity;
-    //}
 }

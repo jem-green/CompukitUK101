@@ -4,6 +4,7 @@ using System.Drawing;
 using System.Drawing.Imaging;
 using System.Text;
 using System.Threading;
+using System.Diagnostics;
 
 namespace UK101Library
 {
@@ -18,18 +19,17 @@ namespace UK101Library
         // The advantage currently is that the display isnt polling
         // the memory but gets a notification when the data changes
 
-
-        #region Variables
+        #region Fields
 
         public bool inScene;
         public byte[] pData;
         public byte pCharData;
         public bool Changed;
         private IPeripheralIO _peripheralIO;
-        private byte numberOfLines;
 
         #endregion
         #region Constructor
+
         public VDU(IPeripheralIO peripheralIO)
         {
             _peripheralIO = peripheralIO;
@@ -58,36 +58,29 @@ namespace UK101Library
         // CEGMON will reinitialize thos at reset, so to make screen 16 lines 
         // we have to patch CEGMON:
         // 0xfbc0 (in CEGMON file byte 0x3c0 (960)) = 0xd7 for 32 lines and 0x37 for 16 lines.
-        public void SetScreenSize(int lines)
-        {
-            if (lines == 16)
-            {
-                //mainPage.CSignetic6502.MemoryBus.Monitor.pData[0x3bc] = 0x2f;
-                //mainPage.CSignetic6502.MemoryBus.Monitor.pData[0x3bd] = 0x4c;
-                //mainPage.CSignetic6502.MemoryBus.Monitor.pData[0x3be] = 0xd0;
-                //mainPage.CSignetic6502._memoryBus.Monitor.pData[0x3bf] = 0x8c;
-                //mainPage.CSignetic6502._memoryBus.Monitor.pData[0x3c0] = 0xd3;
-                //mainPage.CSignetic6502.MemoryBus.RAM.pData[0x0222] = 0x47;
-                //mainPage.CSignetic6502.MemoryBus.RAM.pData[0x0223] = 0x0c;
-                //mainPage.CSignetic6502.MemoryBus.RAM.pData[0x0224] = 0xd0;
-                //mainPage.CSignetic6502.MemoryBus.RAM.pData[0x0225] = 0xcc;
-                //mainPage.CSignetic6502.MemoryBus.RAM.pData[0x0226] = 0xd1;
-            }
-            else
-            {
-                //mainPage.CSignetic6502.MemoryBus.Monitor.pData[0x3bc] = 0x2f;
-                //mainPage.CSignetic6502.MemoryBus.Monitor.pData[0x3bd] = 0x4c;
-                //mainPage.CSignetic6502.MemoryBus.Monitor.pData[0x3be] = 0xd0;
-                //mainPage.CSignetic6502._memoryBus.Monitor.pData[0x3bf] = 0x8c;
-                //mainPage.CSignetic6502._memoryBus.Monitor.pData[0x3c0] = 0xd7;
-                //mainPage.CSignetic6502.MemoryBus.RAM.pData[0x0222] = 0x47;
-                //mainPage.CSignetic6502.MemoryBus.RAM.pData[0x0223] = 0x0c;
-                //mainPage.CSignetic6502.MemoryBus.RAM.pData[0x0224] = 0xd0;
-                //mainPage.CSignetic6502.MemoryBus.RAM.pData[0x0225] = 0xcc;
-                //mainPage.CSignetic6502.MemoryBus.RAM.pData[0x0226] = 0xd3;
-            }
-        }
-
+        //
+        // 16 rows
+        // Monitor.pData[0x3bc] = 0x2f;
+        // Monitor.pData[0x3bd] = 0x4c;
+        // Monitor.pData[0x3be] = 0xd0;
+        // Monitor.pData[0x3bf] = 0x8c;
+        // Monitor.pData[0x3c0] = 0xd3;
+        // RAM.pData[0x0222] = 0x47;
+        // RAM.pData[0x0223] = 0x0c;
+        // RAM.pData[0x0224] = 0xd0;
+        // RAM.pData[0x0225] = 0xcc;
+        // RAM.pData[0x0226] = 0xd1;
+        //
+        // Monitor.pData[0x3bc] = 0x2f;
+        // Monitor.pData[0x3bd] = 0x4c;
+        // Monitor.pData[0x3be] = 0xd0;
+        // Monitor.pData[0x3bf] = 0x8c;
+        // Monitor.pData[0x3c0] = 0xd7;
+        // RAM.pData[0x0222] = 0x47;
+        // RAM.pData[0x0223] = 0x0c;
+        // RAM.pData[0x0224] = 0xd0;
+        // RAM.pData[0x0225] = 0xcc;
+        // RAM.pData[0x0226] = 0xd3;
 
         public void Init()
         {
@@ -118,11 +111,13 @@ namespace UK101Library
 
         public override void Write(byte InData)
         {
+            int start = Environment.TickCount;
             Int32 position = Address - StartsAt;
             pData[position] = InData;;
             byte column = (byte)(position % 64);
             byte row = (byte)(position / 64);
             _peripheralIO.Out(row, column, InData, true);
+            Debug.WriteLine("Write Ticks()=" + (Environment.TickCount - start));
         }
 
         public override byte Read()

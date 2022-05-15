@@ -4,11 +4,18 @@ using System.Text;
 
 namespace UK101Library
 {
+    /// <summary>
+    /// General RAM
+    /// </summary>
     public class RAM : MemoryBusDevice
     {
-        public UInt16 RAMSize { get; set; }
+        #region Fields
 
+        public UInt16 RAMSize { get; set; }
         public byte[] pData;
+
+        #endregion
+        #region Constructor
 
         public RAM()
         {
@@ -16,7 +23,10 @@ namespace UK101Library
             ReadOnly = false;
         }
 
-        public Boolean SetRamSize(UInt16 newSize)
+        #endregion
+        #region Methods
+
+        public bool SetRamSize(UInt16 newSize)
         {
             bool result = false;
 
@@ -49,5 +59,7 @@ namespace UK101Library
         {
             pData[Address] = InData;
         }
+
+        #endregion
     }
 }

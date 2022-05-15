@@ -4,13 +4,21 @@ namespace UK101Library
 {
     public class MONITOR : MemoryBusDevice
     {
-        public UInt16 ROMSize { get; set; }
+        #region Contructor
 
         public MONITOR(ushort Address)
         {
             this.Address = Address;
 	        ReadOnly = true;
         }
+
+		#endregion
+		#region Properties
+
+		public UInt16 ROMSize { get; set; }
+
+        #endregion
+        #region Methods
 
         public byte[] pData = new byte[] { 
             0xa5, 0x0e, 0xf0, 0x06, 0xc6, 0x0e, 0xf0, 0x02, 0xc6, 0x0e, 0xa9, 0x20, 0x8d, 0x01, 0x02, 0x20, // F800 - F80F
@@ -147,5 +155,7 @@ namespace UK101Library
         {
             return pData[Address - StartsAt];
         }
+
+#endregion
     }
 }

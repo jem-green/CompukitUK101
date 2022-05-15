@@ -8,7 +8,9 @@ namespace UK101Library
     public class TextEventArgs : EventArgs
     {
         #region Fields
+
         private string text = "";
+
         #endregion
         #region Constructor
         public TextEventArgs(string text)

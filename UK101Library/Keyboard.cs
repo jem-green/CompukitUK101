@@ -45,13 +45,16 @@ namespace UK101Library
 *  (4) This position is the ESC key
 */
 
-
     public class Keyboard : MemoryBusDevice
     {
+        #region Variables
 
         private byte lastInData = 0xff;
         private IPeripheralIO _peripheralIO;
         public Boolean loadResetIsNeeded { get; set; }
+
+        #endregion
+        #region Constructors
 
         public Keyboard(IPeripheralIO peripheralIO)
         {
@@ -59,6 +62,9 @@ namespace UK101Library
             loadResetIsNeeded = false;
             Reset();
         }
+
+        #endregion
+        #region Methods
 
         public void Reset()
         {
@@ -142,6 +148,6 @@ namespace UK101Library
             //
             Data = InData;
         }
+        #endregion
     }
 }
-

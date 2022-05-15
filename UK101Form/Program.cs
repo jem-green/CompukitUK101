@@ -53,7 +53,7 @@ namespace UK101Form
             TraceFilter fileTraceFilter = new System.Diagnostics.EventTypeFilter((SourceLevels)traceLevels.Value);
             listener.Filter = fileTraceFilter;
             Trace.Listeners.Clear();
-            //Trace.Listeners.Add(listener);
+            Trace.Listeners.Add(listener);
 
             // Check if the config file has been paased in and overwrite the registry
 

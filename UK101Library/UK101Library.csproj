@@ -102,7 +102,6 @@
     <Compile Include="Basic\Surround.cs" />
     <Compile Include="Basic\TankBattle.cs" />
     <Compile Include="Basic\TheTowerOfBrahma32.cs" />
-    <Compile Include="C6502Assembler.cs" />
     <Compile Include="ACIA.cs" />
     <Compile Include="Clock.cs" />
     <Compile Include="CharGen\CHARGEN.cs" />
@@ -113,8 +112,6 @@
     <Compile Include="RAM.cs" />
     <Compile Include="Signetic6502.cs" />
     <Compile Include="MemoryMap.cs" />
-    <Compile Include="MicToMidi.cs" />
-    <Compile Include="MIDI.cs" />
     <Compile Include="NoDevice.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="ROMs\8000.cs" />

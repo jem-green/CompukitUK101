@@ -6,11 +6,14 @@ namespace UK101Library
 {
     public class MemoryBus
     {
+        #region Fields
+
         private IPeripheralIO _peripheralIO;
         public const Int32 DEVICES_MAX = 12;
         public byte DeviceIndex;
         public MemoryBusDevice[] Device = new MemoryBusDevice[DEVICES_MAX];
-        public ushort Address { get; set; }
+        public ushort _address;
+
         public MONITOR Monitor;
         public BASIC1 Basic1;
         public BASIC2 Basic2;
@@ -24,12 +27,12 @@ namespace UK101Library
         public Keyboard Keyboard;
         public ACIA ACIA;
         public ROM8000 ROM8000;
-       // public MicToMidi MicToMidi;
         public NoDevice NoDevice;
         private MemoryMap memoryMap;
-        
-        //private MainPage mainPage;
-        
+
+        #endregion
+        #region Constructors
+
         public MemoryBus(IPeripheralIO peripheralIO) //MainPage mainPage)
         {
 
@@ -104,12 +107,30 @@ namespace UK101Library
             Device[11] = NoDevice;
         }
 
+        #endregion
+        #region Properties
+
+        public ushort Address
+        {
+            get
+            {
+                return (_address);
+            }
+            set
+            {
+                _address = value;
+            }
+        }
+
+        #endregion
+
+        #region Methods
+
         public void SetAddress(UInt16 Address)
         {
             DeviceIndex = memoryMap.Map[Address];
             Device[DeviceIndex].SetAddress(Address);
         }
-
 
         public void Write(byte Data)
         {
@@ -120,5 +141,8 @@ namespace UK101Library
         {
             return Device[DeviceIndex].Read();
         }
+
+        #endregion Methods
+
     }
 }

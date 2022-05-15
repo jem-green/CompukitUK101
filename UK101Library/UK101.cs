@@ -17,10 +17,10 @@ namespace UK101Library
 
         #region Fields
 
-        readonly IPeripheralIO _peripheralIO;
-        Signetic6502 _signetic6502;
-        Clock _clock;
-        MemoryBus _memoryBus;
+        private readonly IPeripheralIO _peripheralIO;
+        private Signetic6502 _signetic6502;
+        private Clock _clock;
+        private MemoryBus _memoryBus;
 
         #endregion
         #region Constructor
@@ -43,7 +43,7 @@ namespace UK101Library
             }
         }
         #endregion
-        #region methods
+        #region Methods
 
         public void Init()
         {

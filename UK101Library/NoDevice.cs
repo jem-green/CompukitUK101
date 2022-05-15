@@ -8,9 +8,11 @@ namespace UK101Library
 {
     public class NoDevice : MemoryBusDevice
     {
+        #region Methods
         public override byte Read()
         {
             return (byte)(Address / 256);
         }
+        #endregion
     }
 }

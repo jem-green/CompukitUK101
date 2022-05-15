@@ -3,6 +3,8 @@ using System.Drawing;
 using System.Drawing.Imaging;
 using System.Text;
 using UK101Library;
+using System.Diagnostics;
+using TracerLibrary;
 
 namespace UK101Form
 {
@@ -167,6 +169,8 @@ namespace UK101Form
 
         public Bitmap Generate()
         {
+            int start = Environment.TickCount;
+
             // Need to get the scaling factor sorted
 
             Bitmap bmp = new Bitmap(_width * _horizontal, _height * _vertical, PixelFormat.Format8bppIndexed);
@@ -216,6 +220,8 @@ namespace UK101Form
             System.Runtime.InteropServices.Marshal.Copy(rgbValues, 0, ptr, size);
 
             bmp.UnlockBits(bmpCanvas);
+
+            Debug.WriteLine("Ticks()=" + (Environment.TickCount - start));
 
             return (bmp);
         }

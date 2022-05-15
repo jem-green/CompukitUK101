@@ -8,7 +8,12 @@ namespace UK101Library
 {
     public class MemoryMap
     {
+        #region Fields
+
         public byte[] Map = new byte[0x10000];
+
+        #endregion
+        #region Constructors
 
         public MemoryMap()
         {
@@ -65,5 +70,7 @@ namespace UK101Library
 
             }
         }
+
+        #endregion
     }
 }

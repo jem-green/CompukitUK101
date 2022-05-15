@@ -5,6 +5,7 @@ using System.IO;
 using System.Text;
 using System.Threading.Tasks;
 using UK101Library;
+using TracerLibrary;
 
 
 namespace UK101Form
@@ -286,8 +287,9 @@ namespace UK101Form
         /// <param name="character"></param>
         public void Out(int row, int column, byte character, bool refesh)
         {
-            //lock (_lockObject)
-           // {
+            int start = Environment.TickCount;
+            lock (_lockObject)
+            {
                 _cursor.Left = column - _consoleLeft;
                 _cursor.Top = row - _consoleTop;
                 if ((_cursor.Left >= 0) && (_cursor.Top >= 0))
@@ -303,7 +305,8 @@ namespace UK101Form
                         }
                     }
                 }
-            //}
+            }
+            Debug.WriteLine("Out Ticks()=" + (Environment.TickCount - start));
         }
 
         /// <summary>
