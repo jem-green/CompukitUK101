@@ -40,13 +40,18 @@ namespace UK101Form
         byte _row = 2;
         byte _column = 3;
 
-        bool _updating = false;
+        bool _refreshing = false;
+        bool _updated = false;
+
+        // Most recently used
+        protected MruStripMenu mruMenu;
 
         #endregion
 
-        public ConsoleForm(string filepath, string name)
+        public ConsoleForm(string path, string name)
         {
             Debug.WriteLine("In ConsoleForm()");
+
             InitializeComponent();
 
             this.Icon = Resources.compukit;
@@ -64,17 +69,24 @@ namespace UK101Form
             _formIO.TextReceived += new EventHandler<TextEventArgs>(OnMessageReceived);
 
             // Initialise the delegate
-            this.updateTextDelegate = new UpdateTextDelegate(this.UpdateText);
+            //this.updateTextDelegate = new UpdateTextDelegate(this.UpdateText);
 
-            pictureBox1.Width = 88 * 8;
-            pictureBox1.Height = 72 * 8;
+            pictureBox1.Width = 32 * 8;
+            pictureBox1.Height = 32 * 8;
             pictureBox1.Select();
 
             this.KeyPreview = true;
 
             // Add most recent used
-            //mruMenu = new MruStripMenuInline(fileMenuItem, recentFileToolStripMenuItem, new MruStripMenu.ClickedHandler(OnMruFile), 4);
-            //LoadFiles();
+            mruMenu = new MruStripMenuInline(fileMenuItem, recentFileToolStripMenuItem, new MruStripMenu.ClickedHandler(OnMruFile), 4);
+            LoadFiles();
+
+            // Add a picturebox update timer
+
+            System.Windows.Forms.Timer timer = new System.Windows.Forms.Timer();
+            timer.Interval = (int)(0.01 * 1000); // 1 second
+            timer.Tick += new EventHandler(timer_Tick);
+            timer.Start();
 
             // Add the tape
 
@@ -82,23 +94,22 @@ namespace UK101Form
 			
 			this.Text = "uk101 " + ProductVersion;
 			
-			if ((filepath.Length > 0) && (name.Length > 0))
+			if ((path.Length > 0) && (name.Length > 0))
             {
                 pictureBox1.Invalidate();
                 this.Text = "uk101 " + ProductVersion + " - " + name ;
 
                 string filenamePath = "";
-                filenamePath = filepath + Path.DirectorySeparatorChar + name + ".ubt";
+                filenamePath = path + Path.DirectorySeparatorChar + name + ".ubt";
                 _tape.Filename = filenamePath;
 
                 try
                 {
                     // Start the simulator
 
-                    _uk101 = new UK101(_formIO);
-                    _keyboardMatrix = new KeyboardMatrix();
-                    _uk101.Init();
-                    _uk101.Run();
+                    this.workerThread = new Thread(new ThreadStart(this.Run));
+                    this.workerThread.Start();
+
                 }
                 catch (Exception e1)
                 {
@@ -107,47 +118,56 @@ namespace UK101Form
             }
             else
             {
+                // Start the simulator
+
                 this.workerThread = new Thread(new ThreadStart(this.Run));
                 this.workerThread.Start();
             }
+			Debug.WriteLine("Out ConsoleForm()");
         }
 
         private void pictureBox1_Paint(object sender, PaintEventArgs e)
         {
-            _updating = true;
+            _refreshing = true;
             Graphics g = e.Graphics;
             Bitmap b = _display.Generate();
             g.DrawImageUnscaled(b, 0, 0);
-            _updating  = false;
+            _refreshing  = false;
+            _updated = false;
         }
 
         private void OnMruFile(int number, String filenamePath)
         {
             string path = "";
-            string filename = "";
+            string name = "";
 
             if (File.Exists(filenamePath) == true)
             {
-                //mruMenu.SetFirstFile(number);
+                mruMenu.SetFirstFile(number);
                 pos = filenamePath.LastIndexOf('\\');
                 if (pos > 0)
                 {
                     path = filenamePath.Substring(0, pos);
-                    filename = filenamePath.Substring(pos + 1, filenamePath.Length - pos - 1);
+                    name = filenamePath.Substring(pos + 1, filenamePath.Length - pos - 1);
                 }
                 else
                 {
                     path = filenamePath;
                 }
-                TraceInternal.TraceInformation("Use Name=" + filename);
+                TraceInternal.TraceInformation("Use Name=" + name);
                 TraceInternal.TraceInformation("Use Path=" + path);
 
-                this.Text = "uBasic " + ProductVersion + " - " + filename;
+                this.Text = "uBasic " + ProductVersion + " - " + name;
 
-                filenamePath = path + Path.DirectorySeparatorChar + filename;
+                filenamePath = path + Path.DirectorySeparatorChar + name + ".ubt";
+                _tape.Filename = filenamePath;
                 char[] program;
                 try
                 {
+                	// Start the simulator
+
+                	this.workerThread = new Thread(new ThreadStart(this.Run));
+                	this.workerThread.Start();
 
                 }
                 catch (Exception e1)
@@ -157,22 +177,23 @@ namespace UK101Form
             }
             else
             {
-                //mruMenu.RemoveFile(number);
+                mruMenu.RemoveFile(number);
             }
         }
 
-        private void UpdateText()
-        {
-            pictureBox1.Invalidate();   
-        }
+        //private void UpdateText()
+        //{
+        //    pictureBox1.Invalidate();   
+        //}
 
         // Define the event handlers.
         private void OnMessageReceived(object source, TextEventArgs e)
         {
-            if (_updating == false)
-            {
-                this.Invoke(this.updateTextDelegate);
-            }
+            _updated = true;
+            //if (_refreshing == false)
+            //{
+            //    this.Invoke(this.updateTextDelegate);
+            //}
         }
 
         private void Run()
@@ -205,12 +226,14 @@ namespace UK101Form
 
             if (keyCode == Keys.Escape)
             {
+            	// I think this should be a key sequence as in the reset buttons
+        		// rather than a direct call to the processor.
                 _uk101.Reset();
             }
             else if (keyCode == Keys.F1) // Enable tape mode
             {
                 // Enable tape mode
-                Debug.WriteLine("Tape mode");
+                Debug.WriteLine("Enable Tape");
                 _uk101.MemoryBus.ACIA.Mode = ACIA.IO_MODE_6820_TAPE;
                 // Would like to consider a _tape.Open() 
             }
@@ -218,14 +241,7 @@ namespace UK101Form
             {
                 // Play tape
                 Debug.WriteLine("Play tape");
-
-                // Need to open up a file dialogue
-
-                //string filenamePath = Path.Combine(filePath.Value.ToString(), filename.ToString() + ".ubt");
-                //_tape.Play(filenamePath);
-
                 _tape.Play();
-
             }
             else if (keyCode == Keys.F3)  // Record to the tape
             {
@@ -239,10 +255,10 @@ namespace UK101Form
                 Debug.WriteLine("Stop tape");
                 _tape.Stop("test.bas");
             }
-
             else if (keyCode == Keys.F5) // Disble tape mode
             {
                 // Disable tape mode
+                Debug.WriteLine("Disable tape");
                 _uk101.MemoryBus.ACIA.Mode = ACIA.IO_MODE_6820_NONE;
                 // Would like to consider a _tape.Close() 
             }
@@ -273,37 +289,38 @@ namespace UK101Form
                 Key key;
                 if (modifiers == Keys.Shift)
                 {
-                    if (keyCode == Keys.ShiftKey)
-                    {
-                        if (Convert.ToBoolean(GetAsyncKeyState(Keys.LShiftKey)))
-                        {
-                            key = _keyboardMatrix.GetKey(Keys.LShiftKey,false);
-                            _formIO.PressKey(key.Row, key.Column);
-                        }
-                        else if (Convert.ToBoolean(GetAsyncKeyState(Keys.RShiftKey)))
-                        {
-                            key = _keyboardMatrix.GetKey(Keys.RShiftKey,false);
-                            _formIO.PressKey(key.Row, key.Column);
-                        }
-                    }
-                    else
-                    {
-                        TraceInternal.TraceVerbose("lshift=" + Convert.ToBoolean(GetAsyncKeyState(Keys.LShiftKey)));
-                        TraceInternal.TraceVerbose("rshift=" + Convert.ToBoolean(GetAsyncKeyState(Keys.RShiftKey)));
+                    //if (keyCode == Keys.ShiftKey)
+                    //{
+                    //    TraceInternal.TraceVerbose("Apply shift");
+                    //    if (Convert.ToBoolean(GetAsyncKeyState(Keys.LShiftKey)))
+                    //    {
+                    //        key = _keyboardMatrix.GetKey(Keys.LShiftKey,false);
+                    //        _formIO.PressKey(key.Row, key.Column);
+                    //    }
+                    //    else if (Convert.ToBoolean(GetAsyncKeyState(Keys.RShiftKey)))
+                    //    {
+                    //        key = _keyboardMatrix.GetKey(Keys.RShiftKey,false);
+                    //        _formIO.PressKey(key.Row, key.Column);
+                    //    }
+                    //}
+                    //else
+                    //{
+                        Debug.Print("lshift=" + Convert.ToBoolean(GetAsyncKeyState(Keys.LShiftKey)));
+                        Debug.Print("rshift=" + Convert.ToBoolean(GetAsyncKeyState(Keys.RShiftKey)));
 
                         key = _keyboardMatrix.GetKey(keyCode, true);
                         if (key.KeyCode != Keys.NoName)
-                        {
-                            TraceInternal.TraceVerbose("Apply shift");
+                        {        
                             if (key.Shift == true)
                             {
+                                TraceInternal.TraceVerbose("Apply shift");
                                 key = _keyboardMatrix.GetKey(Keys.LShiftKey, false);
                                 _formIO.PressKey(key.Row, key.Column);
                             }
                             key = _keyboardMatrix.GetKey(keyCode, true);
                             _formIO.PressKey(key.Row, key.Column);
                         }
-                    }
+                    //}
                 }
                 else
                 {
@@ -329,16 +346,30 @@ namespace UK101Form
             Keys modifiers = e.Modifiers;
             int keyValue = e.KeyValue;
 
-            if (keyCode == Keys.F3)
+            if (keyCode == Keys.F1) // Enable tape mode
             {
-                _formIO.ReleaseKey(7, 7);
-                _formIO.ReleaseKey(_row, _column);
-                //_column++;
-                //if (_column > 6)
-                //{
-                //    _column = 0;
-                //    _row++;
-                //}
+                // Eanble tape
+                //Debug.WriteLine("Enable Tape");
+            }
+            else if (keyCode == Keys.F2)  // Play the tape
+            {
+                // Play tape
+                //Debug.WriteLine("Play tape");
+            }
+            else if (keyCode == Keys.F3)  // Record to the tape
+            {
+                // Record tape
+                //Debug.WriteLine("Record to tape");
+            }
+            else if (keyCode == Keys.F4)  // Stop the tape
+            {
+                // Stop tape
+                //Debug.WriteLine("Stop tape");
+            }
+            else if (keyCode == Keys.F5) // Disble tape mode
+            {
+                // Disable tape mode
+                //Debug.WriteLine("Disable tape");
             }
             else
             {
@@ -358,21 +389,21 @@ namespace UK101Form
                 Key key;
                 if (modifiers == Keys.Shift)
                 {
-                    if (keyCode == Keys.ShiftKey)
-                    {
-                        if (Convert.ToBoolean(GetAsyncKeyState(Keys.LShiftKey)))
-                        {
-                            key = _keyboardMatrix.GetKey(Keys.LShiftKey,false);
-                            _formIO.ReleaseKey(key.Row, key.Column);
-                        }
-                        else if (Convert.ToBoolean(GetAsyncKeyState(Keys.RShiftKey)))
-                        {
-                            key = _keyboardMatrix.GetKey(Keys.RShiftKey,false);
-                            _formIO.ReleaseKey(key.Row, key.Column);
-                        }
-                    }
-                    else
-                    {
+                    //if (keyCode == Keys.ShiftKey)
+                    //{
+                    //    if (Convert.ToBoolean(GetAsyncKeyState(Keys.LShiftKey)))
+                    //    {
+                    //        key = _keyboardMatrix.GetKey(Keys.LShiftKey,false);
+                    //        _formIO.ReleaseKey(key.Row, key.Column);
+                    //    }
+                    //    else if (Convert.ToBoolean(GetAsyncKeyState(Keys.RShiftKey)))
+                    //    {
+                    //        key = _keyboardMatrix.GetKey(Keys.RShiftKey,false);
+                    //        _formIO.ReleaseKey(key.Row, key.Column);
+                    //    }
+                    //}
+                    //else
+                    //{
                         Debug.Print("lshift=" + Convert.ToBoolean(GetAsyncKeyState(Keys.LShiftKey)));
                         Debug.Print("rshift=" + Convert.ToBoolean(GetAsyncKeyState(Keys.RShiftKey)));
 
@@ -381,14 +412,14 @@ namespace UK101Form
                         {
                             if (key.Shift == true)
                             {
-                                Debug.Print("Apply shift");
+                                Debug.Print("Release shift");
                                 key = _keyboardMatrix.GetKey(Keys.LShiftKey, false);
                                 _formIO.ReleaseKey(key.Row, key.Column);
                             }
                             key = _keyboardMatrix.GetKey(keyCode, true);
                             _formIO.ReleaseKey(key.Row, key.Column);
                         }
-                    }
+                    //}
                 }
                 else
                 {
@@ -397,7 +428,7 @@ namespace UK101Form
                     {
                         if (key.Shift == true)
                         {
-                            Debug.Print("Apply shift");
+                            Debug.Print("Release shift");
                             key = _keyboardMatrix.GetKey(Keys.LShiftKey, false);
                             _formIO.ReleaseKey(key.Row, key.Column);
                         }
@@ -413,7 +444,7 @@ namespace UK101Form
             Debug.WriteLine("In FileOpenMenuItem_Click()");
 
             string path = "";
-            string filename = "";
+            string name = "";
 
             pictureBox1.Enabled = false;
             pictureBox1.Visible = false;
@@ -424,7 +455,7 @@ namespace UK101Form
 
             OpenFileDialog openFileDialog = new OpenFileDialog
             {
-                Filter = "UK101 (*.bas)|*.bas",
+                Filter = "uk101 (*.ubt)|*.ubt",
                 FilterIndex = 1,
                 RestoreDirectory = true
             };
@@ -436,23 +467,26 @@ namespace UK101Form
                 if (pos > 0)
                 {
                     path= filenamePath.Substring(0, pos);
-                    filename = filenamePath.Substring(pos + 1, filenamePath.Length - pos - 1);
+                    name = filenamePath.Substring(pos + 1, filenamePath.Length - pos - 1);
                 }
                 else
                 {
-                    filename = filenamePath;
+                    name = filenamePath;
                 }
-                TraceInternal.TraceInformation("Use Name=" + filename);
+                TraceInternal.TraceInformation("Use Name=" + name);
                 TraceInternal.TraceInformation("Use Path=" + path);
 
-                //consoleTextBox.Text = "";
-                this.Text = "UK101 " + ProductVersion + " - " + filename;
+                this.Text = "uk101 " + ProductVersion + " - " + name;
 
 
-                filenamePath = path + Path.DirectorySeparatorChar + filename;
-                char[] program;
+                filenamePath = path + Path.DirectorySeparatorChar + name + ".ubt";
+                _tape.Filename = filenamePath;
                 try
                 {
+                	// Start the simulator
+
+                	this.workerThread = new Thread(new ThreadStart(this.Run));
+                	this.workerThread.Start();
 
                 }
                 catch (Exception e1)
@@ -469,41 +503,52 @@ namespace UK101Form
 
             Settings.Default.Upgrade();
 
+            // Set window location
+            if (Settings.Default.ConsoleLocation != null)
+            {
+                // fIx errors with location being negative or off the main display
+
+                this.Location = Settings.Default.ConsoleLocation;
+                if ((this.Location.X<0) || (this.Location.Y<0))
+                {
+                    this.Location = new Point(0, 0);
+                }
+            }
             this.WindowState = FormWindowState.Normal;
 
-            // Fixed windows size
 
-            //this.Width = textBoxIO.Width;
+            // Set window size
+            if (Settings.Default.ConsoleSize != null)
+            {
+                this.Size = Settings.Default.ConsoleSize;
+            }
 
-            //// Set window size
-            //if (Settings.Default.ConsoleSize != null)
-            //{
-            //    this.Size = Settings.Default.ConsoleSize;
-            //}
+            // Set Console font color
+            if (Settings.Default.ConsoleFontColor != null)
+            {
+                this.pictureBox1.ForeColor = Settings.Default.ConsoleFontColor;
 
-            //// Set Console font
-            //if (Settings.Default.ConsoleFont != null)
-            //{
-            //    this.consoleTextBox.Font = Settings.Default.ConsoleFont;
-            //}
+            }
 
-            //// Set Console font color
-            //if (Settings.Default.ConsoleFontColor != null)
-            //{
-            //    this.consoleTextBox.ForeColor = Settings.Default.ConsoleFontColor;
-            //}
-
-            //// Set Console color
-            //if (Settings.Default.ConsoleColor != null)
-            //{
-            //    this.consoleTextBox.BackColor = Settings.Default.ConsoleColor;
-            //}
+            // Set Console color
+            if (Settings.Default.ConsoleColor != null)
+            {
+                this.pictureBox1.BackColor = Settings.Default.ConsoleColor;
+            }
 
             Debug.WriteLine("Out ConsoleForm_Load()");
+		}
 
+        private void timer_Tick(object sender, EventArgs e)
+        {
+            // Only refresh if there has been a change
+            if (_updated == true)
+            {
+                pictureBox1.Invalidate();
+            }
         }
 
-		private void ConsoleForm_FormClosing(object sender, FormClosingEventArgs e)
+        private void ConsoleForm_FormClosing(object sender, FormClosingEventArgs e)
         {
             Debug.WriteLine("In ConsoleForm_FormClosing()");
 
@@ -515,36 +560,33 @@ namespace UK101Form
                 workerThread.Abort();
             }
 
-            //// Copy window location to app settings
-            //Settings.Default.ConsoleLocation = this.Location;
+            // Copy window location to app settings
+            Settings.Default.ConsoleLocation = this.Location;
 
-            //// Copy window size to app settings
-            //if (this.WindowState == FormWindowState.Normal)
-            //{
-            //    Settings.Default.ConsoleSize = this.Size;
-            //}
-            //else
-            //{
-            //    Settings.Default.ConsoleSize = this.RestoreBounds.Size;
-            //}
+            // Copy window size to app settings
+            if (this.WindowState == FormWindowState.Normal)
+            {
+                Settings.Default.ConsoleSize = this.Size;
+            }
+            else
+            {
+                Settings.Default.ConsoleSize = this.RestoreBounds.Size;
+            }
 
-            //// Copy console font type to app settings
-            //Settings.Default.ConsoleFont = this.consoleTextBox.Font;
+            // Copy console font color to app settings
+            Settings.Default.ConsoleFontColor = this.pictureBox1.ForeColor;
 
-            //// Copy console font color to app settings
-            //Settings.Default.ConsoleFontColor = this.consoleTextBox.ForeColor;
+            // Copy console color to app settings
+            Settings.Default.ConsoleColor = this.pictureBox1.BackColor;
 
-            //// Copy console color to app settings
-            //Settings.Default.ConsoleColor = this.consoleTextBox.BackColor;
+            // Safe Mru
+            SaveFiles();
 
-            //// Safe Mru
-            //SaveFiles();
+            // Save settings
+            Settings.Default.Save();
 
-            //// Save settings
-            //Settings.Default.Save();
-
-            //// Upgrade settings
-            //Settings.Default.Reload();
+            // Upgrade settings
+            Settings.Default.Reload();
 
             Debug.WriteLine("Out ConsoleForm_FormClosing()");
         }
@@ -567,7 +609,7 @@ namespace UK101Form
             {
                 Color color = colorDialog.Color;
                 this.pictureBox1.BackColor = color;
-                //Properties.Settings.Default.ConsoleColor = color;
+
             }
             Debug.WriteLine("Out FileExitMenuItem_Click()");
         }
@@ -575,14 +617,14 @@ namespace UK101Form
         private void LoadFiles()
         {
             Debug.WriteLine("In LoadFiles()");
-            //TraceInternal.TraceVerbose("Files " + Properties.Settings.Default.FileCount);
+            TraceInternal.TraceVerbose("Files " + Properties.Settings.Default.FileCount);
             for (int i = 0; i < 4; i++)
             {
                 string property = "File" + (i + 1);
                 string file = (string)Properties.Settings.Default[property];
                 if (file != "")
                 {
-                    //mruMenu.AddFile(file);
+                    mruMenu.AddFile(file);
                     TraceInternal.TraceVerbose("Load " + file);
                 }
             }
@@ -592,7 +634,7 @@ namespace UK101Form
         public void SaveFiles()
         {
             Debug.WriteLine("In SaveFiles");
-            string[] files = null; // = mruMenu.GetFiles();
+            string[] files = mruMenu.GetFiles();
             Properties.Settings.Default["FileCount"] = files.Length;
             TraceInternal.TraceVerbose("Files=" + files.Length);
             for (int i=0; i < 4; i++)

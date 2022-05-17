@@ -131,7 +131,7 @@ namespace UK101Form
             _normal.Add(Keys.OemPeriod, new Key(Keys.OemPeriod, 2, 0, false));  // .
             _normal.Add(Keys.L, new Key(Keys.L, 2, 1, false));                  // l
             _normal.Add(Keys.O, new Key(Keys.O, 2, 2, false));                  // o
-            _normal.Add(Keys.Up, new Key(Keys.Up, 2, 3, false));                // ^
+            //_normal.Add(Keys.Up, new Key(Keys.Up, 2, 3, false));                // ^
             _normal.Add(Keys.Enter, new Key(Keys.Enter, 2, 4, false));          // CR
             // 5 - Nothing
             // 6 - Nothing
@@ -195,11 +195,14 @@ namespace UK101Form
             _normal.Add(Keys.Oemplus, new Key(Keys.Oemplus, 1, 4, true));           // =
             _normal.Add(Keys.Oem6, new Key(Keys.Oem6, 5, 5, true));                 // ]
             _normal.Add(Keys.Oem3, new Key(Keys.Oem3, 0, 6, true));                 // '
+            //_normal.Add(Keys.Oem3, new Key(Keys.Oem3, 0, 6, true));           	// '
             _normal.Add(Keys.Oem5, new Key(Keys.Oem5, 2, 1, true));                 // \
+            //_normal.Add(ConsoleKey.Oem8, new Key(ConsoleKey.Oem8, 4, 5, false));          // unknown
             _normal.Add(Keys.Oem8, new Key(Keys.Oem8, 4, 5, false));                // unknown
 
             // Map keyboard codes over to UK101 keyboard
 
+            // Row Zero
             _shift.Add(Keys.D1, new Key(Keys.D1, 0, 0, true));                      // !
             _shift.Add(Keys.D2, new Key(Keys.D2, 0, 1, true));                      // "
             _shift.Add(Keys.D3, new Key(Keys.D3, 0, 2, true));                      // #
@@ -208,6 +211,7 @@ namespace UK101Form
             // missing D%
             _shift.Add(Keys.D7, new Key(Keys.D7, 0, 5, true));                      // &
 
+            // Row One
             _shift.Add(Keys.D8, new Key(Keys.D8, 1, 3, true));                      // *
             _shift.Add(Keys.D9, new Key(Keys.D9, 1, 0, true));                      // (
             _shift.Add(Keys.D0, new Key(Keys.D0, 1, 1, true));                      // )
@@ -215,12 +219,14 @@ namespace UK101Form
 
             _shift.Add(Keys.Back, new Key(Keys.Delete, 1, 5, false));               // RUB OUT
 
+            // Row Two
             _shift.Add(Keys.OemPeriod, new Key(Keys.OemPeriod, 2, 0, true));        // >
             _shift.Add(Keys.L, new Key(Keys.L, 2, 1, true));                        // L
             _shift.Add(Keys.O, new Key(Keys.O, 2, 2, true));                        // O
             //_shift.Add(Keys.Up, new Key(Keys.Up, 2, 3, true));                    // ^
             _shift.Add(Keys.Enter, new Key(Keys.Enter, 2, 4, false));               // CR
 
+            // Row Three
             _shift.Add(Keys.W, new Key(Keys.W, 3, 0, true));                        // W
             _shift.Add(Keys.E, new Key(Keys.E, 3, 1, true));                        // E
             _shift.Add(Keys.R, new Key(Keys.R, 3, 2, true));                        // R

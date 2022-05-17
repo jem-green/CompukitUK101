@@ -306,7 +306,7 @@ namespace UK101Console
                     else if (keyCode == ConsoleKey.F1)  // Enable tape mode
                     {
                         // Enable tape mode
-                        Debug.WriteLine("Tape mode");
+                		Debug.WriteLine("Enable Tape");
                         _uk101.MemoryBus.ACIA.Mode = ACIA.IO_MODE_6820_TAPE;
                         // Would like to consider a _tape.Open() 
                     }
@@ -333,6 +333,7 @@ namespace UK101Console
                     else if (keyCode == ConsoleKey.F5)  // Disble tape mode
                     {
                         // Disable tape mode
+                	Debug.WriteLine("Disable tape");
                         _uk101.MemoryBus.ACIA.Mode = ACIA.IO_MODE_6820_NONE;
                         // Would like to consider a _tape.Close() 
                     }
@@ -356,8 +357,8 @@ namespace UK101Console
                         // Arrow up    = 0x48  send to UK101 as 0xba
                         // Enter       = 0x1c  send to UK101 as 0x0d
 
-                        TraceInternal.TraceVerbose("Down KeyCode " + keyCode.ToString());
-                        TraceInternal.TraceVerbose("Down Modifiers " + modifiers.ToString());
+                		Debug.Print("Down KeyCode " + keyCode.ToString());
+                		Debug.Print("Down Modifiers " + modifiers.ToString());
 
                         Key key;
                         if ((modifiers & ConsoleModifiers.Shift) != 0)
@@ -365,9 +366,9 @@ namespace UK101Console
                             key = _keyboardMatrix.GetKey(keyCode, true);
                             if (key.KeyCode != ConsoleKey.NoName)
                             {
-                                TraceInternal.TraceVerbose("Apply shift");
                                 if (key.Shift == true)
                                 {
+                                    TraceInternal.TraceVerbose("Apply shift");
                                     key = _keyboardMatrix.GetKey(ConsoleKey.Pause, false);
                                     _consoleIO.PressKey(key.Row, key.Column); // press shift
                                 }
@@ -418,6 +419,7 @@ namespace UK101Console
                                 //Debug.Print("Deselect shift");
                                 if (key.Shift == true)
                                 {
+                                	Debug.Print("Apply shift");
                                     key = _keyboardMatrix.GetKey(ConsoleKey.Pause, false);
                                     _consoleIO.ReleaseKey(key.Row, key.Column); // press shift
                                 }
@@ -433,6 +435,7 @@ namespace UK101Console
                                 //Debug.Print("Release shift");
                                 if (key.Shift == true)
                                 {
+                            		Debug.Print("Apply shift");
                                     key = _keyboardMatrix.GetKey(ConsoleKey.Pause, false);
                                     _consoleIO.ReleaseKey(key.Row, key.Column); // press shift
                                 }

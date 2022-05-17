@@ -111,13 +111,13 @@ namespace UK101Library
 
         public override void Write(byte InData)
         {
-            int start = Environment.TickCount;
+            //int start = Environment.TickCount;
             Int32 position = Address - StartsAt;
             pData[position] = InData;;
             byte column = (byte)(position % 64);
             byte row = (byte)(position / 64);
             _peripheralIO.Out(row, column, InData, true);
-            Debug.WriteLine("Write Ticks()=" + (Environment.TickCount - start));
+            //Debug.WriteLine("Write Ticks()=" + (Environment.TickCount - start));
         }
 
         public override byte Read()

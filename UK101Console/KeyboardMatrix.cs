@@ -185,7 +185,7 @@ namespace UK101Console
             _normal.Add(ConsoleKey.Clear, new Key(ConsoleKey.Clear, 7, 1, false));          // CTRL
             // 2 - Nothing
             // 3 - Nothing
-            // 4 - Nothing
+            // 4 - Nothing // CTRL
             //_normal.Add(Keys.LShiftKey, new Key(Keys.LShiftKey, 7, 5, false));            // Left SHIFT
             //_normal.Add(Keys.RShiftKey, new Key(Keys.RShiftKey, 7, 6, false));            // Right SHIFT
             _normal.Add(ConsoleKey.Pause, new Key(ConsoleKey.Pause, 7, 5, false));          // Left SHIFT

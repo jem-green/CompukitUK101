@@ -31,7 +31,6 @@ namespace UK101Form
         /// </summary>
         private void InitializeComponent()
         {
-            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(ConsoleForm));
             this.pictureBox1 = new System.Windows.Forms.PictureBox();
             this.consoleMenuStrip = new System.Windows.Forms.MenuStrip();
             this.fileMenuItem = new System.Windows.Forms.ToolStripMenuItem();
@@ -43,16 +42,16 @@ namespace UK101Form
             this.formatToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.fontToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.colorToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.consoleMenuStrip.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).BeginInit();
+            this.consoleMenuStrip.SuspendLayout();
             this.SuspendLayout();
             // 
             // pictureBox1
             // 
             this.pictureBox1.Dock = System.Windows.Forms.DockStyle.Top;
-            this.pictureBox1.Location = new System.Drawing.Point(0, 24);
+            this.pictureBox1.Location = new System.Drawing.Point(0, 38);
             this.pictureBox1.Name = "pictureBox1";
-            this.pictureBox1.Size = new System.Drawing.Size(1832, 865);
+            this.pictureBox1.Size = new System.Drawing.Size(1679, 830);
             this.pictureBox1.TabIndex = 0;
             this.pictureBox1.TabStop = false;
             this.pictureBox1.Paint += new System.Windows.Forms.PaintEventHandler(this.pictureBox1_Paint);
@@ -67,7 +66,7 @@ namespace UK101Form
             this.formatToolStripMenuItem});
             this.consoleMenuStrip.Location = new System.Drawing.Point(0, 0);
             this.consoleMenuStrip.Name = "consoleMenuStrip";
-            this.consoleMenuStrip.Size = new System.Drawing.Size(1832, 24);
+            this.consoleMenuStrip.Size = new System.Drawing.Size(1679, 38);
             this.consoleMenuStrip.TabIndex = 1;
             this.consoleMenuStrip.Text = "menuStrip1";
             // 
@@ -86,30 +85,30 @@ namespace UK101Form
             // openFileMenuItem
             // 
             this.openFileMenuItem.Name = "openFileMenuItem";
-            this.openFileMenuItem.Size = new System.Drawing.Size(265, 44);
+            this.openFileMenuItem.Size = new System.Drawing.Size(231, 40);
             this.openFileMenuItem.Text = "&Open";
             this.openFileMenuItem.Click += new System.EventHandler(this.FileOpenMenuItem_Click);
             // 
             // toolStripSeparator1
             // 
             this.toolStripSeparator1.Name = "toolStripSeparator1";
-            this.toolStripSeparator1.Size = new System.Drawing.Size(262, 6);
+            this.toolStripSeparator1.Size = new System.Drawing.Size(228, 6);
             // 
             // recentFileToolStripMenuItem
             // 
             this.recentFileToolStripMenuItem.Name = "recentFileToolStripMenuItem";
-            this.recentFileToolStripMenuItem.Size = new System.Drawing.Size(265, 44);
+            this.recentFileToolStripMenuItem.Size = new System.Drawing.Size(231, 40);
             this.recentFileToolStripMenuItem.Text = "Recent File";
             // 
             // toolStripSeparator2
             // 
             this.toolStripSeparator2.Name = "toolStripSeparator2";
-            this.toolStripSeparator2.Size = new System.Drawing.Size(262, 6);
+            this.toolStripSeparator2.Size = new System.Drawing.Size(228, 6);
             // 
             // exitToolStripMenuItem
             // 
             this.exitToolStripMenuItem.Name = "exitToolStripMenuItem";
-            this.exitToolStripMenuItem.Size = new System.Drawing.Size(265, 44);
+            this.exitToolStripMenuItem.Size = new System.Drawing.Size(231, 40);
             this.exitToolStripMenuItem.Text = "&Exit";
             this.exitToolStripMenuItem.Click += new System.EventHandler(this.FileExitMenuItem_Click);
             // 
@@ -125,22 +124,26 @@ namespace UK101Form
             // colorToolStripMenuItem
             // 
             this.colorToolStripMenuItem.Name = "colorToolStripMenuItem";
-            this.colorToolStripMenuItem.Size = new System.Drawing.Size(206, 44);
+            this.colorToolStripMenuItem.Size = new System.Drawing.Size(180, 40);
             this.colorToolStripMenuItem.Text = "Color";
             this.colorToolStripMenuItem.Click += new System.EventHandler(this.FormatColorMenuItem_Click);
+            // 
             // ConsoleForm
             // 
-            this.AutoScaleDimensions = new System.Drawing.SizeF(12F, 25F);
+            this.AutoScaleDimensions = new System.Drawing.SizeF(11F, 24F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(1832, 942);
+            this.ClientSize = new System.Drawing.Size(1679, 904);
             this.Controls.Add(this.pictureBox1);
             this.Controls.Add(this.consoleMenuStrip);
             this.MainMenuStrip = this.consoleMenuStrip;
             this.Name = "ConsoleForm";
             this.Text = "UK101";
+            this.Load += new System.EventHandler(this.ConsoleForm_Load);
             this.KeyDown += new System.Windows.Forms.KeyEventHandler(this.ConsoleForm_KeyDown);
             this.KeyUp += new System.Windows.Forms.KeyEventHandler(this.ConsoleForm_KeyUp);
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).EndInit();
+            this.consoleMenuStrip.ResumeLayout(false);
+            this.consoleMenuStrip.PerformLayout();
             this.ResumeLayout(false);
             this.PerformLayout();
 

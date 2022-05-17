@@ -22,5 +22,125 @@ namespace UK101Form.Properties {
                 return defaultInstance;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("Lucida Console, 10.125pt")]
+        public global::System.Drawing.Font ConsoleFont {
+            get {
+                return ((global::System.Drawing.Font)(this["ConsoleFont"]));
+            }
+            set {
+                this["ConsoleFont"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("0, 0")]
+        public global::System.Drawing.Point ConsoleLocation {
+            get {
+                return ((global::System.Drawing.Point)(this["ConsoleLocation"]));
+            }
+            set {
+                this["ConsoleLocation"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("500, 500")]
+        public global::System.Drawing.Size ConsoleSize {
+            get {
+                return ((global::System.Drawing.Size)(this["ConsoleSize"]));
+            }
+            set {
+                this["ConsoleSize"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("Black")]
+        public global::System.Drawing.Color ConsoleFontColor {
+            get {
+                return ((global::System.Drawing.Color)(this["ConsoleFontColor"]));
+            }
+            set {
+                this["ConsoleFontColor"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("White")]
+        public global::System.Drawing.Color ConsoleColor {
+            get {
+                return ((global::System.Drawing.Color)(this["ConsoleColor"]));
+            }
+            set {
+                this["ConsoleColor"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("")]
+        public string File1 {
+            get {
+                return ((string)(this["File1"]));
+            }
+            set {
+                this["File1"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("")]
+        public string File2 {
+            get {
+                return ((string)(this["File2"]));
+            }
+            set {
+                this["File2"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("")]
+        public string File3 {
+            get {
+                return ((string)(this["File3"]));
+            }
+            set {
+                this["File3"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("")]
+        public string File4 {
+            get {
+                return ((string)(this["File4"]));
+            }
+            set {
+                this["File4"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("0")]
+        public int FileCount {
+            get {
+                return ((int)(this["FileCount"]));
+            }
+            set {
+                this["FileCount"] = value;
+            }
+        }
     }
 }

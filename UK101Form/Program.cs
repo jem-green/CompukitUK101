@@ -82,8 +82,8 @@ namespace UK101Form
                     filename.Value = filenamePath;
                     filename.Source = Parameter<string>.SourceType.Command;
                 }
-                //TraceInternal.TraceVerbose("Use filename=" + filename.Value.ToString());
-                //TraceInternal.TraceVerbose("use filePath=" + filePath.Value.ToString());
+                TraceInternal.TraceVerbose("Use filename=" + filename.Value.ToString());
+                TraceInternal.TraceVerbose("use filePath=" + filePath.Value.ToString());
             }
             else
             {

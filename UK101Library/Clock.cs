@@ -47,12 +47,12 @@ namespace UK101Library
 
         public void Start()
         {
-            _timer.Change(0, 1);
+            _timer.Change(0, 10);
         }
 
         public void Stop()
         {
-            _timer.Change(Timeout.Infinite, 1);
+            _timer.Change(Timeout.Infinite, 10);
         }
 
         #endregion
@@ -62,14 +62,14 @@ namespace UK101Library
         {
             lock (_lockObject)
             {
-                while (ProcessorCycles < 10000)
+                while (ProcessorCycles < 20000)
                 {
                     if (!_hold)
                     {
                         ProcessorCycles += _signetic6502.SingleStep();
                     }
                 }
-                ProcessorCycles -= 10000;
+                ProcessorCycles -= 20000;
             }
         }
 

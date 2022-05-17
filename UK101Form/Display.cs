@@ -185,9 +185,6 @@ namespace UK101Form
 
             int size = bmp.Width * bmp.Height;
             byte[] rgbValues = new byte[size];
-
-            int rows = _rows;
-            int columns = _columns;
             int hbits = 8;
             int vbits = 8;
 
@@ -203,10 +200,9 @@ namespace UK101Form
                         for (int i = 0; i < vbits; i++) // rows
                         {
                             byte data = _chargen.pData[character * vbits + i];
-                            for (int j = hbits - 1; j > -1; j--) // columns
+                            for (int j = 0; j < hbits - 1; j++) // columns
                             {
-                                byte val = (byte)(data & (byte)Math.Pow(2, 7 - j));
-                                if (val > 0)
+                                if ((data & (128 >> j)) != 0)
                                 {
                                     rgbValues[(row * hbits + i) * _width * vbits + column * vbits + j] = 255;
                                 }
@@ -221,7 +217,7 @@ namespace UK101Form
 
             bmp.UnlockBits(bmpCanvas);
 
-            Debug.WriteLine("Ticks()=" + (Environment.TickCount - start));
+            //Debug.WriteLine("Ticks()=" + (Environment.TickCount - start));
 
             return (bmp);
         }

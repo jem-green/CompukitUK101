@@ -95,12 +95,16 @@ namespace UK101Form
             _keystates = new byte[8];
             _display = display;
 
-            _consoleLeft = 10;
+            _display.Top = 0;
+            _display.Left = 0;
+            _display.Width = 50;
+            _display.Height = 32;
+
             _consoleTop = 0;
-            _consoleWidth = 51;
-            _consoleHeight = 31;
-
-
+            _consoleLeft = 11;
+            _consoleWidth = 50;
+            _consoleHeight = 32;
+            
         }
 
         #endregion
@@ -300,13 +304,13 @@ namespace UK101Form
 
                         if (refesh == true)
                         {
-                        TextEventArgs args = null; //= new TextEventArgs("");
-                        OnTextReceived(args);
+                            TextEventArgs args = null; //= new TextEventArgs("");
+                            OnTextReceived(args);
                         }
                     }
                 }
             }
-            Debug.WriteLine("Out Ticks()=" + (Environment.TickCount - start));
+            //Debug.WriteLine("Out Ticks()=" + (Environment.TickCount - start));
         }
 
         /// <summary>
