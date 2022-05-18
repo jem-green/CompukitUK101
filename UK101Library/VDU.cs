@@ -99,7 +99,7 @@ namespace UK101Library
                 for (int column = 0; column < columns; column++)
                 {
                     pData[column + row * columns] = garbage[column + row * columns];
-                    _peripheralIO.Out(row, column, garbage[column + row * columns],false);
+                    _peripheralIO.Out(row, column, garbage[column + row * columns]);
                 }
             }
         }
@@ -111,13 +111,11 @@ namespace UK101Library
 
         public override void Write(byte InData)
         {
-            //int start = Environment.TickCount;
             Int32 position = Address - StartsAt;
             pData[position] = InData;;
             byte column = (byte)(position % 64);
             byte row = (byte)(position / 64);
-            _peripheralIO.Out(row, column, InData, true);
-            //Debug.WriteLine("Write Ticks()=" + (Environment.TickCount - start));
+            _peripheralIO.Out(row, column, InData);
         }
 
         public override byte Read()

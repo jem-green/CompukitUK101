@@ -59,21 +59,37 @@ namespace UK101Form
             // Add this display
 
             _display = new Display();
-            _display.Width = 64;
+            _display.Width = 50;
             _display.Height = 32;
             _display.Left = 0;
             _display.Top = 0;
+
             _display.CharacterGenerator = new CHARGEN(0x0);
 
             _formIO = new FormIO(_display);
             _formIO.TextReceived += new EventHandler<TextEventArgs>(OnMessageReceived);
+            _formIO.Top = 0;
+            _formIO.Left = 11;
+            _formIO.Width = 50;
+            _formIO.Height = 32;
 
             // Initialise the delegate
             //this.updateTextDelegate = new UpdateTextDelegate(this.UpdateText);
 
-            pictureBox1.Width = 32 * 8;
-            pictureBox1.Height = 32 * 8;
-            pictureBox1.Select();
+            consolePictureBox.Width = 50 * 8;
+            consolePictureBox.Height = 32 * 8;
+            consolePictureBox.Select();
+
+            // Fix the form size
+
+            this.MaximizeBox = false;
+            this.MinimizeBox = false;
+            this.FormBorderStyle = FormBorderStyle.FixedSingle;
+            int h = this.MainMenuStrip.Height;
+            this.MinimumSize = new Size(52 * 8, h + 37 * 8);
+            this.MaximumSize = new Size(52 * 8, h + 37 * 8);
+            //this.Size = new Size(16 * 8, 16 * 8);
+
 
             this.KeyPreview = true;
 
@@ -96,11 +112,11 @@ namespace UK101Form
 			
 			if ((path.Length > 0) && (name.Length > 0))
             {
-                pictureBox1.Invalidate();
+                consolePictureBox.Invalidate();
                 this.Text = "uk101 " + ProductVersion + " - " + name ;
 
                 string filenamePath = "";
-                filenamePath = path + Path.DirectorySeparatorChar + name + ".ubt";
+                filenamePath = path + Path.DirectorySeparatorChar + name + ".bas";
                 _tape.Filename = filenamePath;
 
                 try
@@ -159,7 +175,7 @@ namespace UK101Form
 
                 this.Text = "uBasic " + ProductVersion + " - " + name;
 
-                filenamePath = path + Path.DirectorySeparatorChar + name + ".ubt";
+                filenamePath = path + Path.DirectorySeparatorChar + name + ".bas";
                 _tape.Filename = filenamePath;
                 char[] program;
                 try
@@ -215,7 +231,7 @@ namespace UK101Form
 
         private void pictureBox1_MouseDown(object sender, MouseEventArgs e)
         {
-            pictureBox1.Invalidate();
+            consolePictureBox.Invalidate();
         }
 
         private void ConsoleForm_KeyDown(object sender, KeyEventArgs e)
@@ -446,8 +462,8 @@ namespace UK101Form
             string path = "";
             string name = "";
 
-            pictureBox1.Enabled = false;
-            pictureBox1.Visible = false;
+            consolePictureBox.Enabled = false;
+            consolePictureBox.Visible = false;
             if (stopped == false)
             {
                 workerThread.Abort();
@@ -455,7 +471,7 @@ namespace UK101Form
 
             OpenFileDialog openFileDialog = new OpenFileDialog
             {
-                Filter = "uk101 (*.ubt)|*.ubt",
+                Filter = "uk101 (*.bas)|*.bas",
                 FilterIndex = 1,
                 RestoreDirectory = true
             };
@@ -479,7 +495,7 @@ namespace UK101Form
                 this.Text = "uk101 " + ProductVersion + " - " + name;
 
 
-                filenamePath = path + Path.DirectorySeparatorChar + name + ".ubt";
+                filenamePath = path + Path.DirectorySeparatorChar + name + ".bas";
                 _tape.Filename = filenamePath;
                 try
                 {
@@ -526,14 +542,14 @@ namespace UK101Form
             // Set Console font color
             if (Settings.Default.ConsoleFontColor != null)
             {
-                this.pictureBox1.ForeColor = Settings.Default.ConsoleFontColor;
+                this.consolePictureBox.ForeColor = Settings.Default.ConsoleFontColor;
 
             }
 
             // Set Console color
             if (Settings.Default.ConsoleColor != null)
             {
-                this.pictureBox1.BackColor = Settings.Default.ConsoleColor;
+                this.consolePictureBox.BackColor = Settings.Default.ConsoleColor;
             }
 
             Debug.WriteLine("Out ConsoleForm_Load()");
@@ -544,7 +560,7 @@ namespace UK101Form
             // Only refresh if there has been a change
             if (_updated == true)
             {
-                pictureBox1.Invalidate();
+                consolePictureBox.Invalidate();
             }
         }
 
@@ -574,10 +590,10 @@ namespace UK101Form
             }
 
             // Copy console font color to app settings
-            Settings.Default.ConsoleFontColor = this.pictureBox1.ForeColor;
+            Settings.Default.ConsoleFontColor = this.consolePictureBox.ForeColor;
 
             // Copy console color to app settings
-            Settings.Default.ConsoleColor = this.pictureBox1.BackColor;
+            Settings.Default.ConsoleColor = this.consolePictureBox.BackColor;
 
             // Safe Mru
             SaveFiles();
@@ -602,13 +618,13 @@ namespace UK101Form
             Debug.WriteLine("In FileExitMenuItem_Click()");
             ColorDialog colorDialog = new ColorDialog
             {
-                Color = this.pictureBox1.BackColor
+                Color = this.consolePictureBox.BackColor
             };
 
             if (colorDialog.ShowDialog() == DialogResult.OK)
             {
                 Color color = colorDialog.Color;
-                this.pictureBox1.BackColor = color;
+                this.consolePictureBox.BackColor = color;
 
             }
             Debug.WriteLine("Out FileExitMenuItem_Click()");

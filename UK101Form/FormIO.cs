@@ -38,7 +38,7 @@ namespace UK101Form
         private int _consoleHeight;
         private int _consoleWidth;
         private int _consoleLeft;
-        private int _consoleTop = 0;
+        private int _consoleTop;
         private int _zoneWidth = 15;
         private int _compactWidth = 3;
 
@@ -93,18 +93,7 @@ namespace UK101Form
         public FormIO(Display display)
         {
             _keystates = new byte[8];
-            _display = display;
-
-            _display.Top = 0;
-            _display.Left = 0;
-            _display.Width = 50;
-            _display.Height = 32;
-
-            _consoleTop = 0;
-            _consoleLeft = 11;
-            _consoleWidth = 50;
-            _consoleHeight = 32;
-            
+            _display = display;     
         }
 
         #endregion
@@ -289,7 +278,7 @@ namespace UK101Form
         /// <param name="row"></param>
         /// <param name="column"></param>
         /// <param name="character"></param>
-        public void Out(int row, int column, byte character, bool refesh)
+        public void Out(int row, int column, byte character)
         {
             int start = Environment.TickCount;
             lock (_lockObject)
@@ -302,11 +291,8 @@ namespace UK101Form
                     {
                         _display.Write(_cursor.Left, _cursor.Top, character);
 
-                        if (refesh == true)
-                        {
-                            TextEventArgs args = null; //= new TextEventArgs("");
-                            OnTextReceived(args);
-                        }
+                        TextEventArgs args = null; //= new TextEventArgs("");
+                        OnTextReceived(args);
                     }
                 }
             }

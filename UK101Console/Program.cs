@@ -314,7 +314,7 @@ namespace UK101Console
                     {
                         // Play tape
                         Debug.WriteLine("Play tape");
-                        filenamePath = Path.Combine(filePath.Value.ToString(), filename.ToString() + ".ubt");
+                        filenamePath = Path.Combine(filePath.Value.ToString(), filename.ToString() + ".bas");
                         _tape.Play(filenamePath);
 
                     }

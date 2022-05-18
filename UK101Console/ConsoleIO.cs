@@ -277,7 +277,7 @@ namespace UK101Console
         /// <param name="row"></param>
         /// <param name="column"></param>
         /// <param name="character"></param>
-        public void Out(int row, int column, byte character, bool refresh)
+        public void Out(int row, int column, byte character)
         {
             lock (_lockObject)
             {

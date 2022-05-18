@@ -31,7 +31,7 @@ namespace UK101Form
         /// </summary>
         private void InitializeComponent()
         {
-            this.pictureBox1 = new System.Windows.Forms.PictureBox();
+            this.consolePictureBox = new System.Windows.Forms.PictureBox();
             this.consoleMenuStrip = new System.Windows.Forms.MenuStrip();
             this.fileMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.openFileMenuItem = new System.Windows.Forms.ToolStripMenuItem();
@@ -42,20 +42,20 @@ namespace UK101Form
             this.formatToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.fontToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.colorToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.consolePictureBox)).BeginInit();
             this.consoleMenuStrip.SuspendLayout();
             this.SuspendLayout();
             // 
-            // pictureBox1
+            // consolePictureBox
             // 
-            this.pictureBox1.Dock = System.Windows.Forms.DockStyle.Top;
-            this.pictureBox1.Location = new System.Drawing.Point(0, 38);
-            this.pictureBox1.Name = "pictureBox1";
-            this.pictureBox1.Size = new System.Drawing.Size(1679, 830);
-            this.pictureBox1.TabIndex = 0;
-            this.pictureBox1.TabStop = false;
-            this.pictureBox1.Paint += new System.Windows.Forms.PaintEventHandler(this.pictureBox1_Paint);
-            this.pictureBox1.MouseDown += new System.Windows.Forms.MouseEventHandler(this.pictureBox1_MouseDown);
+            this.consolePictureBox.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.consolePictureBox.Location = new System.Drawing.Point(0, 38);
+            this.consolePictureBox.Name = "consolePictureBox";
+            this.consolePictureBox.Size = new System.Drawing.Size(1679, 866);
+            this.consolePictureBox.TabIndex = 0;
+            this.consolePictureBox.TabStop = false;
+            this.consolePictureBox.Paint += new System.Windows.Forms.PaintEventHandler(this.pictureBox1_Paint);
+            this.consolePictureBox.MouseDown += new System.Windows.Forms.MouseEventHandler(this.pictureBox1_MouseDown);
             // 
             // consoleMenuStrip
             // 
@@ -79,7 +79,7 @@ namespace UK101Form
             this.toolStripSeparator2,
             this.exitToolStripMenuItem});
             this.fileMenuItem.Name = "fileMenuItem";
-            this.fileMenuItem.Size = new System.Drawing.Size(72, 38);
+            this.fileMenuItem.Size = new System.Drawing.Size(62, 38);
             this.fileMenuItem.Text = "File";
             // 
             // openFileMenuItem
@@ -118,8 +118,13 @@ namespace UK101Form
             this.fontToolStripMenuItem,
             this.colorToolStripMenuItem});
             this.formatToolStripMenuItem.Name = "formatToolStripMenuItem";
-            this.formatToolStripMenuItem.Size = new System.Drawing.Size(110, 38);
+            this.formatToolStripMenuItem.Size = new System.Drawing.Size(96, 38);
             this.formatToolStripMenuItem.Text = "Format";
+            // 
+            // fontToolStripMenuItem
+            // 
+            this.fontToolStripMenuItem.Name = "fontToolStripMenuItem";
+            this.fontToolStripMenuItem.Size = new System.Drawing.Size(180, 40);
             // 
             // colorToolStripMenuItem
             // 
@@ -133,15 +138,18 @@ namespace UK101Form
             this.AutoScaleDimensions = new System.Drawing.SizeF(11F, 24F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(1679, 904);
-            this.Controls.Add(this.pictureBox1);
+            this.ControlBox = false;
+            this.Controls.Add(this.consolePictureBox);
             this.Controls.Add(this.consoleMenuStrip);
             this.MainMenuStrip = this.consoleMenuStrip;
+            this.MaximizeBox = false;
+            this.MinimizeBox = false;
             this.Name = "ConsoleForm";
             this.Text = "UK101";
             this.Load += new System.EventHandler(this.ConsoleForm_Load);
             this.KeyDown += new System.Windows.Forms.KeyEventHandler(this.ConsoleForm_KeyDown);
             this.KeyUp += new System.Windows.Forms.KeyEventHandler(this.ConsoleForm_KeyUp);
-            ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.consolePictureBox)).EndInit();
             this.consoleMenuStrip.ResumeLayout(false);
             this.consoleMenuStrip.PerformLayout();
             this.ResumeLayout(false);
@@ -151,7 +159,7 @@ namespace UK101Form
 
         #endregion
 
-        private System.Windows.Forms.PictureBox pictureBox1;
+        private System.Windows.Forms.PictureBox consolePictureBox;
         private System.Windows.Forms.MenuStrip consoleMenuStrip;
         private System.Windows.Forms.ToolStripMenuItem fileMenuItem;
         private System.Windows.Forms.ToolStripMenuItem openFileMenuItem;
