@@ -200,7 +200,7 @@ namespace UK101Form
                         for (int i = 0; i < vbits; i++) // rows
                         {
                             byte data = _chargen.pData[character * vbits + i];
-                            for (int j = 0; j < hbits - 1; j++) // columns
+                            for (int j = 0; j < hbits; j++) // columns
                             {
                                 if ((data & (128 >> j)) != 0)
                                 {
@@ -216,8 +216,6 @@ namespace UK101Form
             System.Runtime.InteropServices.Marshal.Copy(rgbValues, 0, ptr, size);
 
             bmp.UnlockBits(bmpCanvas);
-
-            //Debug.WriteLine("Ticks()=" + (Environment.TickCount - start));
 
             return (bmp);
         }

@@ -22,12 +22,12 @@ namespace UK101Form
 
         //readonly IPeripheralIO _formIO;
         KeyboardMatrix _keyboardMatrix;
-        
+
         [DllImport("user32.dll")]
 
         private static extern short GetAsyncKeyState(Keys key);
         int pos = 0;
-        bool stopped = true;
+        bool _stopped = true;
 
         // Declare a delegate used to communicate with the UI thread
         public delegate void UpdateTextDelegate();
@@ -86,10 +86,9 @@ namespace UK101Form
             this.MinimizeBox = false;
             this.FormBorderStyle = FormBorderStyle.FixedSingle;
             int h = this.MainMenuStrip.Height;
-            this.MinimumSize = new Size(52 * 8, h + 37 * 8);
-            this.MaximumSize = new Size(52 * 8, h + 37 * 8);
+            this.MinimumSize = new Size(52 * 8, h + 37 * 8 - 1);
+            this.MaximumSize = new Size(52 * 8, h + 37 * 8 - 1);
             //this.Size = new Size(16 * 8, 16 * 8);
-
 
             this.KeyPreview = true;
 
@@ -107,17 +106,18 @@ namespace UK101Form
             // Add the tape
 
             _tape = new Tape(_formIO);
-			
-			this.Text = "uk101 " + ProductVersion;
-			
-			if ((path.Length > 0) && (name.Length > 0))
+
+            this.Text = "uk101 " + ProductVersion;
+
+            if ((path.Length > 0) && (name.Length > 0))
             {
                 consolePictureBox.Invalidate();
-                this.Text = "uk101 " + ProductVersion + " - " + name ;
+                this.Text = "uk101 " + ProductVersion + " - " + name;
 
                 string filenamePath = "";
                 filenamePath = path + Path.DirectorySeparatorChar + name + ".bas";
                 _tape.Filename = filenamePath;
+                mruMenu.AddFile(filenamePath);
 
                 try
                 {
@@ -139,7 +139,7 @@ namespace UK101Form
                 this.workerThread = new Thread(new ThreadStart(this.Run));
                 this.workerThread.Start();
             }
-			Debug.WriteLine("Out ConsoleForm()");
+            Debug.WriteLine("Out ConsoleForm()");
         }
 
         private void pictureBox1_Paint(object sender, PaintEventArgs e)
@@ -148,7 +148,7 @@ namespace UK101Form
             Graphics g = e.Graphics;
             Bitmap b = _display.Generate();
             g.DrawImageUnscaled(b, 0, 0);
-            _refreshing  = false;
+            _refreshing = false;
             _updated = false;
         }
 
@@ -177,13 +177,14 @@ namespace UK101Form
 
                 filenamePath = path + Path.DirectorySeparatorChar + name + ".bas";
                 _tape.Filename = filenamePath;
+
                 char[] program;
                 try
                 {
-                	// Start the simulator
+                    // Start the simulator
 
-                	this.workerThread = new Thread(new ThreadStart(this.Run));
-                	this.workerThread.Start();
+                    this.workerThread = new Thread(new ThreadStart(this.Run));
+                    this.workerThread.Start();
 
                 }
                 catch (Exception e1)
@@ -242,39 +243,39 @@ namespace UK101Form
 
             if (keyCode == Keys.Escape)
             {
-            	// I think this should be a key sequence as in the reset buttons
-        		// rather than a direct call to the processor.
+                // I think this should be a key sequence as in the reset buttons
+                // rather than a direct call to the processor.
                 _uk101.Reset();
             }
             else if (keyCode == Keys.F1) // Enable tape mode
             {
                 // Enable tape mode
-                Debug.WriteLine("Enable Tape");
+                TraceInternal.TraceVerbose("Enable Tape");
                 _uk101.MemoryBus.ACIA.Mode = ACIA.IO_MODE_6820_TAPE;
                 // Would like to consider a _tape.Open() 
             }
             else if (keyCode == Keys.F2)  // Play the tape
             {
                 // Play tape
-                Debug.WriteLine("Play tape");
+                TraceInternal.TraceVerbose("Play tape");
                 _tape.Play();
             }
             else if (keyCode == Keys.F3)  // Record to the tape
             {
                 // Record tape
-                Debug.WriteLine("Record to tape");
+                TraceInternal.TraceVerbose("Record to tape");
                 _tape.Record();
             }
             else if (keyCode == Keys.F4)  // Stop the tape
             {
                 // Stop tape
-                Debug.WriteLine("Stop tape");
+                TraceInternal.TraceVerbose("Stop tape");
                 _tape.Stop("test.bas");
             }
             else if (keyCode == Keys.F5) // Disble tape mode
             {
                 // Disable tape mode
-                Debug.WriteLine("Disable tape");
+                TraceInternal.TraceVerbose("Disable tape");
                 _uk101.MemoryBus.ACIA.Mode = ACIA.IO_MODE_6820_NONE;
                 // Would like to consider a _tape.Close() 
             }
@@ -298,9 +299,9 @@ namespace UK101Form
                 // Arrow up    = 0x48  send to UK101 as 0xba
                 // Enter       = 0x1c  send to UK101 as 0x0d
 
-                Debug.Print("Down KeyCode " + keyCode.ToString());
-                Debug.Print("Down Modifiers " + modifiers.ToString());
-                Debug.Print("Down Key " + keyValue.ToString());
+                TraceInternal.TraceVerbose("Down KeyCode " + keyCode.ToString());
+                TraceInternal.TraceVerbose("Down Modifiers " + modifiers.ToString());
+                TraceInternal.TraceVerbose("Down Key " + keyValue.ToString());
 
                 Key key;
                 if (modifiers == Keys.Shift)
@@ -321,21 +322,21 @@ namespace UK101Form
                     //}
                     //else
                     //{
-                        Debug.Print("lshift=" + Convert.ToBoolean(GetAsyncKeyState(Keys.LShiftKey)));
-                        Debug.Print("rshift=" + Convert.ToBoolean(GetAsyncKeyState(Keys.RShiftKey)));
+                    TraceInternal.TraceVerbose("lshift=" + Convert.ToBoolean(GetAsyncKeyState(Keys.LShiftKey)));
+                    TraceInternal.TraceVerbose("rshift=" + Convert.ToBoolean(GetAsyncKeyState(Keys.RShiftKey)));
 
-                        key = _keyboardMatrix.GetKey(keyCode, true);
-                        if (key.KeyCode != Keys.NoName)
-                        {        
-                            if (key.Shift == true)
-                            {
-                                TraceInternal.TraceVerbose("Apply shift");
-                                key = _keyboardMatrix.GetKey(Keys.LShiftKey, false);
-                                _formIO.PressKey(key.Row, key.Column);
-                            }
-                            key = _keyboardMatrix.GetKey(keyCode, true);
+                    key = _keyboardMatrix.GetKey(keyCode, true);
+                    if (key.KeyCode != Keys.NoName)
+                    {
+                        if (key.Shift == true)
+                        {
+                            TraceInternal.TraceVerbose("Apply shift");
+                            key = _keyboardMatrix.GetKey(Keys.LShiftKey, false);
                             _formIO.PressKey(key.Row, key.Column);
                         }
+                        key = _keyboardMatrix.GetKey(keyCode, true);
+                        _formIO.PressKey(key.Row, key.Column);
+                    }
                     //}
                 }
                 else
@@ -398,9 +399,9 @@ namespace UK101Form
                     _formIO.KeyStates[7] |= 0x01;
                 }
 
-                Debug.Print("Up KeyCode " + keyCode.ToString());
-                Debug.Print("Up Modifiers " + modifiers.ToString());
-                Debug.Print("Up Key " + keyValue.ToString());
+                TraceInternal.TraceVerbose("Up KeyCode " + keyCode.ToString());
+                TraceInternal.TraceVerbose("Up Modifiers " + modifiers.ToString());
+                TraceInternal.TraceVerbose("Up Key " + keyValue.ToString());
 
                 Key key;
                 if (modifiers == Keys.Shift)
@@ -420,21 +421,21 @@ namespace UK101Form
                     //}
                     //else
                     //{
-                        Debug.Print("lshift=" + Convert.ToBoolean(GetAsyncKeyState(Keys.LShiftKey)));
-                        Debug.Print("rshift=" + Convert.ToBoolean(GetAsyncKeyState(Keys.RShiftKey)));
+                    TraceInternal.TraceVerbose("lshift=" + Convert.ToBoolean(GetAsyncKeyState(Keys.LShiftKey)));
+                    TraceInternal.TraceVerbose("rshift=" + Convert.ToBoolean(GetAsyncKeyState(Keys.RShiftKey)));
 
-                        key = _keyboardMatrix.GetKey(keyCode, true);
-                        if (key.KeyCode != Keys.NoName)
+                    key = _keyboardMatrix.GetKey(keyCode, true);
+                    if (key.KeyCode != Keys.NoName)
+                    {
+                        if (key.Shift == true)
                         {
-                            if (key.Shift == true)
-                            {
-                                Debug.Print("Release shift");
-                                key = _keyboardMatrix.GetKey(Keys.LShiftKey, false);
-                                _formIO.ReleaseKey(key.Row, key.Column);
-                            }
-                            key = _keyboardMatrix.GetKey(keyCode, true);
+                            TraceInternal.TraceVerbose("Release shift");
+                            key = _keyboardMatrix.GetKey(Keys.LShiftKey, false);
                             _formIO.ReleaseKey(key.Row, key.Column);
                         }
+                        key = _keyboardMatrix.GetKey(keyCode, true);
+                        _formIO.ReleaseKey(key.Row, key.Column);
+                    }
                     //}
                 }
                 else
@@ -444,7 +445,7 @@ namespace UK101Form
                     {
                         if (key.Shift == true)
                         {
-                            Debug.Print("Release shift");
+                            TraceInternal.TraceVerbose("Release shift");
                             key = _keyboardMatrix.GetKey(Keys.LShiftKey, false);
                             _formIO.ReleaseKey(key.Row, key.Column);
                         }
@@ -461,10 +462,11 @@ namespace UK101Form
 
             string path = "";
             string name = "";
+            string extension = "";
 
-            consolePictureBox.Enabled = false;
-            consolePictureBox.Visible = false;
-            if (stopped == false)
+            //consolePictureBox.Enabled = false;
+            //consolePictureBox.Visible = false;
+            if (_stopped == false)
             {
                 workerThread.Abort();
             }
@@ -479,10 +481,16 @@ namespace UK101Form
             if (openFileDialog.ShowDialog() == DialogResult.OK)
             {
                 string filenamePath = openFileDialog.FileName;
+                pos = filenamePath.LastIndexOf('.');
+                if (pos > 0)
+                {
+                    extension = filenamePath.Substring(pos + 1, filenamePath.Length - pos - 1);
+                    filenamePath = filenamePath.Substring(0, pos);
+                }
                 pos = filenamePath.LastIndexOf('\\');
                 if (pos > 0)
                 {
-                    path= filenamePath.Substring(0, pos);
+                    path = filenamePath.Substring(0, pos);
                     name = filenamePath.Substring(pos + 1, filenamePath.Length - pos - 1);
                 }
                 else
@@ -494,21 +502,10 @@ namespace UK101Form
 
                 this.Text = "uk101 " + ProductVersion + " - " + name;
 
-
                 filenamePath = path + Path.DirectorySeparatorChar + name + ".bas";
                 _tape.Filename = filenamePath;
-                try
-                {
-                	// Start the simulator
+                mruMenu.AddFile(filenamePath);
 
-                	this.workerThread = new Thread(new ThreadStart(this.Run));
-                	this.workerThread.Start();
-
-                }
-                catch (Exception e1)
-                {
-                    TraceInternal.TraceError(e1.ToString());
-                }
             }
             Debug.WriteLine("Out FileOpenMenuItem_Click()");
         }
@@ -525,7 +522,7 @@ namespace UK101Form
                 // fIx errors with location being negative or off the main display
 
                 this.Location = Settings.Default.ConsoleLocation;
-                if ((this.Location.X<0) || (this.Location.Y<0))
+                if ((this.Location.X < 0) || (this.Location.Y < 0))
                 {
                     this.Location = new Point(0, 0);
                 }
@@ -553,7 +550,7 @@ namespace UK101Form
             }
 
             Debug.WriteLine("Out ConsoleForm_Load()");
-		}
+        }
 
         private void timer_Tick(object sender, EventArgs e)
         {
@@ -571,7 +568,7 @@ namespace UK101Form
             // Need to stop the thread
             // think i will try a better approach
 
-            if (stopped == false)
+            if (_stopped == false)
             {
                 workerThread.Abort();
             }
@@ -653,13 +650,13 @@ namespace UK101Form
             string[] files = mruMenu.GetFiles();
             Properties.Settings.Default["FileCount"] = files.Length;
             TraceInternal.TraceVerbose("Files=" + files.Length);
-            for (int i=0; i < 4; i++)
+            for (int i = 0; i < 4; i++)
             {
                 string property = "File" + (i + 1);
                 if (i < files.Length)
                 {
                     Properties.Settings.Default[property] = files[i];
-                    TraceInternal.TraceVerbose("Save " + property + "="+ files[i]);
+                    TraceInternal.TraceVerbose("Save " + property + "=" + files[i]);
                 }
                 else
                 {
@@ -670,6 +667,46 @@ namespace UK101Form
             Debug.WriteLine("Out SaveFiles");
         }
 
+        private void enableToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            TraceInternal.TraceVerbose("Enable Tape");
+            _uk101.MemoryBus.ACIA.Mode = ACIA.IO_MODE_6820_TAPE;
+        }
+
+        private void playToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            // Play tape
+            TraceInternal.TraceVerbose("Play tape");
+            _tape.Play();
+        }
+
+        private void stopToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            // Stop tape
+            TraceInternal.TraceVerbose("Stop tape");
+            _tape.Stop("test.bas");
+        }
+
+        private void recordToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            // Record tape
+            TraceInternal.TraceVerbose("Record to tape");
+            _tape.Record();
+        }
+
+        private void disableToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            // Disable tape mode
+            TraceInternal.TraceVerbose("Disable tape");
+            _uk101.MemoryBus.ACIA.Mode = ACIA.IO_MODE_6820_NONE;
+            // Would like to consider a _tape.Close() 
+        }
+
+        private void newToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            // Reset basic
+            _uk101.Reset();
+        }
     }
 }
 

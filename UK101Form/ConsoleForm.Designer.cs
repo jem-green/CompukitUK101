@@ -34,6 +34,7 @@ namespace UK101Form
             this.consolePictureBox = new System.Windows.Forms.PictureBox();
             this.consoleMenuStrip = new System.Windows.Forms.MenuStrip();
             this.fileMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.newToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.openFileMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.toolStripSeparator1 = new System.Windows.Forms.ToolStripSeparator();
             this.recentFileToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
@@ -42,6 +43,12 @@ namespace UK101Form
             this.formatToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.fontToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.colorToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.tapeToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.enableToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.playToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.recordToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.stopToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.disableToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             ((System.ComponentModel.ISupportInitialize)(this.consolePictureBox)).BeginInit();
             this.consoleMenuStrip.SuspendLayout();
             this.SuspendLayout();
@@ -49,9 +56,9 @@ namespace UK101Form
             // consolePictureBox
             // 
             this.consolePictureBox.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.consolePictureBox.Location = new System.Drawing.Point(0, 38);
+            this.consolePictureBox.Location = new System.Drawing.Point(0, 42);
             this.consolePictureBox.Name = "consolePictureBox";
-            this.consolePictureBox.Size = new System.Drawing.Size(1679, 866);
+            this.consolePictureBox.Size = new System.Drawing.Size(1679, 862);
             this.consolePictureBox.TabIndex = 0;
             this.consolePictureBox.TabStop = false;
             this.consolePictureBox.Paint += new System.Windows.Forms.PaintEventHandler(this.pictureBox1_Paint);
@@ -63,24 +70,33 @@ namespace UK101Form
             this.consoleMenuStrip.ImageScalingSize = new System.Drawing.Size(32, 32);
             this.consoleMenuStrip.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.fileMenuItem,
-            this.formatToolStripMenuItem});
+            this.formatToolStripMenuItem,
+            this.tapeToolStripMenuItem});
             this.consoleMenuStrip.Location = new System.Drawing.Point(0, 0);
             this.consoleMenuStrip.Name = "consoleMenuStrip";
-            this.consoleMenuStrip.Size = new System.Drawing.Size(1679, 38);
+            this.consoleMenuStrip.Size = new System.Drawing.Size(1679, 42);
             this.consoleMenuStrip.TabIndex = 1;
             this.consoleMenuStrip.Text = "menuStrip1";
             // 
             // fileMenuItem
             // 
             this.fileMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.newToolStripMenuItem,
             this.openFileMenuItem,
             this.toolStripSeparator1,
             this.recentFileToolStripMenuItem,
             this.toolStripSeparator2,
             this.exitToolStripMenuItem});
             this.fileMenuItem.Name = "fileMenuItem";
-            this.fileMenuItem.Size = new System.Drawing.Size(62, 38);
+            this.fileMenuItem.Size = new System.Drawing.Size(62, 34);
             this.fileMenuItem.Text = "File";
+            // 
+            // newToolStripMenuItem
+            // 
+            this.newToolStripMenuItem.Name = "newToolStripMenuItem";
+            this.newToolStripMenuItem.Size = new System.Drawing.Size(231, 40);
+            this.newToolStripMenuItem.Text = "&New";
+            this.newToolStripMenuItem.Click += new System.EventHandler(this.newToolStripMenuItem_Click);
             // 
             // openFileMenuItem
             // 
@@ -118,7 +134,7 @@ namespace UK101Form
             this.fontToolStripMenuItem,
             this.colorToolStripMenuItem});
             this.formatToolStripMenuItem.Name = "formatToolStripMenuItem";
-            this.formatToolStripMenuItem.Size = new System.Drawing.Size(96, 38);
+            this.formatToolStripMenuItem.Size = new System.Drawing.Size(96, 34);
             this.formatToolStripMenuItem.Text = "Format";
             // 
             // fontToolStripMenuItem
@@ -133,12 +149,58 @@ namespace UK101Form
             this.colorToolStripMenuItem.Text = "Color";
             this.colorToolStripMenuItem.Click += new System.EventHandler(this.FormatColorMenuItem_Click);
             // 
+            // tapeToolStripMenuItem
+            // 
+            this.tapeToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.enableToolStripMenuItem,
+            this.playToolStripMenuItem,
+            this.recordToolStripMenuItem,
+            this.stopToolStripMenuItem,
+            this.disableToolStripMenuItem});
+            this.tapeToolStripMenuItem.Name = "tapeToolStripMenuItem";
+            this.tapeToolStripMenuItem.Size = new System.Drawing.Size(74, 34);
+            this.tapeToolStripMenuItem.Text = "Tape";
+            // 
+            // enableToolStripMenuItem
+            // 
+            this.enableToolStripMenuItem.Name = "enableToolStripMenuItem";
+            this.enableToolStripMenuItem.Size = new System.Drawing.Size(199, 40);
+            this.enableToolStripMenuItem.Text = "Enable";
+            this.enableToolStripMenuItem.Click += new System.EventHandler(this.enableToolStripMenuItem_Click);
+            // 
+            // playToolStripMenuItem
+            // 
+            this.playToolStripMenuItem.Name = "playToolStripMenuItem";
+            this.playToolStripMenuItem.Size = new System.Drawing.Size(199, 40);
+            this.playToolStripMenuItem.Text = "Play";
+            this.playToolStripMenuItem.Click += new System.EventHandler(this.playToolStripMenuItem_Click);
+            // 
+            // recordToolStripMenuItem
+            // 
+            this.recordToolStripMenuItem.Name = "recordToolStripMenuItem";
+            this.recordToolStripMenuItem.Size = new System.Drawing.Size(199, 40);
+            this.recordToolStripMenuItem.Text = "Record";
+            this.recordToolStripMenuItem.Click += new System.EventHandler(this.recordToolStripMenuItem_Click);
+            // 
+            // stopToolStripMenuItem
+            // 
+            this.stopToolStripMenuItem.Name = "stopToolStripMenuItem";
+            this.stopToolStripMenuItem.Size = new System.Drawing.Size(199, 40);
+            this.stopToolStripMenuItem.Text = "Stop";
+            this.stopToolStripMenuItem.Click += new System.EventHandler(this.stopToolStripMenuItem_Click);
+            // 
+            // disableToolStripMenuItem
+            // 
+            this.disableToolStripMenuItem.Name = "disableToolStripMenuItem";
+            this.disableToolStripMenuItem.Size = new System.Drawing.Size(199, 40);
+            this.disableToolStripMenuItem.Text = "Disable";
+            this.disableToolStripMenuItem.Click += new System.EventHandler(this.disableToolStripMenuItem_Click);
+            // 
             // ConsoleForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(11F, 24F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(1679, 904);
-            this.ControlBox = false;
             this.Controls.Add(this.consolePictureBox);
             this.Controls.Add(this.consoleMenuStrip);
             this.MainMenuStrip = this.consoleMenuStrip;
@@ -170,6 +232,13 @@ namespace UK101Form
         private System.Windows.Forms.ToolStripSeparator toolStripSeparator1;
         private System.Windows.Forms.ToolStripMenuItem recentFileToolStripMenuItem;
         private System.Windows.Forms.ToolStripSeparator toolStripSeparator2;
+        private System.Windows.Forms.ToolStripMenuItem tapeToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem enableToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem playToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem stopToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem recordToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem disableToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem newToolStripMenuItem;
     }
 }
 

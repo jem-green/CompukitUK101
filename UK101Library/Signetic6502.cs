@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Text;
+using TracerLibrary;
 
 namespace UK101Library
 {
@@ -60,17 +61,10 @@ namespace UK101Library
 
         public MemoryBus _memoryBus;
         ushort AddressInEffect;
-        //bool LogFlag;
-        //bool LogEnter;
 
         public Signetic6502(MemoryBus memoryBus)
         {
             _memoryBus = memoryBus;
-        }
-
-        private void DebugLine(String PC, String OpCode, String AddressMode, byte[] Bytes, String AddressInEffect)
-        {
-            if (DebugEnabled) Debug.WriteLine(PC + " " + OpCode + " " + AddressMode + " " + AddressInEffect);
         }
 
         public void Reset()
@@ -160,7 +154,7 @@ namespace UK101Library
                     addr += "" + hexChars[_memoryBus.ROM8000.pData[i + ab + 1] / 16] + hexChars[_memoryBus.ROM8000.pData[i + ab + 1] % 16] + "\t";
                 }
                 i += addressBytes;
-                Debug.WriteLine(DebugString + " " + addr);
+                TraceInternal.TraceVerbose(DebugString + " " + addr);
             }
         }
 

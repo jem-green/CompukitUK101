@@ -7,6 +7,7 @@ using System.Runtime.InteropServices.WindowsRuntime;
 using System.Text;
 using System.Threading;
 using System.Windows.Threading;
+using TracerLibrary;
 
 /*
  * Adress
@@ -285,7 +286,7 @@ namespace UK101Library
                             }
                             else
                             {
-                                Debug.WriteLine("Tape not playing");
+                                TraceInternal.TraceVerbose("Tape not playing");
                             }
                             return (_rdr);
                         }
@@ -319,12 +320,11 @@ namespace UK101Library
             else
             {
                 // Read status:
-                //Debug.WriteLine("Status=" + Convert.ToString(ACIAStatus, 2).PadLeft(8, '0'));
                 switch (mode)
                 {
                     case IO_MODE_6820_TAPE:
                         {
-                            // Chalenge here is dont know if playing or receiveing
+                            // Chalange here is dont know if playing or receiveing
                             // Suspect i need another flag from the Periperal to get the
                             // status
 
@@ -345,7 +345,7 @@ namespace UK101Library
                             }
                             else
                             {
-                                Debug.WriteLine("Tape not recording or playing");
+                                TraceInternal.TraceVerbose("Tape not recording or playing");
                             }
                             return(ACIAStatus);
                         }
@@ -379,7 +379,7 @@ namespace UK101Library
                             }
                             else
                             {
-                                Debug.WriteLine("Tape not recording");
+                                TraceInternal.TraceVerbose("Tape not recording");
                             }
                             SetFlag(ACIA.ACIA_STATUS_TDRE);   // Set TDRE high to indicate that ACIA has finished transmitting
                             break;
@@ -398,23 +398,23 @@ namespace UK101Library
             {
                 // Accept a command
                 ACIACommand = InData;
-                Debug.WriteLine("Command=" + Convert.ToString(InData, 2).PadLeft(8, '0'));
+                TraceInternal.TraceVerbose("Command=" + Convert.ToString(InData, 2).PadLeft(8, '0'));
 
                 // Counter divide
 
                 if ((ACIACommand & ACIA_CONTROL_DIVISION_MASK) == ACIA_CONTROL_DM_SIXTEEN)
                 {
                     _counterDivider = 16;
-                    Debug.WriteLine("Counter Devide=" + _counterDivider);
+                    TraceInternal.TraceVerbose("Counter Devide=" + _counterDivider);
                 }
                 else if ((ACIACommand & ACIA_CONTROL_DIVISION_MASK) == ACIA_CONTROL_DM_SIXTY_FOUR)
                 {
                     _counterDivider = 64;
-                    Debug.WriteLine("Counter Devide=" + _counterDivider);
+                    TraceInternal.TraceVerbose("Counter Devide=" + _counterDivider);
                 }
                 else if ((ACIACommand & ACIA_CONTROL_DIVISION_MASK) == ACIA_CONTROL_MASTER_RESET)
                 {
-                    Debug.WriteLine("Reset the status register");
+                    TraceInternal.TraceVerbose("Reset the status register");
                     _rts = true;
                     ACIAStatus = 0x00;
                     ResetFlag(ACIA_STATUS_IRQ);
@@ -424,56 +424,56 @@ namespace UK101Library
 
                 if ((ACIACommand & ACIA_CONTROL_PROTOCOL_MASK) == ACIA_CONTROL_PM_7E2)
                 {
-                    Debug.WriteLine("Packet format 7 data, even party, 2 stop bits");
+                    TraceInternal.TraceVerbose("Packet format 7 data, even party, 2 stop bits");
                     _dataBits = 7;
                     _parity = Parity.Even;
                     _stopBits = StopBits.Two;
                 }
                 else if ((ACIACommand & ACIA_CONTROL_PROTOCOL_MASK) == ACIA_CONTROL_PM_7O2)
                 {
-                    Debug.WriteLine("Packet format 7 data, odd party, 2 stop bits");
+                    TraceInternal.TraceVerbose("Packet format 7 data, odd party, 2 stop bits");
                     _dataBits = 7;
                     _parity = Parity.Odd;
                     _stopBits = StopBits.Two;
                 }
                 else if ((ACIACommand & ACIA_CONTROL_PROTOCOL_MASK) == ACIA_CONTROL_PM_7E1)
                 {
-                    Debug.WriteLine("Packet format 7 data, even party, 1 stop bit");
+                    TraceInternal.TraceVerbose("Packet format 7 data, even party, 1 stop bit");
                     _dataBits = 7;
                     _parity = Parity.Even;
                     _stopBits = StopBits.One;
                 }
                 else if ((ACIACommand & ACIA_CONTROL_PROTOCOL_MASK) == ACIA_CONTROL_PM_7O1)
                 {
-                    Debug.WriteLine("Packet format 7 data, odd party, 1 stop bit");
+                    TraceInternal.TraceVerbose("Packet format 7 data, odd party, 1 stop bit");
                     _dataBits = 7;
                     _parity = Parity.Odd;
                     _stopBits = StopBits.One;
                 }
                 else if ((ACIACommand & ACIA_CONTROL_PROTOCOL_MASK) == ACIA_CONTROL_PM_8N2)
                 {
-                    Debug.WriteLine("Packet format 8 data, no party, 2 stop bits");
+                    TraceInternal.TraceVerbose("Packet format 8 data, no party, 2 stop bits");
                     _dataBits = 8;
                     _parity = Parity.None;
                     _stopBits = StopBits.Two;
                 }
                 else if ((ACIACommand & ACIA_CONTROL_PROTOCOL_MASK) == ACIA_CONTROL_PM_8N1)
                 {
-                    Debug.WriteLine("Packet format 8 data, no party, 1 stop bit");
+                    TraceInternal.TraceVerbose("Packet format 8 data, no party, 1 stop bit");
                     _dataBits = 8;
                     _parity = Parity.None;
                     _stopBits = StopBits.One;
                 }
                 else if ((ACIACommand & ACIA_CONTROL_PROTOCOL_MASK) == ACIA_CONTROL_PM_8E1)
                 {
-                    Debug.WriteLine("Packet format 8 data, even party, 1 stop bit");
+                    TraceInternal.TraceVerbose("Packet format 8 data, even party, 1 stop bit");
                     _dataBits = 8;
                     _parity = Parity.None;
                     _stopBits = StopBits.One;
                 }
                 else if ((ACIACommand & ACIA_CONTROL_PROTOCOL_MASK) == ACIA_CONTROL_PM_8O1)
                 {
-                    Debug.WriteLine("Packet format 8 data, odd party, 1 stop bit");
+                    TraceInternal.TraceVerbose("Packet format 8 data, odd party, 1 stop bit");
                     _dataBits = 8;
                     _parity = Parity.Odd;
                     _stopBits = StopBits.One;

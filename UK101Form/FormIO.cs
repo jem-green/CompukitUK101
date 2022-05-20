@@ -296,7 +296,6 @@ namespace UK101Form
                     }
                 }
             }
-            //Debug.WriteLine("Out Ticks()=" + (Environment.TickCount - start));
         }
 
         /// <summary>

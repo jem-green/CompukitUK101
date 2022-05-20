@@ -23,6 +23,7 @@ namespace UK101Form
         static void Main()
         {
             Debug.WriteLine("Enter Main()");
+
             string[] args = Environment.GetCommandLineArgs();
 			int pos = 0;
             Parameter<string> filePath = new Parameter<string>();
@@ -34,14 +35,14 @@ namespace UK101Form
             filePath.Source = Parameter<string>.SourceType.App;
 
             Parameter<string> logPath = new Parameter<string>("");
-            Parameter<string> logName = new Parameter<string>("ubasicterminal");
+            Parameter<string> logName = new Parameter<string>("uk101form");
 
             logPath.Value = System.Reflection.Assembly.GetExecutingAssembly().Location;
             logPath.Value = filePath.Value = Environment.CurrentDirectory;
             logPath.Source = Parameter<string>.SourceType.App;
 
             Parameter<SourceLevels> traceLevels = new Parameter<SourceLevels>();
-            traceLevels.Value = TraceInternal.TraceLookup("CRITICAL");
+            traceLevels.Value = TraceInternal.TraceLookup("INFORMATION");
             traceLevels.Source = Parameter<SourceLevels>.SourceType.App;
 
             // Configure tracer options

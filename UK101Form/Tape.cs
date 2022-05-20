@@ -7,6 +7,7 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using UK101Library;
+using TracerLibrary;
 
 namespace UK101Form
 {
@@ -128,7 +129,7 @@ namespace UK101Form
                     }
                     catch
                     {
-                        throw new Exception("File exists");
+                        throw new FileLoadException(filename + "exists");
                     }
                 }
 
@@ -180,7 +181,7 @@ namespace UK101Form
             }
             else
             {
-                Debug.WriteLine("Tape is not stopped");
+               TraceInternal.TraceVerbose("Tape is not stopped");
             }
         }
 
@@ -206,12 +207,12 @@ namespace UK101Form
                 }
                 else
                 {
-                    Debug.WriteLine("File missing");
+                    throw new FileNotFoundException(filename + " not found");
                 }
             }
             else
             {
-                Debug.WriteLine("Tape is not stopped");
+                TraceInternal.TraceVerbose("Tape is not stopped");
             }
         }
 
