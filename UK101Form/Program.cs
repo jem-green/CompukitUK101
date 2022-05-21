@@ -28,6 +28,7 @@ namespace UK101Form
 			int pos = 0;
             Parameter<string> filePath = new Parameter<string>();
             Parameter<string> filename = new Parameter<string>();
+            Parameter<string> fileExtension = new Parameter<string>();
 
             // Get the default path directory
 
@@ -59,7 +60,6 @@ namespace UK101Form
             // Check if the config file has been paased in and overwrite the registry
 
             string filenamePath = "";
-            string extension = "";
             int items = args.Length;
             if (items == 2)
             {
@@ -67,7 +67,8 @@ namespace UK101Form
                 pos = filenamePath.LastIndexOf('.');
                 if (pos > 0)
                 {
-                    extension = filenamePath.Substring(pos + 1, filenamePath.Length - pos - 1);
+                    fileExtension.Value = filenamePath.Substring(pos + 1, filenamePath.Length - pos - 1);
+                    filePath.Source = Parameter<string>.SourceType.Command;
                     filenamePath = filenamePath.Substring(0, pos);
                 }
                 pos = filenamePath.LastIndexOf('\\');
@@ -85,6 +86,7 @@ namespace UK101Form
                 }
                 TraceInternal.TraceVerbose("Use filename=" + filename.Value.ToString());
                 TraceInternal.TraceVerbose("use filePath=" + filePath.Value.ToString());
+                TraceInternal.TraceVerbose("use fileExtension=" + fileExtension.Value.ToString());
             }
             else
             {
@@ -137,8 +139,16 @@ namespace UK101Form
 	                            filename.Value = filename.Value.ToString().TrimStart('"');
 	                            filename.Value = filename.Value.ToString().TrimEnd('"');
 	                            filename.Source = Parameter<string>.SourceType.Command;
+                                pos = filename.Value.LastIndexOf('.');
+                                if (pos > 0)
+                                {
+                                    fileExtension.Value = filenamePath.Substring(pos + 1, filenamePath.Length - pos - 1);
+                                    filePath.Source = Parameter<string>.SourceType.Command;
+                                    filename.Value = filenamePath.Substring(0, pos);
+                                }
                                 TraceInternal.TraceVerbose("Use command value Name=" + filename);
-                            	break;
+                                TraceInternal.TraceVerbose("Use command value Extension=" + fileExtension);
+                                break;
                             }
                         case "/P":
                         case "--path":
@@ -179,7 +189,7 @@ namespace UK101Form
             Trace.TraceInformation("Use Log Path=" + logPath);
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
-            Application.Run(new ConsoleForm(filePath.Value.ToString(), filename.Value.ToString()));
+            Application.Run(new ConsoleForm(filePath.Value.ToString(), filename.Value.ToString(), fileExtension.Value.ToString()));
 
             Debug.WriteLine("Exit Main()");
 

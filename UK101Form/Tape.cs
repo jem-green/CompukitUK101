@@ -29,6 +29,7 @@ namespace UK101Form
         TapeMode _mode = TapeMode.Stopped;
         IPeripheralIO _peripheralIO;
         string _filename = "";
+        string _path = "";
 
         [Flags]
         public enum TapeMode : byte
@@ -58,7 +59,7 @@ namespace UK101Form
             }
         }
 
-        public string Filename
+        public string Name
         {
             get
             {
@@ -67,6 +68,18 @@ namespace UK101Form
             set
             {
                 _filename = value;
+            }
+        }
+
+        public string Path
+        {
+            get
+            {
+                return (_path);
+            }
+            set
+            {
+                _path = value;
             }
         }
 
@@ -111,30 +124,34 @@ namespace UK101Form
 
         public void Stop()
         {
-            Stop(_filename);
+            Stop(_path,_filename);
         }
 
-        public void Stop(string filename)
+        public void Stop(string path, string name)
         {
             // If recording then when the tape is stopped
-            // save the data
+            // save the data. Note that this is specifically
+            // for basic programs wo needs extending to include
+            // a type so basic or machinecode
+
+            string filenamePath = path + System.IO.Path.DirectorySeparatorChar + name;
 
             if (_mode == TapeMode.Recording)
             {
-                if (File.Exists(filename) == true)
+                if (File.Exists(filenamePath) == true)
                 {
                     try
                     {
-                        File.Delete(filename);
+                        File.Delete(filenamePath);
                     }
                     catch
                     {
-                        throw new FileLoadException(filename + "exists");
+                        throw new FileLoadException(filenamePath + "exists");
                     }
                 }
 
                 _memoryStream.Seek(0, SeekOrigin.Begin);
-                using (FileStream fs = new FileStream(filename, FileMode.OpenOrCreate))
+                using (FileStream fs = new FileStream(filenamePath, FileMode.OpenOrCreate))
                 {
                     _memoryStream.CopyTo(fs);
                     fs.Flush();
@@ -187,18 +204,22 @@ namespace UK101Form
 
         public void Play()
         {
-            Play(_filename);
+            Play(_path,_filename);
         }
 
-        public void Play(string filename)
+        public void Play(string path, string name)
         {
+            // Note: May need to consider if the file is basic or machinecode
+
+            string filenamePath = path + System.IO.Path.DirectorySeparatorChar + name;
+
             if (_mode == TapeMode.Stopped)
             {
-                if (File.Exists(filename) == true)
+                if (File.Exists(filenamePath) == true)
                 {
                     _mode = TapeMode.Playing;
                     _memoryStream = new MemoryStream();
-                    FileStream file = new FileStream(filename, FileMode.Open, FileAccess.Read);
+                    FileStream file = new FileStream(filenamePath, FileMode.Open, FileAccess.Read);
 
                     file.CopyTo(_memoryStream);
                     _memoryStream.Seek(0, SeekOrigin.Begin);   
@@ -207,7 +228,7 @@ namespace UK101Form
                 }
                 else
                 {
-                    throw new FileNotFoundException(filename + " not found");
+                    throw new FileNotFoundException(filenamePath + " not found");
                 }
             }
             else

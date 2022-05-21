@@ -126,6 +126,8 @@
     <Content Include="Basic\TankBattle.bas" />
     <Content Include="Basic\TheTowerOfBrahma32.bas" />
   </ItemGroup>
-  <ItemGroup />
+  <ItemGroup>
+    <Folder Include="MachineCode\" />
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

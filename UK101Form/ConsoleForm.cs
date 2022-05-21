@@ -48,7 +48,7 @@ namespace UK101Form
 
         #endregion
 
-        public ConsoleForm(string path, string name)
+        public ConsoleForm(string path, string name, string extension)
         {
             Debug.WriteLine("In ConsoleForm()");
 
@@ -115,8 +115,9 @@ namespace UK101Form
                 this.Text = "uk101 " + ProductVersion + " - " + name;
 
                 string filenamePath = "";
-                filenamePath = path + Path.DirectorySeparatorChar + name + ".bas";
-                _tape.Filename = filenamePath;
+                filenamePath = path + Path.DirectorySeparatorChar + name + "." + extension;
+                _tape.Path = path;
+                _tape.Name = name + "." + extension;
                 mruMenu.AddFile(filenamePath);
 
                 try
@@ -152,14 +153,21 @@ namespace UK101Form
             _updated = false;
         }
 
-        private void OnMruFile(int number, String filenamePath)
+        private void OnMruFile(int number, string filenamePath)
         {
             string path = "";
             string name = "";
+            string extension = "";
 
             if (File.Exists(filenamePath) == true)
             {
                 mruMenu.SetFirstFile(number);
+                pos = filenamePath.LastIndexOf('.');
+                if (pos > 0)
+                {
+                    extension = filenamePath.Substring(pos + 1, filenamePath.Length - pos - 1);
+                    filenamePath = filenamePath.Substring(0, pos);
+                }
                 pos = filenamePath.LastIndexOf('\\');
                 if (pos > 0)
                 {
@@ -172,11 +180,13 @@ namespace UK101Form
                 }
                 TraceInternal.TraceInformation("Use Name=" + name);
                 TraceInternal.TraceInformation("Use Path=" + path);
+                TraceInternal.TraceInformation("Use Extension=" + extension);
 
                 this.Text = "uBasic " + ProductVersion + " - " + name;
 
-                filenamePath = path + Path.DirectorySeparatorChar + name + ".bas";
-                _tape.Filename = filenamePath;
+                filenamePath = path + Path.DirectorySeparatorChar + name + "." + extension;
+                _tape.Path = path;
+                _tape.Name = name + "." + extension;
 
                 char[] program;
                 try
@@ -270,7 +280,7 @@ namespace UK101Form
             {
                 // Stop tape
                 TraceInternal.TraceVerbose("Stop tape");
-                _tape.Stop("test.bas");
+                _tape.Stop(_tape.Path,"test.bas");
             }
             else if (keyCode == Keys.F5) // Disble tape mode
             {
@@ -473,7 +483,7 @@ namespace UK101Form
 
             OpenFileDialog openFileDialog = new OpenFileDialog
             {
-                Filter = "uk101 (*.bas)|*.bas",
+                Filter = "uk101 (*.bas;*.mc)|*.bas;*.mc",
                 FilterIndex = 1,
                 RestoreDirectory = true
             };
@@ -499,11 +509,13 @@ namespace UK101Form
                 }
                 TraceInternal.TraceInformation("Use Name=" + name);
                 TraceInternal.TraceInformation("Use Path=" + path);
+                TraceInternal.TraceInformation("Use Path=" + extension);
 
                 this.Text = "uk101 " + ProductVersion + " - " + name;
 
-                filenamePath = path + Path.DirectorySeparatorChar + name + ".bas";
-                _tape.Filename = filenamePath;
+                filenamePath = path + Path.DirectorySeparatorChar + name + "." + extension;
+                _tape.Path = path;
+                _tape.Name = name + "." + extension;
                 mruMenu.AddFile(filenamePath);
 
             }
@@ -684,7 +696,7 @@ namespace UK101Form
         {
             // Stop tape
             TraceInternal.TraceVerbose("Stop tape");
-            _tape.Stop("test.bas");
+            _tape.Stop(_tape.Path, "test.bas");
         }
 
         private void recordToolStripMenuItem_Click(object sender, EventArgs e)
