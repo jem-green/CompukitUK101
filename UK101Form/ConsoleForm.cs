@@ -37,11 +37,12 @@ namespace UK101Form
         private Thread workerThread = null;
         FormIO _formIO = null;
 
-        byte _row = 2;
-        byte _column = 3;
+        // display updating fix
 
-        bool _refreshing = false;
         bool _updated = false;
+        int _height = 32;
+        int _width = 51;
+        int _scale = 1;
 
         // Most recently used
         protected MruStripMenu mruMenu;
@@ -56,14 +57,18 @@ namespace UK101Form
 
             this.Icon = Resources.compukit;
 
+            // Display size
+
+            _height = 32;
+
             // Add this display
 
             _display = new Display();
             _display.Width = 50;
-            _display.Height = 32;
+            _display.Height = _height;
             _display.Left = 0;
             _display.Top = 0;
-
+            _display.Scale = _scale;
             _display.CharacterGenerator = new CHARGEN(0x0);
 
             _formIO = new FormIO(_display);
@@ -71,13 +76,10 @@ namespace UK101Form
             _formIO.Top = 0;
             _formIO.Left = 11;
             _formIO.Width = 50;
-            _formIO.Height = 32;
+            _formIO.Height = _height;
 
-            // Initialise the delegate
-            //this.updateTextDelegate = new UpdateTextDelegate(this.UpdateText);
+            // Fit the picturebox to the form
 
-            consolePictureBox.Width = 50 * 8;
-            consolePictureBox.Height = 32 * 8;
             consolePictureBox.Select();
 
             // Fix the form size
@@ -86,9 +88,8 @@ namespace UK101Form
             this.MinimizeBox = false;
             this.FormBorderStyle = FormBorderStyle.FixedSingle;
             int h = this.MainMenuStrip.Height;
-            this.MinimumSize = new Size(52 * 8, h + 37 * 8 - 1);
-            this.MaximumSize = new Size(52 * 8, h + 37 * 8 - 1);
-            //this.Size = new Size(16 * 8, 16 * 8);
+            this.MinimumSize = new Size(52 * 8 * _scale, h + (_height + 5) * 8 * _scale - 1);
+            this.MaximumSize = new Size(52 * 8 * _scale, h + (_height + 5) * 8 * _scale - 1);
 
             this.KeyPreview = true;
 
@@ -145,11 +146,9 @@ namespace UK101Form
 
         private void pictureBox1_Paint(object sender, PaintEventArgs e)
         {
-            _refreshing = true;
             Graphics g = e.Graphics;
             Bitmap b = _display.Generate();
             g.DrawImageUnscaled(b, 0, 0);
-            _refreshing = false;
             _updated = false;
         }
 
@@ -227,7 +226,7 @@ namespace UK101Form
         {
             _uk101 = new UK101(_formIO);
             _keyboardMatrix = new KeyboardMatrix();
-            _uk101.Init();
+            _uk101.Init(_height);
             _uk101.MemoryBus.VDU.Init();
             try
             {
@@ -718,6 +717,36 @@ namespace UK101Form
         {
             // Reset basic
             _uk101.Reset();
+        }
+
+        private void largeToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            _scale = 3;
+            _display.Scale = _scale;
+            int h = this.MainMenuStrip.Height;
+            this.MinimumSize = new Size(_width * 8 * _scale, h + (_height + 2) * 8 * _scale - 1);
+            this.MaximumSize = new Size(_width * 8 * _scale, h + (_height + 2) * 8 * _scale - 1);
+            this.consolePictureBox.Invalidate();
+        }
+
+        private void mediumToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            _scale = 2;
+            _display.Scale = _scale;
+            int h = this.MainMenuStrip.Height;
+            this.MinimumSize = new Size(_width * 8 * _scale, h + (_height + 2) * 8 * _scale - 1);
+            this.MaximumSize = new Size(_width * 8 * _scale, h + (_height + 2) * 8 * _scale - 1);
+            this.consolePictureBox.Invalidate();
+        }
+
+        private void smallToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            _scale = 1;
+            _display.Scale = _scale;
+            int h = this.MainMenuStrip.Height;
+            this.MinimumSize = new Size(_width * 8 * _scale, h + (_height + 2) * 8 * _scale - 1);
+            this.MaximumSize = new Size(_width * 8 * _scale, h + (_height + 2) * 8 * _scale - 1);
+            this.consolePictureBox.Invalidate();
         }
     }
 }

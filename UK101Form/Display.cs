@@ -60,9 +60,10 @@ namespace UK101Form
         private int _horizontal = 8;    // Number of pixels
         private int _vertical = 8;      // Number of pixels
 
-        private byte[] _store;
+        private int _scale = 1;         //
+        private int _aspect = 1;        //
 
-        IPeripheralIO _peripheralIO;
+        private byte[] _store;
 
         #endregion
         #region Consructors
@@ -77,10 +78,34 @@ namespace UK101Form
         #endregion
         #region Properties
 
+        public int Aspect
+        {
+            set
+            {
+                _aspect = value;
+            }
+            get
+            {
+                return (_aspect);
+            }
+        }
+
+        public int Scale
+        {
+            get
+            {
+                return _scale;
+            }
+            set
+            {
+                _scale = value;
+            }
+        }
+
         public int Columns
         {
             get
-            { 
+            {
                 return _columns;
             }
             set
@@ -169,13 +194,11 @@ namespace UK101Form
 
         public Bitmap Generate()
         {
-            int start = Environment.TickCount;
-
             // Need to get the scaling factor sorted
 
-            Bitmap bmp = new Bitmap(_width * _horizontal, _height * _vertical, PixelFormat.Format8bppIndexed);
+            Bitmap bitmap = new Bitmap(_width * _horizontal * _scale * _aspect, _height * _vertical * _scale, PixelFormat.Format8bppIndexed);
 
-            BitmapData bmpCanvas = bmp.LockBits(new Rectangle(0, 0, bmp.Width, bmp.Height), ImageLockMode.WriteOnly, PixelFormat.Format8bppIndexed);
+            BitmapData bmpCanvas = bitmap.LockBits(new Rectangle(0, 0, bitmap.Width, bitmap.Height), ImageLockMode.WriteOnly, PixelFormat.Format8bppIndexed);
 
             // Get the address of the first line.
 
@@ -183,11 +206,17 @@ namespace UK101Form
 
             // Declare an array to hold the bytes of the bitmap.
 
-            int size = bmp.Width * bmp.Height;
+            int size = bitmap.Width * bitmap.Height;
             byte[] rgbValues = new byte[size];
-            int hbits = 8;
-            int vbits = 8;
+			
+            // might be quicker to fill the array with background in one go
 
+            int hbits = _horizontal;
+            int vbits = _vertical;
+
+            int hscale = _scale * _aspect;
+            int vscale = _scale;
+            int hbytes = (int)Math.Round((double)hbits / 8);
             // work across character by character
 
             for (int row = _top; row < _height; row++)
@@ -195,16 +224,50 @@ namespace UK101Form
                 for (int column = _left; column < _width; column++)
                 {
                     byte character = _store[column + row * _columns];
-                    if (character != 32)
-                    {
-                        for (int i = 0; i < vbits; i++) // rows
+
+                        for (int r = 0; r < vbits; r++) // rows
                         {
-                            byte data = _chargen.pData[character * vbits + i];
-                            for (int j = 0; j < hbits; j++) // columns
+                            byte value = _chargen.pData[character * hbytes * vbits + r];
+                            for (int c = 0; c < hbits; c++) // columns
                             {
-                                if ((data & (128 >> j)) != 0)
+                                byte val = (byte)(value & (128 >> c));
+
+                                if (val != 0)
                                 {
-                                    rgbValues[(row * hbits + i) * _width * vbits + column * vbits + j] = 255;
+                                    if ((_scale == 1) && (_aspect == 1))
+                                    {
+                                        int pos = (row * vbits + r) * _width * hbits + column * hbits + c;
+                                        rgbValues[pos] = 255;
+                                    }
+                                    else
+                                    {
+                                        for (int i = 0; i < vscale; i++)
+                                        {
+                                            for (int j = 0; j < hscale; j++)
+                                            {
+                                                int pos = (row * vbits * vscale + r * vscale + i) * _width * hbits * hscale + column * hbits * hscale + c * _scale + j;
+                                                rgbValues[pos] = 255;
+                                            }
+                                        }
+                                    }
+                                }
+                                else
+                                {
+                                if ((_scale == 1) && (_aspect == 1))
+                                {
+                                    int pos = (row * vbits + r) * _width * hbits + column * hbits + c;
+                                    rgbValues[pos] = 0;
+                                }
+                                else
+                                {
+                                    for (int i = 0; i < vscale; i++)
+                                    {
+                                        for (int j = 0; j < hscale; j++)
+                                        {
+                                            int pos = (row * vbits * vscale + r * vscale + i) * _width * hbits * hscale + column * hbits * hscale + c * _scale + j;
+                                            rgbValues[pos] = 0;
+                                        }
+                                    }
                                 }
                             }
                         }
@@ -215,9 +278,9 @@ namespace UK101Form
             // Copy the 256 bit values back to the bitmap
             System.Runtime.InteropServices.Marshal.Copy(rgbValues, 0, ptr, size);
 
-            bmp.UnlockBits(bmpCanvas);
+            bitmap.UnlockBits(bmpCanvas);
 
-            return (bmp);
+            return (bitmap);
         }
 
         #endregion

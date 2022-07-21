@@ -273,7 +273,7 @@ namespace UK101Console
 			
             UK101 _uk101 = new UK101(_consoleIO);
             KeyboardMatrix _keyboardMatrix = new KeyboardMatrix();
-            _uk101.Init();
+            _uk101.Init(32);
             _uk101.Run();
             Tape _tape = new Tape(_consoleIO);
 

@@ -42,10 +42,11 @@ namespace UK101Library
                 return (_memoryBus);
             }
         }
+
         #endregion
         #region Methods
 
-        public void Init()
+        public void Init(int lines)
         {
             Debug.WriteLine("In Init()");
 
@@ -54,7 +55,6 @@ namespace UK101Library
             _clock = new Clock(_signetic6502);
             _signetic6502._memoryBus.VDU.Init();
 
-            int lines = 32;
             if (lines == 16)
             {
                 _signetic6502._memoryBus.Monitor.pData[0x3bc] = 0x2f;
