@@ -143,7 +143,7 @@ namespace UK101Form
             // colorToolStripMenuItem
             // 
             this.colorToolStripMenuItem.Name = "colorToolStripMenuItem";
-            this.colorToolStripMenuItem.Size = new System.Drawing.Size(315, 40);
+            this.colorToolStripMenuItem.Size = new System.Drawing.Size(180, 40);
             this.colorToolStripMenuItem.Text = "Color";
             this.colorToolStripMenuItem.Click += new System.EventHandler(this.FormatColorMenuItem_Click);
             // 
@@ -154,27 +154,27 @@ namespace UK101Form
             this.mediumToolStripMenuItem,
             this.smallToolStripMenuItem});
             this.scaleToolStripMenuItem.Name = "scaleToolStripMenuItem";
-            this.scaleToolStripMenuItem.Size = new System.Drawing.Size(315, 40);
+            this.scaleToolStripMenuItem.Size = new System.Drawing.Size(180, 40);
             this.scaleToolStripMenuItem.Text = "Scale";
             // 
             // largeToolStripMenuItem
             // 
             this.largeToolStripMenuItem.Name = "largeToolStripMenuItem";
-            this.largeToolStripMenuItem.Size = new System.Drawing.Size(315, 40);
+            this.largeToolStripMenuItem.Size = new System.Drawing.Size(208, 40);
             this.largeToolStripMenuItem.Text = "Large";
             this.largeToolStripMenuItem.Click += new System.EventHandler(this.largeToolStripMenuItem_Click);
             // 
             // mediumToolStripMenuItem
             // 
             this.mediumToolStripMenuItem.Name = "mediumToolStripMenuItem";
-            this.mediumToolStripMenuItem.Size = new System.Drawing.Size(315, 40);
+            this.mediumToolStripMenuItem.Size = new System.Drawing.Size(208, 40);
             this.mediumToolStripMenuItem.Text = "Medium";
             this.mediumToolStripMenuItem.Click += new System.EventHandler(this.mediumToolStripMenuItem_Click);
             // 
             // smallToolStripMenuItem
             // 
             this.smallToolStripMenuItem.Name = "smallToolStripMenuItem";
-            this.smallToolStripMenuItem.Size = new System.Drawing.Size(315, 40);
+            this.smallToolStripMenuItem.Size = new System.Drawing.Size(208, 40);
             this.smallToolStripMenuItem.Text = "Small";
             this.smallToolStripMenuItem.Click += new System.EventHandler(this.smallToolStripMenuItem_Click);
             // 
@@ -237,6 +237,7 @@ namespace UK101Form
             this.MinimizeBox = false;
             this.Name = "ConsoleForm";
             this.Text = "UK101";
+            this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.ConsoleForm_FormClosing);
             this.Load += new System.EventHandler(this.ConsoleForm_Load);
             this.KeyDown += new System.Windows.Forms.KeyEventHandler(this.ConsoleForm_KeyDown);
             this.KeyUp += new System.Windows.Forms.KeyEventHandler(this.ConsoleForm_KeyUp);

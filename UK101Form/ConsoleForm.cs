@@ -238,7 +238,6 @@ namespace UK101Form
             }
         }
 
-
         private void pictureBox1_MouseDown(object sender, MouseEventArgs e)
         {
             consolePictureBox.Invalidate();
@@ -551,13 +550,23 @@ namespace UK101Form
             if (Settings.Default.ConsoleFontColor != null)
             {
                 this.consolePictureBox.ForeColor = Settings.Default.ConsoleFontColor;
-
             }
 
             // Set Console color
             if (Settings.Default.ConsoleColor != null)
             {
                 this.consolePictureBox.BackColor = Settings.Default.ConsoleColor;
+            }
+
+            // Set Console scaling
+            if (Settings.Default.ConsoleScale > 0)
+            {
+                _scale = Settings.Default.ConsoleScale;
+                _display.Scale = _scale;
+                int h = this.MainMenuStrip.Height;
+                this.MinimumSize = new Size(_width * 8 * _scale, h + (_height + 2) * 8 * _scale - 1);
+                this.MaximumSize = new Size(_width * 8 * _scale, h + (_height + 2) * 8 * _scale - 1);
+                this.consolePictureBox.Invalidate();
             }
 
             Debug.WriteLine("Out ConsoleForm_Load()");
@@ -602,6 +611,9 @@ namespace UK101Form
 
             // Copy console color to app settings
             Settings.Default.ConsoleColor = this.consolePictureBox.BackColor;
+
+            // Copy console scale to app settings
+            Settings.Default.ConsoleScale = _display.Scale;     
 
             // Safe Mru
             SaveFiles();
@@ -655,7 +667,7 @@ namespace UK101Form
             Debug.WriteLine("Out LoadFiles()");
         }
 
-        public void SaveFiles()
+        private void SaveFiles()
         {
             Debug.WriteLine("In SaveFiles");
             string[] files = mruMenu.GetFiles();
@@ -748,6 +760,7 @@ namespace UK101Form
             this.MaximumSize = new Size(_width * 8 * _scale, h + (_height + 2) * 8 * _scale - 1);
             this.consolePictureBox.Invalidate();
         }
+
     }
 }
 

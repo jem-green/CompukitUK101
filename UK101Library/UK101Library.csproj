@@ -102,7 +102,6 @@
     <Content Include="Basic\Mastermind.bas" />
     <Content Include="Basic\Maze.bas" />
     <Content Include="Basic\MoonLanding.bas" />
-    <Content Include="Basic\Mugwump %282%29.bas" />
     <Content Include="Basic\Mugwump.bas" />
     <Content Include="Basic\Nim.bas" />
     <Content Include="Basic\NoughtsAndCrosses.bas" />
@@ -126,8 +125,9 @@
     <Content Include="Basic\TankBattle.bas" />
     <Content Include="Basic\TheTowerOfBrahma32.bas" />
   </ItemGroup>
+  <ItemGroup />
   <ItemGroup>
-    <Folder Include="MachineCode\" />
+    <None Include="MachineCode\asteroids16.mc" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>
