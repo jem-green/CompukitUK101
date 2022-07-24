@@ -26,7 +26,7 @@ namespace UK101Form
         MemoryStream _memoryStream;
         BinaryWriter _binaryWriter;
         readonly object _lockObject = new Object();
-        TapeMode _mode = TapeMode.Stopped;
+        TapeMode _mode = TapeMode.Disabled;
         IPeripheralIO _peripheralIO;
         string _filename = "";
         string _path = "";
@@ -34,9 +34,11 @@ namespace UK101Form
         [Flags]
         public enum TapeMode : byte
         {
-            Stopped = 0,
-            Playing  = 1,
-            Recording = 2
+            Disabled = 0,
+            Enabled = 1,
+            Stopped = 2,
+            Playing = 3,
+            Recording = 4
         }
 
         #endregion
@@ -112,14 +114,18 @@ namespace UK101Form
 
         public void Open()
         {
-            _timer.Change(0, 10);
+            // Ignore simulated tape casette
+            ////_timer.Change(0, 10);
+            _mode = TapeMode.Enabled;
         }
 
         public void Close()
         {
-            _timer.Change(Timeout.Infinite, Timeout.Infinite);
-            _timer.Dispose();
-            _timer = null;
+            // Ignore simulated Tape casette
+            //_timer.Change(Timeout.Infinite, Timeout.Infinite);
+            //_timer.Dispose();
+            //_timer = null;
+            _mode = TapeMode.Disabled;
         }
 
         public void Stop()
@@ -189,7 +195,7 @@ namespace UK101Form
             // its a manual stop. The UK101 logic appeears to be
             // use LOAD command to stop the ACIA
 
-            if (_mode == TapeMode.Stopped)
+            if ((_mode == TapeMode.Stopped) || (_mode == TapeMode.Enabled))
             {
                 _mode = TapeMode.Recording;
                 _memoryStream = new MemoryStream();
@@ -213,7 +219,7 @@ namespace UK101Form
 
             string filenamePath = path + System.IO.Path.DirectorySeparatorChar + name;
 
-            if (_mode == TapeMode.Stopped)
+            if ((_mode == TapeMode.Stopped) || (_mode == TapeMode.Enabled))
             {
                 if (File.Exists(filenamePath) == true)
                 {

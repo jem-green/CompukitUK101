@@ -43,6 +43,7 @@ namespace UK101Form
         int _height = 32;
         int _width = 51;
         int _scale = 1;
+        double _aspect = 1;
 
         // Most recently used
         protected MruStripMenu mruMenu;
@@ -69,6 +70,7 @@ namespace UK101Form
             _display.Left = 0;
             _display.Top = 0;
             _display.Scale = _scale;
+            _display.Aspect = _aspect;
             _display.CharacterGenerator = new CHARGEN(0x0);
 
             _formIO = new FormIO(_display);
@@ -87,9 +89,7 @@ namespace UK101Form
             this.MaximizeBox = false;
             this.MinimizeBox = false;
             this.FormBorderStyle = FormBorderStyle.FixedSingle;
-            int h = this.MainMenuStrip.Height;
-            this.MinimumSize = new Size(52 * 8 * _scale, h + (_height + 5) * 8 * _scale - 1);
-            this.MaximumSize = new Size(52 * 8 * _scale, h + (_height + 5) * 8 * _scale - 1);
+            SetLimits();
 
             this.KeyPreview = true;
 
@@ -561,13 +561,13 @@ namespace UK101Form
             // Set Console scaling
             if (Settings.Default.ConsoleScale > 0)
             {
+                _aspect = Settings.Default.ConsoleAspect;
                 _scale = Settings.Default.ConsoleScale;
-                _display.Scale = _scale;
-                int h = this.MainMenuStrip.Height;
-                this.MinimumSize = new Size(_width * 8 * _scale, h + (_height + 2) * 8 * _scale - 1);
-                this.MaximumSize = new Size(_width * 8 * _scale, h + (_height + 2) * 8 * _scale - 1);
-                this.consolePictureBox.Invalidate();
+                SetLimits();
             }
+
+            SetTapeMenu();
+            SetScaleMenu();
 
             Debug.WriteLine("Out ConsoleForm_Load()");
         }
@@ -613,7 +613,10 @@ namespace UK101Form
             Settings.Default.ConsoleColor = this.consolePictureBox.BackColor;
 
             // Copy console scale to app settings
-            Settings.Default.ConsoleScale = _display.Scale;     
+            Settings.Default.ConsoleScale = _display.Scale;
+
+            // Copy console scale to app settings
+            Settings.Default.ConsoleAspect = _display.Aspect;
 
             // Safe Mru
             SaveFiles();
@@ -694,6 +697,8 @@ namespace UK101Form
         {
             TraceInternal.TraceVerbose("Enable Tape");
             _uk101.MemoryBus.ACIA.Mode = ACIA.IO_MODE_6820_TAPE;
+            _tape.Open();
+            SetTapeMenu();
         }
 
         private void playToolStripMenuItem_Click(object sender, EventArgs e)
@@ -701,6 +706,7 @@ namespace UK101Form
             // Play tape
             TraceInternal.TraceVerbose("Play tape");
             _tape.Play();
+            SetTapeMenu();
         }
 
         private void stopToolStripMenuItem_Click(object sender, EventArgs e)
@@ -708,6 +714,7 @@ namespace UK101Form
             // Stop tape
             TraceInternal.TraceVerbose("Stop tape");
             _tape.Stop(_tape.Path, "test.bas");
+            SetTapeMenu();
         }
 
         private void recordToolStripMenuItem_Click(object sender, EventArgs e)
@@ -715,6 +722,7 @@ namespace UK101Form
             // Record tape
             TraceInternal.TraceVerbose("Record to tape");
             _tape.Record();
+            SetTapeMenu();
         }
 
         private void disableToolStripMenuItem_Click(object sender, EventArgs e)
@@ -722,7 +730,8 @@ namespace UK101Form
             // Disable tape mode
             TraceInternal.TraceVerbose("Disable tape");
             _uk101.MemoryBus.ACIA.Mode = ACIA.IO_MODE_6820_NONE;
-            // Would like to consider a _tape.Close() 
+            _tape.Close();
+            SetTapeMenu();
         }
 
         private void newToolStripMenuItem_Click(object sender, EventArgs e)
@@ -734,30 +743,170 @@ namespace UK101Form
         private void largeToolStripMenuItem_Click(object sender, EventArgs e)
         {
             _scale = 3;
-            _display.Scale = _scale;
-            int h = this.MainMenuStrip.Height;
-            this.MinimumSize = new Size(_width * 8 * _scale, h + (_height + 2) * 8 * _scale - 1);
-            this.MaximumSize = new Size(_width * 8 * _scale, h + (_height + 2) * 8 * _scale - 1);
-            this.consolePictureBox.Invalidate();
+            SetLimits();
+            SetScaleMenu();
         }
 
         private void mediumToolStripMenuItem_Click(object sender, EventArgs e)
         {
             _scale = 2;
-            _display.Scale = _scale;
-            int h = this.MainMenuStrip.Height;
-            this.MinimumSize = new Size(_width * 8 * _scale, h + (_height + 2) * 8 * _scale - 1);
-            this.MaximumSize = new Size(_width * 8 * _scale, h + (_height + 2) * 8 * _scale - 1);
-            this.consolePictureBox.Invalidate();
+            SetLimits();
+            SetScaleMenu();
         }
 
         private void smallToolStripMenuItem_Click(object sender, EventArgs e)
         {
             _scale = 1;
+            SetLimits();
+            SetScaleMenu();
+        }
+
+        private void equalToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            _aspect = 1;
+            SetLimits();
+            SetScaleMenu();
+        }
+
+        private void greaterToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            _aspect = 2;
+            SetLimits();
+            SetScaleMenu();
+        }
+
+        private void lessToolStripMenuItem_Click(object sender, EventArgs e)
+        {;
+            _aspect = 0.5;
+            SetLimits();
+            SetScaleMenu();
+        }
+        private void SetScaleMenu()
+        {
+                       
+            if (_display.Scale == 1)
+            {
+                smallToolStripMenuItem.Enabled = false;
+            }
+            else
+            {
+                smallToolStripMenuItem.Enabled = true;
+            }
+
+            if (_display.Scale == 2)
+            {
+                mediumToolStripMenuItem.Enabled = false;
+            }
+            else
+            {
+                mediumToolStripMenuItem.Enabled = true;
+            }
+
+            if (_display.Scale == 3)
+            {
+                largeToolStripMenuItem.Enabled = false;
+            }
+            else
+            {
+                largeToolStripMenuItem.Enabled = true;
+            }
+
+            if (_aspect < 1)
+            {
+                lessToolStripMenuItem.Enabled = false;
+            }
+            else
+            {
+                lessToolStripMenuItem.Enabled = true;
+            }
+            if (_aspect == 1)
+            {
+                equalToolStripMenuItem.Enabled = false;
+            }
+            else
+            {
+                equalToolStripMenuItem.Enabled = true;
+
+            }
+            if (_aspect > 1)
+            {
+                greaterToolStripMenuItem.Enabled = false;
+            }
+            else
+            {
+                greaterToolStripMenuItem.Enabled = true;
+            }
+        }
+
+        private void SetTapeMenu()
+        {
+            if (_uk101.MemoryBus.ACIA.Mode == ACIA.IO_MODE_6820_NONE)
+            {
+                enableToolStripMenuItem.Enabled = true;
+                playToolStripMenuItem.Enabled = false;
+                recordToolStripMenuItem.Enabled = false;
+                stopToolStripMenuItem.Enabled = false;
+                disableToolStripMenuItem.Enabled = false;
+            }
+            else
+            {
+                enableToolStripMenuItem.Enabled = false;
+                
+
+                if ((_tape.Mode == Tape.TapeMode.Enabled) || (_tape.Mode == Tape.TapeMode.Stopped))
+                {
+                    playToolStripMenuItem.Enabled = true;
+                    recordToolStripMenuItem.Enabled = true;
+                    stopToolStripMenuItem.Enabled = false;
+                    disableToolStripMenuItem.Enabled = true;
+                }
+                else if (_tape.Mode == Tape.TapeMode.Playing)
+                        {
+                    playToolStripMenuItem.Enabled = false;
+                    recordToolStripMenuItem.Enabled = false;
+                    stopToolStripMenuItem.Enabled = true;
+                    disableToolStripMenuItem.Enabled = false;
+                }
+                else if (_tape.Mode == Tape.TapeMode.Recording)
+                {
+                    playToolStripMenuItem.Enabled = false;
+                    recordToolStripMenuItem.Enabled = false;
+                    stopToolStripMenuItem.Enabled = true;
+                    disableToolStripMenuItem.Enabled = false;
+                }
+            }
+        }
+
+
+        private void SetLimits()
+        {
             _display.Scale = _scale;
-            int h = this.MainMenuStrip.Height;
-            this.MinimumSize = new Size(_width * 8 * _scale, h + (_height + 2) * 8 * _scale - 1);
-            this.MaximumSize = new Size(_width * 8 * _scale, h + (_height + 2) * 8 * _scale - 1);
+            _display.Aspect = _aspect;
+            int height = 39 + this.MainMenuStrip.Height;    // Must be some fixed elements to the form
+            int width = 16;                                 // Must have some fixed element to the form (8 pixels each side)
+            if (_aspect > 1)
+            {
+                height = height + _scale * _height * 8;
+                width = (int)(width + 400 * _scale * _aspect); 
+            }
+            else
+            {
+                height = (int)(height + _scale * _height * 8 / _aspect);
+                width = width + 400 * _scale;
+            }
+
+            // Height
+            // 296 = 37 x 8 - for small = 1
+            // 552 = 69 x 8 - for medium = 2
+            // 808 = 101 x 8 - for large = 3
+            // Width
+            // 417 - for small = 1
+            // 817 - For medium = 2
+            // 1217 - for large = 3
+
+            this.MinimumSize = new Size(width, height); // 40
+            this.MaximumSize = new Size(width, height);
+
             this.consolePictureBox.Invalidate();
         }
 
