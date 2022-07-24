@@ -59,9 +59,9 @@ namespace UK101Form
             // consolePictureBox
             // 
             this.consolePictureBox.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.consolePictureBox.Location = new System.Drawing.Point(0, 38);
+            this.consolePictureBox.Location = new System.Drawing.Point(0, 42);
             this.consolePictureBox.Name = "consolePictureBox";
-            this.consolePictureBox.Size = new System.Drawing.Size(1679, 866);
+            this.consolePictureBox.Size = new System.Drawing.Size(1679, 862);
             this.consolePictureBox.TabIndex = 0;
             this.consolePictureBox.TabStop = false;
             this.consolePictureBox.Paint += new System.Windows.Forms.PaintEventHandler(this.pictureBox1_Paint);
@@ -77,7 +77,7 @@ namespace UK101Form
             this.tapeToolStripMenuItem});
             this.consoleMenuStrip.Location = new System.Drawing.Point(0, 0);
             this.consoleMenuStrip.Name = "consoleMenuStrip";
-            this.consoleMenuStrip.Size = new System.Drawing.Size(1679, 38);
+            this.consoleMenuStrip.Size = new System.Drawing.Size(1679, 42);
             this.consoleMenuStrip.TabIndex = 1;
             this.consoleMenuStrip.Text = "menuStrip1";
             // 

@@ -4,6 +4,7 @@ using TracerLibrary;
 using System.Diagnostics;
 using System.IO;
 using UK101Library;
+using Microsoft.Win32;
 
 namespace UK101Form
 {
@@ -11,6 +12,8 @@ namespace UK101Form
     {
         #region Fields
 
+        #endregion
+        #region Constructor
         #endregion
         #region Methods
         /// <summary>
@@ -24,28 +27,37 @@ namespace UK101Form
             string[] args = Environment.GetCommandLineArgs();
 			int pos = 0;
             Parameter<string> filePath = new Parameter<string>();
-            Parameter<string> filename = new Parameter<string>();
+            Parameter<string> fileName = new Parameter<string>();
             Parameter<string> fileExtension = new Parameter<string>();
 
-            // Get the default path directory
+            // Set the default path directory
 
             filePath.Value = Environment.CurrentDirectory;
             filePath.Source = Parameter<string>.SourceType.App;
 
+            // Set the default path directory
+
             Parameter<string> logPath = new Parameter<string>("");
             Parameter<string> logName = new Parameter<string>("uk101form");
 
-            logPath.Value = System.Reflection.Assembly.GetExecutingAssembly().Location;
-            logPath.Value = filePath.Value = Environment.CurrentDirectory;
+            //logPath.Value = Environment.CurrentDirectory;
+            logPath.Value = Environment.GetFolderPath(Environment.SpecialFolder.CommonApplicationData) + System.IO.Path.DirectorySeparatorChar + "compukituk101";
+            //logPath.Value = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData) + System.IO.Path.DirectorySeparatorChar + "compukituk101";
+
             logPath.Source = Parameter<string>.SourceType.App;
 
+
             Parameter<SourceLevels> traceLevels = new Parameter<SourceLevels>();
-            traceLevels.Value = TraceInternal.TraceLookup("INFORMATION");
+            traceLevels.Value = TraceInternal.TraceLookup("CRITICAL");
             traceLevels.Source = Parameter<SourceLevels>.SourceType.App;
 
             // Configure tracer options
 
-            string logFilenamePath = logPath.Value.ToString() + Path.DirectorySeparatorChar + logName.Value.ToString() + ".log";
+            if (!Directory.Exists(logPath.Value))
+            {
+                Directory.CreateDirectory(logPath.Value);
+            }
+            string logFilenamePath = Path.Combine(logPath.Value.ToString(), logName.Value.ToString() + ".log");
             FileStreamWithRolling dailyRolling = new FileStreamWithRolling(logFilenamePath, new TimeSpan(1, 0, 0, 0), FileMode.Append);
             TextWriterTraceListenerWithTime listener = new TextWriterTraceListenerWithTime(dailyRolling);
             Trace.AutoFlush = true;
@@ -53,6 +65,123 @@ namespace UK101Form
             listener.Filter = fileTraceFilter;
             Trace.Listeners.Clear();
             Trace.Listeners.Add(listener);
+
+			if (IsLinux == false)
+            {
+                // Check if the registry has been set and overwrite the application defaults
+
+                RegistryKey key = RegistryKey.OpenBaseKey(Microsoft.Win32.RegistryHive.LocalMachine, RegistryView.Registry64);
+                string keys = "software\\green\\uk101";
+                foreach (string subkey in keys.Split('\\'))
+                {
+                    key = key.OpenSubKey(subkey);
+                    if (key == null)
+                    {
+                        TraceInternal.TraceVerbose("Failed to open" + subkey);
+                        break;
+                    }
+                }
+
+                // Get the log path
+
+                try
+                {
+                    if (key.GetValue("logpath", "").ToString().Length > 0)
+                    {
+                        logPath.Value = (string)key.GetValue("logpath", logPath);
+                        logPath.Source = Parameter<string>.SourceType.Registry;
+                        TraceInternal.TraceVerbose("Use registry value; logPath=" + logPath);
+                    }
+                }
+                catch (NullReferenceException)
+                {
+                    TraceInternal.TraceVerbose("Registry error use default values; logPath=" + logPath.Value);
+                }
+                catch (Exception e)
+                {
+                    TraceInternal.TraceError(e.ToString());
+                }
+
+                // Get the log name
+
+                try
+                {
+                    if (key.GetValue("logname", "").ToString().Length > 0)
+                    {
+                        logName.Value = (string)key.GetValue("logname", logName);
+                        logName.Source = Parameter<string>.SourceType.Registry;
+                        TraceInternal.TraceVerbose("Use registry value; LogName=" + logName);
+                    }
+                }
+                catch (NullReferenceException)
+                {
+                    TraceInternal.TraceVerbose("Registry error use default values; LogName=" + logName.Value);
+                }
+                catch (Exception e)
+                {
+                    TraceInternal.TraceError(e.ToString());
+                }
+
+                // Get the name
+
+                try
+                {
+                    if (key.GetValue("name", "").ToString().Length > 0)
+                    {
+                        fileName.Value = (string)key.GetValue("name", fileName);
+                        fileName.Source = Parameter<string>.SourceType.Registry;
+                        TraceInternal.TraceVerbose("Use registry value Name=" + fileName);
+                    }
+                }
+                catch (NullReferenceException)
+                {
+                    TraceInternal.TraceVerbose("Registry error use default values; Name=" + fileName.Value);
+                }
+                catch (Exception e)
+                {
+                    TraceInternal.TraceError(e.ToString());
+                }
+
+                // Get the path
+
+                try
+                {
+                    if (key.GetValue("path", "").ToString().Length > 0)
+                    {
+                        filePath.Value = (string)key.GetValue("path", filePath);
+                        filePath.Source = Parameter<string>.SourceType.Registry;
+                        TraceInternal.TraceVerbose("Use registry value Path=" + filePath);
+                    }
+                }
+                catch (NullReferenceException)
+                {
+                    TraceInternal.TraceVerbose("Registry error use default values; Name=" + filePath.Value);
+                }
+                catch (Exception e)
+                {
+                    TraceInternal.TraceError(e.ToString());
+                }
+
+                // Get the traceLevels
+
+                try
+                {
+                    if (key.GetValue("debug", "").ToString().Length > 0)
+                    {
+                        traceLevels.Value = TraceInternal.TraceLookup((string)key.GetValue("debug", "verbose"));
+                        traceLevels.Source = Parameter<SourceLevels>.SourceType.Registry;
+                        TraceInternal.TraceVerbose("Use registry value; Debug=" + traceLevels.Value);
+                    }
+                }
+                catch (NullReferenceException)
+                {
+                    TraceInternal.TraceWarning("Registry error use default values; Debug=" + traceLevels.Value);
+                }
+                catch (Exception e)
+                {
+                    TraceInternal.TraceError(e.ToString());
+                }
+            }
 
             // Check if the config file has been paased in and overwrite the registry
 
@@ -73,15 +202,15 @@ namespace UK101Form
                 {
                     filePath.Value = filenamePath.Substring(0, pos);
                     filePath.Source = Parameter<string>.SourceType.Command;
-                    filename.Value = filenamePath.Substring(pos + 1, filenamePath.Length - pos - 1);
-                    filename.Source = Parameter<string>.SourceType.Command;
+                    fileName.Value = filenamePath.Substring(pos + 1, filenamePath.Length - pos - 1);
+                    fileName.Source = Parameter<string>.SourceType.Command;
                 }
                 else
                 {
-                    filename.Value = filenamePath;
-                    filename.Source = Parameter<string>.SourceType.Command;
+                    fileName.Value = filenamePath;
+                    fileName.Source = Parameter<string>.SourceType.Command;
                 }
-                TraceInternal.TraceVerbose("Use filename=" + filename.Value.ToString());
+                TraceInternal.TraceVerbose("Use filename=" + fileName.Value.ToString());
                 TraceInternal.TraceVerbose("use filePath=" + filePath.Value.ToString());
                 TraceInternal.TraceVerbose("use fileExtension=" + fileExtension.Value.ToString());
             }
@@ -109,6 +238,35 @@ namespace UK101Form
                                 TraceInternal.TraceVerbose("Use command value traceLevels=" + traceLevels);
                                 break;
                             }
+                        case "/N":
+                        case "--name":
+                            {
+	                            fileName.Value = args[item + 1];
+	                            fileName.Value = fileName.Value.ToString().TrimStart('"');
+	                            fileName.Value = fileName.Value.ToString().TrimEnd('"');
+	                            fileName.Source = Parameter<string>.SourceType.Command;
+                                pos = fileName.Value.LastIndexOf('.');
+                                if (pos > 0)
+                                {
+                                    fileExtension.Value = filenamePath.Substring(pos + 1, filenamePath.Length - pos - 1);
+                                    filePath.Source = Parameter<string>.SourceType.Command;
+                                    fileName.Value = filenamePath.Substring(0, pos);
+                                }
+                                TraceInternal.TraceVerbose("Use command value Name=" + fileName);
+                                TraceInternal.TraceVerbose("Use command value Extension=" + fileExtension);
+                                break;
+                            }
+                        case "/P":
+                        case "--path":
+                            {
+	                            filePath.Value = args[item + 1];
+	                            filePath.Value = filePath.Value.ToString().TrimStart('"');
+	                            filePath.Value = filePath.Value.ToString().TrimEnd('"');
+	                            filePath.Source = Parameter<string>.SourceType.Command;
+                                TraceInternal.TraceVerbose("Use command value Path=" + filePath);
+                           	 	break;
+                            }
+
                         case "/n":
                         case "--logname":
                             {
@@ -129,34 +287,6 @@ namespace UK101Form
                                 TraceInternal.TraceVerbose("Use command value logPath=" + logPath);
                                 break;
                             }
-                        case "/N":
-                        case "--name":
-                            {
-	                            filename.Value = args[item + 1];
-	                            filename.Value = filename.Value.ToString().TrimStart('"');
-	                            filename.Value = filename.Value.ToString().TrimEnd('"');
-	                            filename.Source = Parameter<string>.SourceType.Command;
-                                pos = filename.Value.LastIndexOf('.');
-                                if (pos > 0)
-                                {
-                                    fileExtension.Value = filenamePath.Substring(pos + 1, filenamePath.Length - pos - 1);
-                                    filePath.Source = Parameter<string>.SourceType.Command;
-                                    filename.Value = filenamePath.Substring(0, pos);
-                                }
-                                TraceInternal.TraceVerbose("Use command value Name=" + filename);
-                                TraceInternal.TraceVerbose("Use command value Extension=" + fileExtension);
-                                break;
-                            }
-                        case "/P":
-                        case "--path":
-                            {
-	                            filePath.Value = args[item + 1];
-	                            filePath.Value = filePath.Value.ToString().TrimStart('"');
-	                            filePath.Value = filePath.Value.ToString().TrimEnd('"');
-	                            filePath.Source = Parameter<string>.SourceType.Command;
-                                TraceInternal.TraceVerbose("Use command value Path=" + filePath);
-                           	 	break;
-                            }
                     }
                 }
             }
@@ -171,8 +301,11 @@ namespace UK101Form
             Trace.Listeners.Remove(listener);
             listener.Close();
             listener.Dispose();
-
-            dailyRolling = new FileStreamWithRolling(logFilenamePath, new TimeSpan(1, 0, 0, 0), FileMode.Append);
+            if (!Directory.Exists(logPath.Value))
+            {
+                Directory.CreateDirectory(logPath.Value);
+            }
+            dailyRolling = new FileStreamWithRolling(logFilenamePath, new TimeSpan(0, 1, 0, 0), FileMode.Append);
             listener = new TextWriterTraceListenerWithTime(dailyRolling);
             Trace.AutoFlush = true;
             SourceLevels sourceLevels = TraceInternal.TraceLookup(traceLevels.Value.ToString());
@@ -180,16 +313,24 @@ namespace UK101Form
             listener.Filter = fileTraceFilter;
             Trace.Listeners.Add(listener);
 
-            Trace.TraceInformation("Use Name=" + filename);
+            Trace.TraceInformation("Use Name=" + fileName);
             Trace.TraceInformation("Use Path=" + filePath);
             Trace.TraceInformation("Use Log Name=" + logName);
             Trace.TraceInformation("Use Log Path=" + logPath);
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
-            Application.Run(new ConsoleForm(filePath.Value.ToString(), filename.Value.ToString(), fileExtension.Value.ToString()));
+            Application.Run(new ConsoleForm(filePath.Value.ToString(), fileName.Value.ToString(), fileExtension.Value.ToString()));
 
             Debug.WriteLine("Exit Main()");
 
+        }
+        public static bool IsLinux
+        {
+            get
+            {
+                int p = (int)Environment.OSVersion.Platform;
+                return (p == 4) || (p == 6) || (p == 128);
+            }
         }
         #endregion
     }

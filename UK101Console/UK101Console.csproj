@@ -71,6 +71,7 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="compukit.ico" />
+    <Content Include="uk101.xml" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>
