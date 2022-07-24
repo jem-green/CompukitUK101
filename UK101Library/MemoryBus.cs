@@ -33,7 +33,7 @@ namespace UK101Library
         #endregion
         #region Constructors
 
-        public MemoryBus(IPeripheralIO peripheralIO) //MainPage mainPage)
+        public MemoryBus(IPeripheralIO peripheralIO)
         {
 
             _peripheralIO = peripheralIO;
@@ -94,8 +94,8 @@ namespace UK101Library
             Device[8] = ROM8000;
 
             RAM = new RAM();
-            //RAM.SetRamSize(0x8000);
-            RAM.SetRamSize(0x2000);
+            RAM.SetRamSize(0x8000);
+            //RAM.SetRamSize(0x2000);
             Device[10] = RAM;
 
             NoDevice = new NoDevice();

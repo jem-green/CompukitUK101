@@ -61,7 +61,7 @@ namespace UK101Form
         private int _vertical = 8;      // Number of pixels
 
         private int _scale = 1;         //
-        private int _aspect = 1;        //
+        private double _aspect = 1;     // Will need to round to a positive number
 
         private byte[] _store;
 
@@ -78,7 +78,7 @@ namespace UK101Form
         #endregion
         #region Properties
 
-        public int Aspect
+        public double Aspect
         {
             set
             {
@@ -194,9 +194,22 @@ namespace UK101Form
 
         public Bitmap Generate()
         {
+            int hScale;
+            int vscale;
+            if (_aspect > 1)
+            {
+                hScale = (int)(_scale * _aspect);
+                vscale = _scale;
+            }
+            else
+            {
+                hScale = _scale;
+                vscale = (int)(_scale / _aspect);
+            }
+
             // Need to get the scaling factor sorted
 
-            Bitmap bitmap = new Bitmap(_width * _horizontal * _scale * _aspect, _height * _vertical * _scale, PixelFormat.Format8bppIndexed);
+            Bitmap bitmap = new Bitmap(_width * _horizontal * hScale, _height * _vertical * vscale, PixelFormat.Format8bppIndexed);
 
             BitmapData bmpCanvas = bitmap.LockBits(new Rectangle(0, 0, bitmap.Width, bitmap.Height), ImageLockMode.WriteOnly, PixelFormat.Format8bppIndexed);
 
@@ -214,8 +227,7 @@ namespace UK101Form
             int hbits = _horizontal;
             int vbits = _vertical;
 
-            int hscale = _scale * _aspect;
-            int vscale = _scale;
+
             int hbytes = (int)Math.Round((double)hbits / 8);
             // work across character by character
 
@@ -225,35 +237,36 @@ namespace UK101Form
                 {
                     byte character = _store[column + row * _columns];
 
-                        for (int r = 0; r < vbits; r++) // rows
-                        {
-                            byte value = _chargen.pData[character * hbytes * vbits + r];
-                            for (int c = 0; c < hbits; c++) // columns
-                            {
-                                byte val = (byte)(value & (128 >> c));
+                    for (int r = 0; r < vbits; r++) // rows
+                    {
+                        byte value = _chargen.pData[character * hbytes * vbits + r];
 
-                                if (val != 0)
+                        for (int c = 0; c < hbits; c++) // columns
+                        {
+                            byte val = (byte)(value & (128 >> c));
+
+                            if (val != 0)
+                            {
+                                if ((hScale == 1) && (vscale == 1) && (_aspect == 1))
                                 {
-                                    if ((_scale == 1) && (_aspect == 1))
-                                    {
-                                        int pos = (row * vbits + r) * _width * hbits + column * hbits + c;
-                                        rgbValues[pos] = 255;
-                                    }
-                                    else
-                                    {
-                                        for (int i = 0; i < vscale; i++)
-                                        {
-                                            for (int j = 0; j < hscale; j++)
-                                            {
-                                                int pos = (row * vbits * vscale + r * vscale + i) * _width * hbits * hscale + column * hbits * hscale + c * _scale + j;
-                                                rgbValues[pos] = 255;
-                                            }
-                                        }
-                                    }
+                                    int pos = (row * vbits + r) * _width * hbits + column * hbits + c;
+                                    rgbValues[pos] = 255;
                                 }
                                 else
                                 {
-                                if ((_scale == 1) && (_aspect == 1))
+                                    for (int i = 0; i < vscale; i++)
+                                    {
+                                        for (int j = 0; j < hScale; j++)
+                                        {
+                                            int pos = (row * vbits * vscale + r * vscale + i) * _width * hbits * hScale + column * hbits * hScale + c * hScale + j;
+                                            rgbValues[pos] = 255;
+                                        }
+                                    }
+                                }
+                            }
+                            else
+                            {
+                                if ((hScale == 1) && (vscale == 1) && (_aspect == 1))
                                 {
                                     int pos = (row * vbits + r) * _width * hbits + column * hbits + c;
                                     rgbValues[pos] = 0;
@@ -262,12 +275,13 @@ namespace UK101Form
                                 {
                                     for (int i = 0; i < vscale; i++)
                                     {
-                                        for (int j = 0; j < hscale; j++)
+                                        for (int j = 0; j < hScale; j++)
                                         {
-                                            int pos = (row * vbits * vscale + r * vscale + i) * _width * hbits * hscale + column * hbits * hscale + c * _scale + j;
+                                            int pos = (row * vbits * vscale + r * vscale + i) * _width * hbits * hScale + column * hbits * hScale + c * hScale + j;
                                             rgbValues[pos] = 0;
                                         }
                                     }
+
                                 }
                             }
                         }
