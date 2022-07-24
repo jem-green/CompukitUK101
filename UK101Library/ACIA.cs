@@ -90,7 +90,6 @@ namespace UK101Library
         // I/O modes:
         public const byte IO_MODE_6820_NONE = 0;    // No mode
         public const byte IO_MODE_6820_FILE = 1;    // Use filesystem
-        public const byte IO_MODE_6820_MIDI = 2;    // Use a MIDI interface
         public const byte IO_MODE_6820_TAPE = 4;    // Use internal classes
         public const byte IO_MODE_6820_SERIAL = 8;  // Use serial interface
 
@@ -228,10 +227,6 @@ namespace UK101Library
                 {
                     case IO_MODE_6820_TAPE:
                         SetFlag(ACIA_STATUS_RDRF);
-                        break;
-                    case IO_MODE_6820_MIDI:
-                        ResetFlag(ACIA_STATUS_RDRF); // Will set when MIDI comes in
-                        SetFlag(ACIA_STATUS_TDRE);   // Will be kept low a few ms by timer after data sent
                         break;
                     case IO_MODE_6820_FILE:
                         //outStream = new MemoryStream();
@@ -515,22 +510,12 @@ namespace UK101Library
                 {
                     case IO_MODE_6820_TAPE:
                         _timer.Change(Timeout.Infinite, 10);    // Stop the timer
-                        SetFlag(ACIA_STATUS_RDRF);  // Indicate that the Receive Data Register is full - Has data
-                        SetFlag(ACIA_STATUS_TDRE);  // Indicat that the Transmit Data Register is empty - Data sent
-
-                        //if ((Command & ACIA_CONTROL_ENABLE_IRQ) != 0x00)
-                        //{
-                        //    SetFlag(ACIA_STATUS_IRQ);
-                        //}
-                        break;
-                    case IO_MODE_6820_MIDI:
-                        // MIDI in is 'clocked' by the incoming MIDI data itself.
-                        _timer.Change(Timeout.Infinite, 10);
-                        SetFlag(ACIA_STATUS_TDRE); // Transmit timing handled by Composer
+                        SetFlag(ACIA_STATUS_RDRF);              // Indicate that the Receive Data Register is full - Has data
+                        SetFlag(ACIA_STATUS_TDRE);              // Indicat that the Transmit Data Register is empty - Data sent
                         break;
                     case IO_MODE_6820_FILE:
                         _timer.Change(Timeout.Infinite, 10);
-                        SetFlag(ACIA_STATUS_TDRE); // Transmit timing handled by Composer
+                        SetFlag(ACIA_STATUS_TDRE);              // Transmit timing handled by Composer
                         break;
                 }
             }
