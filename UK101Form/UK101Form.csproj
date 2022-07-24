@@ -104,6 +104,9 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="compukit.ico" />
+    <None Include="Resources\Start.ico" />
+    <None Include="Images\Start.png" />
+    <None Include="Images\Stop.png" />
     <Content Include="wk101.xml" />
     <None Include="Images\compukit.ico" />
     <None Include="Resources\Compukit.ico" />

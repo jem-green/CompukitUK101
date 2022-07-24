@@ -154,5 +154,17 @@ namespace UK101Form.Properties {
                 this["ConsoleScale"] = value;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("1")]
+        public double ConsoleAspect {
+            get {
+                return ((double)(this["ConsoleAspect"]));
+            }
+            set {
+                this["ConsoleAspect"] = value;
+            }
+        }
     }
 }
