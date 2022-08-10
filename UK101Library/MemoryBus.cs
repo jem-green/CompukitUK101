@@ -14,7 +14,10 @@ namespace UK101Library
         public MemoryBusDevice[] Device = new MemoryBusDevice[DEVICES_MAX];
         public ushort _address;
 
-        public MONITOR Monitor;
+        //public CEGMON Monitor;
+
+        public MemoryBusDevice Monitor;
+
         public BASIC1 Basic1;
         public BASIC2 Basic2;
         public BASIC3 Basic3;
@@ -48,7 +51,11 @@ namespace UK101Library
 
             i = 0;
 
-            Monitor = new MONITOR(Address);
+            //Monitor = new MON01(Address);
+            //Monitor = new MON02(Address);
+            Monitor = new CEGMON(Address);
+            //Monitor = new WEMON(Address);
+            //Monitor = new EXMON(Address);
             Monitor.StartsAt = 0xF800;
             Monitor.EndsAt = 0xFFFF;
             Device[0] = Monitor;

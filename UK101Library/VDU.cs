@@ -22,7 +22,6 @@ namespace UK101Library
         #region Fields
 
         public bool inScene;
-        public byte[] pData;
         public byte pCharData;
         public bool Changed;
         private IPeripheralIO _peripheralIO;

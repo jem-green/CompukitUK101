@@ -12,7 +12,7 @@ namespace UK101Library
         #region Fields
 
         public UInt16 RAMSize { get; set; }
-        public byte[] pData;
+        public new byte[] pData;
 
         #endregion
         #region Constructor
