@@ -4,13 +4,12 @@ namespace UK101Library
 {
     public class ROM8000 : MemoryBusDevice
     {
-
-
+        #region Constructor
         public ROM8000(ushort Address)
         {
             this.Address = Address;
 
-            pData = new byte[] {
+            _data = new byte[] {
             0x20, 0x59, 0xfe, 0xa9, 0x2b, 0x85, 0x02, 0xa9, 0x32, 0x8d, 0xb7, 0xd7, 0xa9, 0x42, 0x8d, 0xb8,
             0xd7, 0xa2, 0x00, 0xbd, 0x72, 0x87, 0xc9, 0x5f, 0xf0, 0x07, 0x9d, 0x11, 0xd1, 0xe8, 0x4c, 0x13,
             0x80, 0xa2, 0x00, 0xbd, 0x66, 0x88, 0xc9, 0x5f, 0xf0, 0x07, 0x9d, 0x8c, 0xd7, 0xe8, 0x4c, 0x23,
@@ -270,6 +269,7 @@ namespace UK101Library
             };
         }
 
+        #endregion
         #region Properties
 
         public UInt16 ROMSize { get; set; }
@@ -280,7 +280,7 @@ namespace UK101Library
 
         public override byte Read()
         {
-            return pData[Address - StartsAt];
+            return _data[Address - StartsAt];
         }
 
         #endregion

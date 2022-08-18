@@ -13,7 +13,13 @@ namespace UK101Library
         // creates the processor, clock and the memory bus.
         // I think the keyboard matrix should probably be here.
         // Not sure about the display and tape as i think these are
-        // part of the console interfaces
+        // part of the console interfaces.
+
+        // Dont like the memory bus reference here as it includes the
+        // rom's so would like to reference this differently to allow
+        // for slight config differences and allow MON02 / CEGMON to be
+        // refrenced from a config file. Dont see much point it making
+        // this a form / console option
 
         #region Fields
 
@@ -21,6 +27,7 @@ namespace UK101Library
         private Signetic6502 _signetic6502;
         private Clock _clock;
         private MemoryBus _memoryBus;
+        private int _lines;
 
         #endregion
         #region Constructor
@@ -43,6 +50,18 @@ namespace UK101Library
             }
         }
 
+        public int Height
+        {
+            set
+            {
+                _lines = value;
+            }
+            get
+            {
+                return (_lines);
+            }
+        }
+
         #endregion
         #region Methods
 
@@ -55,33 +74,66 @@ namespace UK101Library
             _clock = new Clock(_signetic6502);
             _signetic6502._memoryBus.VDU.Init();
 
-            if (lines == 16)
+            _lines = lines;
+            if (_lines == 16)
             {
-                _signetic6502._memoryBus.Monitor.pData[0x3bc] = 0x2f;
-                _signetic6502._memoryBus.Monitor.pData[0x3bd] = 0x4c;
-                _signetic6502._memoryBus.Monitor.pData[0x3be] = 0xd0;
-                _signetic6502._memoryBus.Monitor.pData[0x3bf] = 0x8c;
-                _signetic6502._memoryBus.Monitor.pData[0x3c0] = 0xd3;
-                _signetic6502._memoryBus.RAM.pData[0x0222] = 0x47;
-                _signetic6502._memoryBus.RAM.pData[0x0223] = 0x0c;
-                _signetic6502._memoryBus.RAM.pData[0x0224] = 0xd0;
-                _signetic6502._memoryBus.RAM.pData[0x0225] = 0xcc;
-                _signetic6502._memoryBus.RAM.pData[0x0226] = 0xd1;
+                _signetic6502._memoryBus.Monitor.Data[0x3bc] = 0x2f;
+                _signetic6502._memoryBus.Monitor.Data[0x3bd] = 0x4c;
+                _signetic6502._memoryBus.Monitor.Data[0x3be] = 0xd0;
+                _signetic6502._memoryBus.Monitor.Data[0x3bf] = 0x8c;
+                _signetic6502._memoryBus.Monitor.Data[0x3c0] = 0xd3;
+                _signetic6502._memoryBus.RAM.Data[0x0222] = 0x47;
+                _signetic6502._memoryBus.RAM.Data[0x0223] = 0x0c;
+                _signetic6502._memoryBus.RAM.Data[0x0224] = 0xd0;
+                _signetic6502._memoryBus.RAM.Data[0x0225] = 0xcc;
+                _signetic6502._memoryBus.RAM.Data[0x0226] = 0xd1;
             }
             else
             {
-                _signetic6502._memoryBus.Monitor.pData[0x3bc] = 0x2f;
-                _signetic6502._memoryBus.Monitor.pData[0x3bd] = 0x4c;
-                _signetic6502._memoryBus.Monitor.pData[0x3be] = 0xd0;
-                _signetic6502._memoryBus.Monitor.pData[0x3bf] = 0x8c;
-                _signetic6502._memoryBus.Monitor.pData[0x3c0] = 0xd7;
-                _signetic6502._memoryBus.RAM.pData[0x0222] = 0x47;
-                _signetic6502._memoryBus.RAM.pData[0x0223] = 0x0c;
-                _signetic6502._memoryBus.RAM.pData[0x0224] = 0xd0;
-                _signetic6502._memoryBus.RAM.pData[0x0226] = 0xd3;
+                _signetic6502._memoryBus.Monitor.Data[0x3bc] = 0x2f;
+                _signetic6502._memoryBus.Monitor.Data[0x3bd] = 0x4c;
+                _signetic6502._memoryBus.Monitor.Data[0x3be] = 0xd0;
+                _signetic6502._memoryBus.Monitor.Data[0x3bf] = 0x8c;
+                _signetic6502._memoryBus.Monitor.Data[0x3c0] = 0xd7;
+                _signetic6502._memoryBus.RAM.Data[0x0222] = 0x47;
+                _signetic6502._memoryBus.RAM.Data[0x0223] = 0x0c;
+                _signetic6502._memoryBus.RAM.Data[0x0224] = 0xd0;
+                _signetic6502._memoryBus.RAM.Data[0x0226] = 0xd3;
             }
 
             Debug.WriteLine("Out Init()");
+        }
+
+        public void SetLines(int lines)
+        {
+            // I think this is CEGMON specific
+
+            _lines = lines;
+            if (_lines == 16)
+            {
+                _signetic6502._memoryBus.Monitor.Data[0x3bc] = 0x2f;
+                _signetic6502._memoryBus.Monitor.Data[0x3bd] = 0x4c;
+                _signetic6502._memoryBus.Monitor.Data[0x3be] = 0xd0;
+                _signetic6502._memoryBus.Monitor.Data[0x3bf] = 0x8c;
+                _signetic6502._memoryBus.Monitor.Data[0x3c0] = 0xd3;
+                _signetic6502._memoryBus.RAM.Data[0x0222] = 0x47;
+                _signetic6502._memoryBus.RAM.Data[0x0223] = 0x0c;
+                _signetic6502._memoryBus.RAM.Data[0x0224] = 0xd0;
+                _signetic6502._memoryBus.RAM.Data[0x0225] = 0xcc;
+                _signetic6502._memoryBus.RAM.Data[0x0226] = 0xd1;
+            }
+            else
+            {
+                _signetic6502._memoryBus.Monitor.Data[0x3bc] = 0x2f;
+                _signetic6502._memoryBus.Monitor.Data[0x3bd] = 0x4c;
+                _signetic6502._memoryBus.Monitor.Data[0x3be] = 0xd0;
+                _signetic6502._memoryBus.Monitor.Data[0x3bf] = 0x8c;
+                _signetic6502._memoryBus.Monitor.Data[0x3c0] = 0xd7;
+                _signetic6502._memoryBus.RAM.Data[0x0222] = 0x47;
+                _signetic6502._memoryBus.RAM.Data[0x0223] = 0x0c;
+                _signetic6502._memoryBus.RAM.Data[0x0224] = 0xd0;
+                _signetic6502._memoryBus.RAM.Data[0x0226] = 0xd3;
+            }
         }
 
         public void Run()

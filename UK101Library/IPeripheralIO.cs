@@ -28,7 +28,6 @@ namespace UK101Library
 
         #endregion
         #region Methods
-
         void Out(int row, int column, byte character);
         string In();
 		void Error(string theErr);

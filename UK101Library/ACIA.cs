@@ -83,7 +83,7 @@ namespace UK101Library
     /// <summary>
     /// ACIA is detailed as a 6850
     /// </summary>
-    public class ACIA : MemoryBusDevice
+    public class ACIA : MemoryBusDevice, IMemoryBusDevice
     {
         #region Fields
 
@@ -154,11 +154,6 @@ namespace UK101Library
         // InData -> _tdr
         // return data <- _rdr
 
-
-        //public MemoryStream inStream;
-        //public MemoryStream outStream;
-
-        //private DispatcherTimer timer;
         private Timer _timer;
         
         private byte ACIAStatus;
@@ -177,12 +172,6 @@ namespace UK101Library
             this._peripheralIO = peripheralIO;
             ReadOnly = false;
             ACIAStatus = 0x00;
-
-            // 12/09/2021 JPG change the timer
-
-            //timer = new DispatcherTimer();
-            //timer.Interval = new TimeSpan(0, 0, 0, 0, 10);// 33);
-            //timer.Tick += Timer_Tick;
 
             _timer = new Timer(Timer_Tick, null, Timeout.Infinite, 10); // Create the Timer delay starting
 
@@ -252,7 +241,7 @@ namespace UK101Library
             // the MPU must write to this address to indicate that the status will be
             // checked rather than the reading of data
 
-            if ((Address & 0x0001) == 0x0001)
+            if ((_address & 0x0001) == 0x0001)
             {
                 // Read received data:
                 switch (mode)
@@ -359,7 +348,7 @@ namespace UK101Library
         // Processor wants to send data or set a command
         public override void Write(byte InData)
         {
-            if ((Address & 0x0001) == 0x0001)
+            if ((_address & 0x0001) == 0x0001)
             {
                 // Send data
                 switch (mode)

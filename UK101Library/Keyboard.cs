@@ -45,13 +45,13 @@ namespace UK101Library
     *  (4) This position is the ESC key
     */
 
-    public class Keyboard : MemoryBusDevice
+    public class Keyboard : MemoryBusDevice, IMemoryBusDevice
     {
         #region Variables
 
         private byte lastInData = 0xff;
         private IPeripheralIO _peripheralIO;
-        public Boolean loadResetIsNeeded { get; set; }
+        private bool _reset;
 
         #endregion
         #region Constructors
@@ -59,11 +59,29 @@ namespace UK101Library
         public Keyboard(IPeripheralIO peripheralIO)
         {
             _peripheralIO = peripheralIO;
-            loadResetIsNeeded = false;
+            _reset = false;
+            _data = new byte[1];
             Reset();
         }
 
         #endregion
+
+        #region Properties
+
+        public bool LoadResetIsNeeded
+        {
+            get
+            {
+                return (_reset);
+            }
+            set
+            {
+                _reset = value;
+            }
+        }
+
+        #endregion
+
         #region Methods
 
         public void Reset()
@@ -81,18 +99,18 @@ namespace UK101Library
 
         public override byte Read()
         {
-            if (loadResetIsNeeded && Data == 0xfd)
+            if (_reset && _data[0] == 0xfd)
             {
                 // Special treatment.
                 // People use to put "RUN" at end of listing in order to run the app,
                 // followed by on last line containing only one space.
-                // The manual states procedure to use if "RUN" and pace is not inlcuded
+                // The manual states procedure to use if "RUN" and space is not inlcuded
                 // in listing only, and the user is told to get back to normal (not load)
                 // mode by pressing space and then enter.
                 // However, this does not work here, so if a "RUN" line is encountered
                 // we must tell keyboard input routine to reset the load by pressing
                 // space:
-                loadResetIsNeeded = false;
+                _reset = false;
                 return 0xef;
             }
 
@@ -118,7 +136,7 @@ namespace UK101Library
                 // Is the row selected? (Bit at location 'i' is zero.)
                 // 1101 1011 & 0000 1000 = 0000 1000 (no)
                 // 1101 1011 & 0000 0100 = 0000 0000 (yes)
-                if ((Data & (0x80 >> i)) == 0)
+                if ((_data[0] & (0x80 >> i)) == 0)
                 {
                     // Mask 0's from corresponding Keystate onto OutData:
                     OutData = (byte)(OutData & _peripheralIO.KeyStates[i]);
@@ -146,7 +164,9 @@ namespace UK101Library
             // We need to store which row is selected (only one can be selected at a time).
             // The selected row is stored in Data
             //
-            Data = InData;
+
+            _data[0] = InData;
+
         }
         #endregion
     }

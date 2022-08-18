@@ -25,6 +25,7 @@ namespace UK101Library
         public byte pCharData;
         public bool Changed;
         private IPeripheralIO _peripheralIO;
+        private UInt16 _ramSize;
 
         #endregion
         #region Constructor
@@ -32,14 +33,24 @@ namespace UK101Library
         public VDU(IPeripheralIO peripheralIO)
         {
             _peripheralIO = peripheralIO;
-            RAMSize = 4096;
-            pData = new byte[RAMSize];
+            _ramSize = 4096;
+            _data = new byte[RAMSize];
         }
 
         #endregion
         #region Properties
 
-        public UInt16 RAMSize { get; set; }
+        public UInt16 RAMSize
+        {
+            get
+            {
+                return (_ramSize);
+            }
+            set
+            {
+                _ramSize = value;
+            }
+        }
 
         #endregion
         #region Methods
@@ -83,35 +94,35 @@ namespace UK101Library
 
         public void Init()
         {
-
-            Random random = new Random(43);
-            byte[] garbage = new byte[32 * 64];
-            random.NextBytes(garbage);
-
             // simulate the random data
 
-            int rows = 32;
-            int columns = 64;
-
-            for (int row = 0; row < rows; row++)
+            Random random = new Random(43);
+            random.NextBytes(_data);
+            for (int i = 0; i < _ramSize; i++)
             {
-                for (int column = 0; column < columns; column++)
-                {
-                    pData[column + row * columns] = garbage[column + row * columns];
-                    _peripheralIO.Out(row, column, garbage[column + row * columns]);
-                }
+                byte column = (byte)(i % 64);
+                byte row = (byte)(i / 64);
+                _peripheralIO.Out(row, column, _data[i]);
             }
         }
 
         public void ClearScreen()
         {
-            // May need to clear the screen
+            // Clear the memory
+
+            for (int i = 0; i < _ramSize; i++)
+            {
+                _data[i] = 32;
+                byte column = (byte)(i % 64);
+                byte row = (byte)(i / 64);
+                _peripheralIO.Out(row, column, _data[i]);
+            }
         }
 
         public override void Write(byte InData)
         {
-            Int32 position = Address - StartsAt;
-            pData[position] = InData;;
+            Int32 position = _address - _startsAt;
+            _data[position] = InData;;
             byte column = (byte)(position % 64);
             byte row = (byte)(position / 64);
             _peripheralIO.Out(row, column, InData);
@@ -119,7 +130,7 @@ namespace UK101Library
 
         public override byte Read()
         {
-            return pData[Address - StartsAt];
+            return _data[_address - StartsAt];
         }
 
         #endregion

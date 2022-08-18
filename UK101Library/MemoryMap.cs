@@ -8,66 +8,91 @@ namespace UK101Library
 {
     public class MemoryMap
     {
+        /*
+         * 0x0000-0x9fff	40KB RAM
+         * 0xa000-0xbfff	8KB BASIC in ROM
+         * 0xc000-0xcfff	External SRAM (not viewable by BASIC)
+         * 0xd000-0xd3ff	1KB Display RAM
+         * 0xdc00-0xdfff	Polled Keyboard
+         * 0xf000-0xf001	ACIA Serial port
+         * 0xf800-0xffff	2KB MONITOR ROM
+         */
+
         #region Fields
 
-        public byte[] Map = new byte[0x10000];
+        private byte[] _map = new byte[0x10000];
 
         #endregion
         #region Constructors
 
         public MemoryMap()
         {
-            for (Int32 Address = 0; Address < 0x10000; Address++)
+            for (Int32 address = 0; address < 0x10000; address++)
             {
-                if (Address >= 0xf800)
+                if (address >= 0xf800)
                 {
-                    Map[Address] = 0;
+                    Map[address] = 0;
                 }
-                else if (Address >= 0xf000 && Address <= 0xf0ff)    // ACAI Device[1]
+                else if (address >= 0xf000 && address <= 0xf0ff)    // ACAI Device[1]
                 {
-                    Map[Address] = 1;
+                    Map[address] = 1;
                 }
-                else if (Address == 0xdf00)
+                else if (address == 0xdf00)                         // KEYBOARD Device[2]
                 {
-                    Map[Address] = 2;
+                    Map[address] = 2;
                 }
-                else if (Address >= 0xd000 && Address <= 0xd7ff)    // VDU Device[3]
+                else if (address >= 0xd000 && address <= 0xd7ff)    // VDU Device[3]
                 {
-                    Map[Address] = 3;
+                    Map[address] = 3;
                 }
-                else if (Address >= 0xb800 && Address <= 0xbfff)
+                else if (address >= 0xb800 && address <= 0xbfff)    // BASIC4 Device[4]
                 {
-                    Map[Address] = 4;
+                    Map[address] = 4;
                 }
-                else if (Address >= 0xb000 && Address <= 0xb7ff)
+                else if (address >= 0xb000 && address <= 0xb7ff)    // BASIC3 Device[5]
                 {
-                    Map[Address] = 5;
+                    Map[address] = 5;
                 }
-                else if (Address >= 0xa800 && Address <= 0xafff)
+                else if (address >= 0xa800 && address <= 0xafff)    // BASIC2 Device[6]
                 {
-                    Map[Address] = 6;
+                    Map[address] = 6;
                 }
-                else if (Address >= 0xa000 && Address <= 0xa7ff)
+                else if (address >= 0xa000 && address <= 0xa7ff)    // BASIC1 Device[7]
                 {
-                    Map[Address] = 7;
+                    Map[address] = 7;
                 }
-                else if (Address >= 0x8000 && Address <= 0x8fff)
+                else if (address >= 0x8000 && address <= 0x8fff)    // ROM8000 Device[8]
                 {
-                    Map[Address] = 8;
+                    Map[address] = 8;
                 }
-                else if (Address == 0x6001)
+                else if (address == 0x6001)
                 {
-                    Map[Address] = 9;
+                    Map[address] = 9;
                 }
-                else if (Address < 0x2000)
+                else if (address < 0x2000)                          // RAM Device[10]
                 {
-                    Map[Address] = 10;
+                    Map[address] = 10;
                 }
                 else
                 {
-                    Map[Address] = 11;
+                    Map[address] = 11;
                 }
 
+            }
+        }
+
+        #endregion
+        #region Properties
+
+        public byte[] Map
+        {
+            set
+            {
+                _map = value;
+            }
+            get
+            {
+                return (_map);
             }
         }
 

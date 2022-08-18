@@ -2,16 +2,16 @@ using System;
 
 namespace UK101Library
 {
-    public class CEGMON : MemoryBusDevice
+    public class CEGMON : MemoryBusDevice, IMemoryBusDevice
     {
 		#region Contructor
 
-		public CEGMON(ushort Address)
+		public CEGMON(ushort address)
 		{
-			this.Address = Address;
-			ReadOnly = true;
+			_address = address;
+			_readOnly = true;
 
-			pData = new byte[] {
+			_data = new byte[] {
 			0xa5, 0x0e, 0xf0, 0x06, 0xc6, 0x0e, 0xf0, 0x02, 0xc6, 0x0e, 0xa9, 0x20, 0x8d, 0x01, 0x02, 0x20, // F800 - F80F
 			0x8f, 0xff, 0x10, 0x19, 0x38, 0xad, 0x2b, 0x02, 0xe9, 0x40, 0x8d, 0x2b, 0x02, 0xad, 0x2c, 0x02, // F810
 			0xe9, 0x00, 0x8d, 0x2c, 0x02, 0x20, 0xcf, 0xfb, 0xb0, 0x03, 0x20, 0xd1, 0xff, 0x8e, 0x00, 0x02, // F820
@@ -145,18 +145,14 @@ namespace UK101Library
 
 		#endregion
 		#region Properties
-
-		public UInt16 ROMSize { get; set; }
-
         #endregion
         #region Methods
 
-
         public override byte Read()
         {
-            return pData[Address - StartsAt];
+            return _data[_address - _startsAt];
         }
 
-#endregion
+		#endregion
     }
 }

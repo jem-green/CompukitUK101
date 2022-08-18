@@ -8,41 +8,119 @@ namespace UK101Library
     {
         #region Fields
 
-        public byte[] pData;
+        protected byte[] _data;
+        protected bool _readOnly;
+        protected bool _writeOnly;
+        protected bool _accessible;
+        protected ushort _address;
+        protected ushort _startsAt;
+        protected ushort _endsAt;
 
         #endregion
-
         #region Constructor
 
         public MemoryBusDevice()
         {
-            ReadOnly = false;
-            WriteOnly = false;
-            Accessible = true;
-            //StartsAt = new Address();
-            //EndsAt = new Address();
-            //Address = new Address();
+            _readOnly = false;
+            _writeOnly = false;
+            _accessible = true;
         }
 
         #endregion
         #region Properies
 
-        public bool ReadOnly { get; set; }
-        public bool WriteOnly { get; set; }
-        public bool Accessible { get; set; }
-        public ushort Address { get; set; }
-        public byte Data { get; set; }
-        public ushort StartsAt { get; set; }
-        public ushort EndsAt { get; set; }
+        public bool ReadOnly
+        {
+            get
+            {
+                return (_readOnly);
+            }
+            set
+            {
+                _readOnly = value;
+            }
+        }
+
+        public bool WriteOnly
+        {
+            get
+            {
+                return (_writeOnly);
+            }
+            set
+            {
+                _writeOnly = value;
+            }
+        }
+
+        public bool Accessible
+        {
+            get
+            {
+                return (_accessible);
+            }
+            set
+            {
+                _accessible = value;
+            }
+        }
+
+        public ushort Address
+        {
+            get
+            {
+                return (_address);
+            }
+            set
+            {
+                _address = value;
+            }
+        }
+
+        public byte[] Data
+        {
+            get
+            {
+                return (_data);
+            }
+            set
+            {
+                _data = value;
+            }
+        }
+
+        public ushort StartsAt
+        {
+            get
+            {
+                return (_startsAt);
+            }
+            set
+            {
+                _startsAt = value;
+            }
+        }
+
+        public ushort EndsAt
+        {
+            get
+            {
+                return (_endsAt);
+            }
+            set
+            {
+                _endsAt = value;
+            }
+        }
 
         #endregion
         #region Methods
 
         public void SetAddress(UInt16 InAddress)
         {
-            if (InAddress >= StartsAt && InAddress <= EndsAt)
+            if (InAddress >= _startsAt && InAddress <= _endsAt)
             {
-                Address = InAddress;
+                _address = InAddress;
             }
         }
 

@@ -2,15 +2,14 @@ using System;
 
 namespace UK101Library
 {
-    public class BASIC3 : MemoryBusDevice
+    public class BASIC3 : MemoryBusDevice, IMemoryBusDevice
     {
-        public UInt16 ROMSize { get; set; }
-
-		public BASIC3(ushort Address)
+        #region Constructor
+        public BASIC3(ushort address)
 		{
-			this.Address = Address;
+			_address = address;
 
-			pData = new byte[] {
+			_data = new byte[] {
 				0xc4, 0x48, 0xa5, 0xc3, 0x48, 0x20, 0x0c, 0xa7, 0x4c, 0x7a, 0xb0, 0xa9, 0x9e, 0x20, 0x03, 0xac,
 				0x09, 0x80, 0x85, 0x61, 0x20, 0x12, 0xad, 0x85, 0x9c, 0x84, 0x9d, 0x4c, 0xb0, 0xaa, 0x20, 0x0b,
 				0xb0, 0xa5, 0x9d, 0x48, 0xa5, 0x9c, 0x48, 0x20, 0xf5, 0xab, 0x20, 0xb0, 0xaa, 0x68, 0x85, 0x9c,
@@ -142,9 +141,12 @@ namespace UK101Library
 			};
 		}
 
+        #endregion
+        #region Methods
         public override byte Read()
         {
-            return pData[Address - StartsAt];
+            return _data[_address - _startsAt];
         }
+        #endregion
     }
 }

@@ -15,11 +15,11 @@ namespace UK101Library
 
     public class Signetic6502
     {
-        private Boolean DebugEnabled = false;
+        private bool DebugEnabled = false;
         ushort PC_Debug;
         Int32 AddressMode_Debug = 0;
-        String hexChars = "0123456789abcdef";
-        String DebugString = "";
+        string hexChars = "0123456789abcdef";
+        string DebugString = "";
         byte[] debugBytes = null;
 
         // Processor status register AND masks.
@@ -50,12 +50,12 @@ namespace UK101Library
         public const ushort ADDRESS_MODE_6502_Z_PAGE_Y = 0x1000;
 
         // Registers:
-        ushort PC;    // Program counter
-        byte A;        // Accumulator
-        byte X;        // X index
-        byte Y;        // Y index
-        byte S;        // Stack pointer (Always page 1!)
-        byte P;        // Processor status register
+        ushort PC;      // Program counter
+        byte A;         // Accumulator
+        byte X;         // X index
+        byte Y;         // Y index
+        byte S;         // Stack pointer (Always page 1!)
+        byte P;         // Processor status register
         byte siTest;
         byte ucTest;
 
@@ -82,7 +82,7 @@ namespace UK101Library
 
             // Clear screen even if CEGMON will do that, because we might 
             // have changed to 16 rows, and segmon will miss the bottom half.
-            //MemoryBus.VDU.ClearScreen();
+            //_memoryBus.VDU.ClearScreen();
 
             // Reset the keyboard:
             _memoryBus.Keyboard.Reset();
@@ -101,7 +101,7 @@ namespace UK101Library
         public void Dissassemble()
         {
             byte addressBytes;
-            for (ushort i = 0; i < _memoryBus.ROM8000.pData.Length; i++)
+            for (ushort i = 0; i < _memoryBus.ROM8000.Data.Length; i++)
             {
                 //PC = new Address();
                 PC = (ushort)(0x8000 + i);
@@ -148,10 +148,10 @@ namespace UK101Library
                         break;
                 }
 
-                String addr = "";
+                string addr = "";
                 for (byte ab = 0; ab < addressBytes; ab++)
                 {
-                    addr += "" + hexChars[_memoryBus.ROM8000.pData[i + ab + 1] / 16] + hexChars[_memoryBus.ROM8000.pData[i + ab + 1] % 16] + "\t";
+                    addr += "" + hexChars[_memoryBus.ROM8000.Data[i + ab + 1] / 16] + hexChars[_memoryBus.ROM8000.Data[i + ab + 1] % 16] + "\t";
                 }
                 i += addressBytes;
                 TraceInternal.TraceVerbose(DebugString + " " + addr);
