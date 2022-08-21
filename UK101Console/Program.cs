@@ -271,7 +271,7 @@ namespace UK101Console
 
 			// Start the simulator
 			
-            UK101 _uk101 = new UK101(_consoleIO);
+            Micro _uk101 = new Micro(_consoleIO);
             KeyboardMatrix _keyboardMatrix = new KeyboardMatrix();
             _uk101.Init(32);
             _uk101.Run();
@@ -307,7 +307,8 @@ namespace UK101Console
                     {
                         // Enable tape mode
                 		Debug.WriteLine("Enable Tape");
-                        _uk101.MemoryBus.ACIA.Mode = ACIA.IO_MODE_6820_TAPE;
+                        ACIA ACIA = (ACIA)_uk101["ACIA"];
+                        ACIA.Mode = ACIA.IO_MODE_6820_TAPE;
                         // Would like to consider a _tape.Open() 
                     }
                     else if (keyCode == ConsoleKey.F2)  // Play the tape
@@ -333,8 +334,9 @@ namespace UK101Console
                     else if (keyCode == ConsoleKey.F5)  // Disble tape mode
                     {
                         // Disable tape mode
-                	Debug.WriteLine("Disable tape");
-                        _uk101.MemoryBus.ACIA.Mode = ACIA.IO_MODE_6820_NONE;
+                	    Debug.WriteLine("Disable tape");
+                        ACIA ACIA = (ACIA)_uk101["ACIA"];
+                        ACIA.Mode = ACIA.IO_MODE_6820_NONE;
                         // Would like to consider a _tape.Close() 
                     }
                     else

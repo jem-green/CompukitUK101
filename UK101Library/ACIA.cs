@@ -169,6 +169,7 @@ namespace UK101Library
 
         public ACIA(IPeripheralIO peripheralIO)
         {
+            _name = "ACIA";
             this._peripheralIO = peripheralIO;
             ReadOnly = false;
             ACIAStatus = 0x00;

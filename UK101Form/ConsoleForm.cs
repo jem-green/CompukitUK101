@@ -16,7 +16,7 @@ namespace UK101Form
     {
         #region Fields
 
-        private UK101 _uk101;
+        private Micro _uk101;
         private Tape _tape;
         private Display _display;
 
@@ -26,7 +26,6 @@ namespace UK101Form
         [DllImport("user32.dll")]
 
         private static extern short GetAsyncKeyState(Keys key);
-        int pos = 0;
         bool _stopped = true;
 
         // Declare a delegate used to communicate with the UI thread
@@ -41,7 +40,7 @@ namespace UK101Form
 
         bool _updated = false;
         int _height = 32;
-        int _width = 51;
+        int _width = 50;
         int _scale = 1;
         double _aspect = 1;
 
@@ -49,6 +48,7 @@ namespace UK101Form
         protected MruStripMenu mruMenu;
 
         #endregion
+        #region Constructor
 
         public ConsoleForm(string path, string name, string extension)
         {
@@ -58,14 +58,10 @@ namespace UK101Form
 
             this.Icon = Resources.compukit;
 
-            // Display size
-
-            _height = 32;
-
             // Add this display
 
             _display = new Display();
-            _display.Width = 50;
+            _display.Width = _width;
             _display.Height = _height;
             _display.Left = 0;
             _display.Top = 0;
@@ -77,7 +73,7 @@ namespace UK101Form
             _formIO.TextReceived += new EventHandler<TextEventArgs>(OnMessageReceived);
             _formIO.Top = 0;
             _formIO.Left = 11;
-            _formIO.Width = 50;
+            _formIO.Width = _width;
             _formIO.Height = _height;
 
             // Fit the picturebox to the form
@@ -97,11 +93,11 @@ namespace UK101Form
             mruMenu = new MruStripMenuInline(fileMenuItem, recentFileToolStripMenuItem, new MruStripMenu.ClickedHandler(OnMruFile), 4);
             LoadFiles();
 
-            // Add a picturebox update timer
+            // Add a consolePictureBox update timer
 
             System.Windows.Forms.Timer timer = new System.Windows.Forms.Timer();
             timer.Interval = (int)(0.01 * 1000); // 1 second
-            timer.Tick += new EventHandler(timer_Tick);
+            timer.Tick += new EventHandler(Timer_Tick);
             timer.Start();
 
             // Add the tape
@@ -144,12 +140,220 @@ namespace UK101Form
             Debug.WriteLine("Out ConsoleForm()");
         }
 
-        private void pictureBox1_Paint(object sender, PaintEventArgs e)
+        #endregion
+        #region Methods
+        private void Run()
         {
-            Graphics g = e.Graphics;
-            Bitmap b = _display.Generate();
-            g.DrawImageUnscaled(b, 0, 0);
-            _updated = false;
+            _uk101 = new Micro(_formIO);
+            _keyboardMatrix = new KeyboardMatrix();
+            _uk101.Init(_height);
+            VDU VDU = (VDU)_uk101["VDU"];
+            VDU.Init();
+
+            try
+            {
+                _uk101.Run();
+            }
+            catch (Exception e)
+            {
+                TraceInternal.TraceVerbose(e.ToString());
+            }
+        }
+
+        private void LoadFiles()
+        {
+            Debug.WriteLine("In LoadFiles()");
+            TraceInternal.TraceVerbose("Files " + Properties.Settings.Default.FileCount);
+            for (int i = 0; i < 4; i++)
+            {
+                string property = "File" + (i + 1);
+                string file = (string)Properties.Settings.Default[property];
+                if (file != "")
+                {
+                    mruMenu.AddFile(file);
+                    TraceInternal.TraceVerbose("Load " + file);
+                }
+            }
+            Debug.WriteLine("Out LoadFiles()");
+        }
+
+        private void SaveFiles()
+        {
+            Debug.WriteLine("In SaveFiles");
+            string[] files = mruMenu.GetFiles();
+            Properties.Settings.Default["FileCount"] = files.Length;
+            TraceInternal.TraceVerbose("Files=" + files.Length);
+            for (int i = 0; i < 4; i++)
+            {
+                string property = "File" + (i + 1);
+                if (i < files.Length)
+                {
+                    Properties.Settings.Default[property] = files[i];
+                    TraceInternal.TraceVerbose("Save " + property + "=" + files[i]);
+                }
+                else
+                {
+                    Properties.Settings.Default[property] = "";
+                    TraceInternal.TraceVerbose("Save " + property + "=");
+                }
+            }
+            Debug.WriteLine("Out SaveFiles");
+        }
+
+        private void UpdateText()
+        {
+            consolePictureBox.Invalidate();
+        }
+
+        private void SetScaleMenu()
+        {
+
+            if (_display.Scale == 1)
+            {
+                smallToolStripMenuItem.Enabled = false;
+            }
+            else
+            {
+                smallToolStripMenuItem.Enabled = true;
+            }
+
+            if (_display.Scale == 2)
+            {
+                mediumToolStripMenuItem.Enabled = false;
+            }
+            else
+            {
+                mediumToolStripMenuItem.Enabled = true;
+            }
+
+            if (_display.Scale == 3)
+            {
+                largeToolStripMenuItem.Enabled = false;
+            }
+            else
+            {
+                largeToolStripMenuItem.Enabled = true;
+            }
+
+            if (_aspect < 1)
+            {
+                lessToolStripMenuItem.Enabled = false;
+            }
+            else
+            {
+                lessToolStripMenuItem.Enabled = true;
+            }
+            if (_aspect == 1)
+            {
+                equalToolStripMenuItem.Enabled = false;
+            }
+            else
+            {
+                equalToolStripMenuItem.Enabled = true;
+
+            }
+            if (_aspect > 1)
+            {
+                greaterToolStripMenuItem.Enabled = false;
+            }
+            else
+            {
+                greaterToolStripMenuItem.Enabled = true;
+            }
+        }
+
+        private void SetTapeMenu()
+        {
+            ACIA ACIA = (ACIA)_uk101["ACIA"];
+            if (ACIA.Mode == ACIA.IO_MODE_6820_NONE)
+            {
+                enableToolStripMenuItem.Enabled = true;
+                playToolStripMenuItem.Enabled = false;
+                recordToolStripMenuItem.Enabled = false;
+                stopToolStripMenuItem.Enabled = false;
+                disableToolStripMenuItem.Enabled = false;
+            }
+            else
+            {
+                enableToolStripMenuItem.Enabled = false;
+
+
+                if ((_tape.Mode == Tape.TapeMode.Enabled) || (_tape.Mode == Tape.TapeMode.Stopped))
+                {
+                    playToolStripMenuItem.Enabled = true;
+                    recordToolStripMenuItem.Enabled = true;
+                    stopToolStripMenuItem.Enabled = false;
+                    disableToolStripMenuItem.Enabled = true;
+                }
+                else if (_tape.Mode == Tape.TapeMode.Playing)
+                {
+                    playToolStripMenuItem.Enabled = false;
+                    recordToolStripMenuItem.Enabled = false;
+                    stopToolStripMenuItem.Enabled = true;
+                    disableToolStripMenuItem.Enabled = false;
+                }
+                else if (_tape.Mode == Tape.TapeMode.Recording)
+                {
+                    playToolStripMenuItem.Enabled = false;
+                    recordToolStripMenuItem.Enabled = false;
+                    stopToolStripMenuItem.Enabled = true;
+                    disableToolStripMenuItem.Enabled = false;
+                }
+            }
+        }
+
+        private void SetLimits()
+        {
+            _display.Scale = _scale;
+            _display.Aspect = _aspect;
+            int height = 39 + this.MainMenuStrip.Height;    // Must be some fixed elements to the form
+            int width = 16;                                 // Must have some fixed element to the form (8 pixels each side)
+            if (_aspect > 1)
+            {
+                height = height + _scale * _height * 8;
+                width = (int)(width + 400 * _scale * _aspect);
+            }
+            else
+            {
+                height = (int)(height + _scale * _height * 8 / _aspect);
+                width = width + 400 * _scale;
+            }
+
+            // Height
+            // 296 = 37 x 8 - for small = 1
+            // 552 = 69 x 8 - for medium = 2
+            // 808 = 101 x 8 - for large = 3
+            // Width
+            // 417 - for small = 1
+            // 817 - For medium = 2
+            // 1217 - for large = 3
+
+            this.MinimumSize = new Size(width, height); // 40
+            this.MaximumSize = new Size(width, height);
+
+            this.consolePictureBox.Invalidate();
+        }
+
+        #endregion
+        #region Events
+
+        // Define the event handlers.
+        private void OnMessageReceived(object source, TextEventArgs e)
+        {
+            _updated = true;
+            //if (_refreshing == false)
+            //{
+            //    this.Invoke(this.updateTextDelegate);
+            //}
+        }
+
+        private void Timer_Tick(object sender, EventArgs e)
+        {
+            // Only refresh if there has been a change
+            if (_updated == true)
+            {
+                consolePictureBox.Invalidate();
+            }
         }
 
         private void OnMruFile(int number, string filenamePath)
@@ -157,6 +361,7 @@ namespace UK101Form
             string path = "";
             string name = "";
             string extension = "";
+            int pos;
 
             if (File.Exists(filenamePath) == true)
             {
@@ -187,7 +392,6 @@ namespace UK101Form
                 _tape.Path = path;
                 _tape.Name = name + "." + extension;
 
-                char[] program;
                 try
                 {
                     // Start the simulator
@@ -207,42 +411,27 @@ namespace UK101Form
             }
         }
 
-        //private void UpdateText()
-        //{
-        //    pictureBox1.Invalidate();   
-        //}
+        #endregion
 
-        // Define the event handlers.
-        private void OnMessageReceived(object source, TextEventArgs e)
+        #region consolePictureBox Events
+
+        private void ConsolePictureBox_Paint(object sender, PaintEventArgs e)
         {
-            _updated = true;
-            //if (_refreshing == false)
-            //{
-            //    this.Invoke(this.updateTextDelegate);
-            //}
+            Graphics g = e.Graphics;
+            Bitmap b = _display.Generate();
+            g.DrawImageUnscaled(b, 0, 0);
+            _updated = false;
         }
 
-        private void Run()
-        {
-            _uk101 = new UK101(_formIO);
-            _keyboardMatrix = new KeyboardMatrix();
-            _uk101.Init(_height);
-            _uk101.MemoryBus.VDU.Init();
-            try
-            {
-                _uk101.Run();
-            }
-            catch (Exception e)
-            {
-                TraceInternal.TraceVerbose(e.ToString());
-            }
-        }
-
-        private void pictureBox1_MouseDown(object sender, MouseEventArgs e)
+        private void ConsolePictureBox_MouseDown(object sender, MouseEventArgs e)
         {
             consolePictureBox.Invalidate();
         }
 
+        #endregion
+
+        #region Form Events
+        
         private void ConsoleForm_KeyDown(object sender, KeyEventArgs e)
         {
             Keys keyCode = e.KeyCode;
@@ -259,7 +448,8 @@ namespace UK101Form
             {
                 // Enable tape mode
                 TraceInternal.TraceVerbose("Enable Tape");
-                _uk101.MemoryBus.ACIA.Mode = ACIA.IO_MODE_6820_TAPE;
+                ACIA ACIA = (ACIA)_uk101["ACIA"];
+                ACIA.Mode = ACIA.IO_MODE_6820_TAPE;
                 // Would like to consider a _tape.Open() 
             }
             else if (keyCode == Keys.F2)  // Play the tape
@@ -284,7 +474,8 @@ namespace UK101Form
             {
                 // Disable tape mode
                 TraceInternal.TraceVerbose("Disable tape");
-                _uk101.MemoryBus.ACIA.Mode = ACIA.IO_MODE_6820_NONE;
+                ACIA ACIA = (ACIA)_uk101["ACIA"];
+                ACIA.Mode = ACIA.IO_MODE_6820_NONE;
                 // Would like to consider a _tape.Close() 
             }
             else
@@ -464,6 +655,128 @@ namespace UK101Form
             }
         }
 
+        private void ConsoleForm_Load(object sender, EventArgs e)
+        {
+            Debug.WriteLine("In ConsoleForm_Load()");
+
+            Settings.Default.Upgrade();
+
+            // Set window location
+            if (Settings.Default.ConsoleLocation != null)
+            {
+                // fIx errors with location being negative or off the main display
+
+                this.Location = Settings.Default.ConsoleLocation;
+                if ((this.Location.X < 0) || (this.Location.Y < 0))
+                {
+                    this.Location = new Point(0, 0);
+                }
+            }
+            this.WindowState = FormWindowState.Normal;
+
+
+            // Set window size
+            if (Settings.Default.ConsoleSize != null)
+            {
+                this.Size = Settings.Default.ConsoleSize;
+            }
+
+            // Set Console font color
+            if (Settings.Default.ConsoleFontColor != null)
+            {
+                this.consolePictureBox.ForeColor = Settings.Default.ConsoleFontColor;
+            }
+
+            // Set Console color
+            if (Settings.Default.ConsoleColor != null)
+            {
+                this.consolePictureBox.BackColor = Settings.Default.ConsoleColor;
+            }
+
+            //// Set Display height
+            //if (Settings.Default.Height > 0)
+            //{
+            //    _height = Settings.Default.Height;
+            //}
+
+            // Set Display width
+            if (Settings.Default.Width > 0)
+            {
+                _width = Settings.Default.Width;
+            }
+
+            // Set Console scaling
+            if (Settings.Default.ConsoleScale > 0)
+            {
+                _aspect = Settings.Default.ConsoleAspect;
+                _scale = Settings.Default.ConsoleScale;
+            }
+
+            SetLimits();
+            SetTapeMenu();
+            SetScaleMenu();
+
+            Debug.WriteLine("Out ConsoleForm_Load()");
+        }
+
+        private void ConsoleForm_FormClosing(object sender, FormClosingEventArgs e)
+        {
+            Debug.WriteLine("In ConsoleForm_FormClosing()");
+
+            // Need to stop the thread
+            // think i will try a better approach
+
+            if (_stopped == false)
+            {
+                workerThread.Abort();
+            }
+
+            // Copy window location to app settings
+            Settings.Default.ConsoleLocation = this.Location;
+
+            // Copy window size to app settings
+            if (this.WindowState == FormWindowState.Normal)
+            {
+                Settings.Default.ConsoleSize = this.Size;
+            }
+            else
+            {
+                Settings.Default.ConsoleSize = this.RestoreBounds.Size;
+            }
+
+            // Copy console font color to app settings
+            Settings.Default.ConsoleFontColor = this.consolePictureBox.ForeColor;
+
+            // Copy console color to app settings
+            Settings.Default.ConsoleColor = this.consolePictureBox.BackColor;
+
+            // Copy console scale to app settings
+            Settings.Default.ConsoleScale = _display.Scale;
+
+            // Copy console scale to app settings
+            Settings.Default.ConsoleAspect = _display.Aspect;
+
+            // Copy display height to app settings
+            Settings.Default.Height = _height;
+
+            // Copy display width to app settings
+            Settings.Default.Width = _width;
+
+            // Safe Mru
+            SaveFiles();
+
+            // Save settings
+            Settings.Default.Save();
+
+            // Upgrade settings
+            Settings.Default.Reload();
+
+            Debug.WriteLine("Out ConsoleForm_FormClosing()");
+        }
+
+        #endregion
+        #region Menu Events
+
         private void FileOpenMenuItem_Click(object sender, EventArgs e)
         {
             Debug.WriteLine("In FileOpenMenuItem_Click()");
@@ -471,6 +784,7 @@ namespace UK101Form
             string path = "";
             string name = "";
             string extension = "";
+            int pos;
 
             //consolePictureBox.Enabled = false;
             //consolePictureBox.Visible = false;
@@ -520,116 +834,6 @@ namespace UK101Form
             Debug.WriteLine("Out FileOpenMenuItem_Click()");
         }
 
-        private void ConsoleForm_Load(object sender, EventArgs e)
-        {
-            Debug.WriteLine("In ConsoleForm_Load()");
-
-            Settings.Default.Upgrade();
-
-            // Set window location
-            if (Settings.Default.ConsoleLocation != null)
-            {
-                // fIx errors with location being negative or off the main display
-
-                this.Location = Settings.Default.ConsoleLocation;
-                if ((this.Location.X < 0) || (this.Location.Y < 0))
-                {
-                    this.Location = new Point(0, 0);
-                }
-            }
-            this.WindowState = FormWindowState.Normal;
-
-
-            // Set window size
-            if (Settings.Default.ConsoleSize != null)
-            {
-                this.Size = Settings.Default.ConsoleSize;
-            }
-
-            // Set Console font color
-            if (Settings.Default.ConsoleFontColor != null)
-            {
-                this.consolePictureBox.ForeColor = Settings.Default.ConsoleFontColor;
-            }
-
-            // Set Console color
-            if (Settings.Default.ConsoleColor != null)
-            {
-                this.consolePictureBox.BackColor = Settings.Default.ConsoleColor;
-            }
-
-            // Set Console scaling
-            if (Settings.Default.ConsoleScale > 0)
-            {
-                _aspect = Settings.Default.ConsoleAspect;
-                _scale = Settings.Default.ConsoleScale;
-                SetLimits();
-            }
-
-            SetTapeMenu();
-            SetScaleMenu();
-
-            Debug.WriteLine("Out ConsoleForm_Load()");
-        }
-
-        private void timer_Tick(object sender, EventArgs e)
-        {
-            // Only refresh if there has been a change
-            if (_updated == true)
-            {
-                consolePictureBox.Invalidate();
-            }
-        }
-
-        private void ConsoleForm_FormClosing(object sender, FormClosingEventArgs e)
-        {
-            Debug.WriteLine("In ConsoleForm_FormClosing()");
-
-            // Need to stop the thread
-            // think i will try a better approach
-
-            if (_stopped == false)
-            {
-                workerThread.Abort();
-            }
-
-            // Copy window location to app settings
-            Settings.Default.ConsoleLocation = this.Location;
-
-            // Copy window size to app settings
-            if (this.WindowState == FormWindowState.Normal)
-            {
-                Settings.Default.ConsoleSize = this.Size;
-            }
-            else
-            {
-                Settings.Default.ConsoleSize = this.RestoreBounds.Size;
-            }
-
-            // Copy console font color to app settings
-            Settings.Default.ConsoleFontColor = this.consolePictureBox.ForeColor;
-
-            // Copy console color to app settings
-            Settings.Default.ConsoleColor = this.consolePictureBox.BackColor;
-
-            // Copy console scale to app settings
-            Settings.Default.ConsoleScale = _display.Scale;
-
-            // Copy console scale to app settings
-            Settings.Default.ConsoleAspect = _display.Aspect;
-
-            // Safe Mru
-            SaveFiles();
-
-            // Save settings
-            Settings.Default.Save();
-
-            // Upgrade settings
-            Settings.Default.Reload();
-
-            Debug.WriteLine("Out ConsoleForm_FormClosing()");
-        }
-
         private void FileExitMenuItem_Click(object sender, EventArgs e)
         {
             Debug.WriteLine("Out FileExitMenuItem_Click()");
@@ -653,55 +857,27 @@ namespace UK101Form
             Debug.WriteLine("Out FileExitMenuItem_Click()");
         }
 
-        private void LoadFiles()
+        private void Display16ToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            Debug.WriteLine("In LoadFiles()");
-            TraceInternal.TraceVerbose("Files " + Properties.Settings.Default.FileCount);
-            for (int i = 0; i < 4; i++)
-            {
-                string property = "File" + (i + 1);
-                string file = (string)Properties.Settings.Default[property];
-                if (file != "")
-                {
-                    mruMenu.AddFile(file);
-                    TraceInternal.TraceVerbose("Load " + file);
-                }
-            }
-            Debug.WriteLine("Out LoadFiles()");
+            _height = 16;
+            _formIO.Height = _height;
+            _display.Height = _height;
+            _uk101.Height = _height;
+            _uk101.SetLines(_height);
+            SetLimits();
+            SetScaleMenu();
         }
 
-        private void SaveFiles()
-        {
-            Debug.WriteLine("In SaveFiles");
-            string[] files = mruMenu.GetFiles();
-            Properties.Settings.Default["FileCount"] = files.Length;
-            TraceInternal.TraceVerbose("Files=" + files.Length);
-            for (int i = 0; i < 4; i++)
-            {
-                string property = "File" + (i + 1);
-                if (i < files.Length)
-                {
-                    Properties.Settings.Default[property] = files[i];
-                    TraceInternal.TraceVerbose("Save " + property + "=" + files[i]);
-                }
-                else
-                {
-                    Properties.Settings.Default[property] = "";
-                    TraceInternal.TraceVerbose("Save " + property + "=");
-                }
-            }
-            Debug.WriteLine("Out SaveFiles");
-        }
-
-        private void enableToolStripMenuItem_Click(object sender, EventArgs e)
+        private void EnableToolStripMenuItem_Click(object sender, EventArgs e)
         {
             TraceInternal.TraceVerbose("Enable Tape");
-            _uk101.MemoryBus.ACIA.Mode = ACIA.IO_MODE_6820_TAPE;
+            ACIA ACIA = (ACIA)_uk101["ACIA"];
+            ACIA.Mode = ACIA.IO_MODE_6820_TAPE;
             _tape.Open();
             SetTapeMenu();
         }
 
-        private void playToolStripMenuItem_Click(object sender, EventArgs e)
+        private void PlayToolStripMenuItem_Click(object sender, EventArgs e)
         {
             // Play tape
             TraceInternal.TraceVerbose("Play tape");
@@ -709,7 +885,7 @@ namespace UK101Form
             SetTapeMenu();
         }
 
-        private void stopToolStripMenuItem_Click(object sender, EventArgs e)
+        private void StopToolStripMenuItem_Click(object sender, EventArgs e)
         {
             // Stop tape
             TraceInternal.TraceVerbose("Stop tape");
@@ -729,7 +905,7 @@ namespace UK101Form
         {
             // Disable tape mode
             TraceInternal.TraceVerbose("Disable tape");
-            _uk101.MemoryBus.ACIA.Mode = ACIA.IO_MODE_6820_NONE;
+            //_uk101.MemoryBus.ACIA.Mode = ACIA.IO_MODE_6820_NONE;
             _tape.Close();
             SetTapeMenu();
         }
@@ -781,135 +957,19 @@ namespace UK101Form
             SetLimits();
             SetScaleMenu();
         }
-        private void SetScaleMenu()
+
+        #endregion
+
+        private void Display32ToolStripMenuItem_Click(object sender, EventArgs e)
         {
-                       
-            if (_display.Scale == 1)
-            {
-                smallToolStripMenuItem.Enabled = false;
-            }
-            else
-            {
-                smallToolStripMenuItem.Enabled = true;
-            }
-
-            if (_display.Scale == 2)
-            {
-                mediumToolStripMenuItem.Enabled = false;
-            }
-            else
-            {
-                mediumToolStripMenuItem.Enabled = true;
-            }
-
-            if (_display.Scale == 3)
-            {
-                largeToolStripMenuItem.Enabled = false;
-            }
-            else
-            {
-                largeToolStripMenuItem.Enabled = true;
-            }
-
-            if (_aspect < 1)
-            {
-                lessToolStripMenuItem.Enabled = false;
-            }
-            else
-            {
-                lessToolStripMenuItem.Enabled = true;
-            }
-            if (_aspect == 1)
-            {
-                equalToolStripMenuItem.Enabled = false;
-            }
-            else
-            {
-                equalToolStripMenuItem.Enabled = true;
-
-            }
-            if (_aspect > 1)
-            {
-                greaterToolStripMenuItem.Enabled = false;
-            }
-            else
-            {
-                greaterToolStripMenuItem.Enabled = true;
-            }
+            _height = 32;
+            _formIO.Height = _height;
+            _display.Height = _height;
+            _uk101.Height = _height;
+            _uk101.SetLines(_height);
+            SetLimits();
+            SetScaleMenu();
         }
-
-        private void SetTapeMenu()
-        {
-            if (_uk101.MemoryBus.ACIA.Mode == ACIA.IO_MODE_6820_NONE)
-            {
-                enableToolStripMenuItem.Enabled = true;
-                playToolStripMenuItem.Enabled = false;
-                recordToolStripMenuItem.Enabled = false;
-                stopToolStripMenuItem.Enabled = false;
-                disableToolStripMenuItem.Enabled = false;
-            }
-            else
-            {
-                enableToolStripMenuItem.Enabled = false;
-                
-
-                if ((_tape.Mode == Tape.TapeMode.Enabled) || (_tape.Mode == Tape.TapeMode.Stopped))
-                {
-                    playToolStripMenuItem.Enabled = true;
-                    recordToolStripMenuItem.Enabled = true;
-                    stopToolStripMenuItem.Enabled = false;
-                    disableToolStripMenuItem.Enabled = true;
-                }
-                else if (_tape.Mode == Tape.TapeMode.Playing)
-                        {
-                    playToolStripMenuItem.Enabled = false;
-                    recordToolStripMenuItem.Enabled = false;
-                    stopToolStripMenuItem.Enabled = true;
-                    disableToolStripMenuItem.Enabled = false;
-                }
-                else if (_tape.Mode == Tape.TapeMode.Recording)
-                {
-                    playToolStripMenuItem.Enabled = false;
-                    recordToolStripMenuItem.Enabled = false;
-                    stopToolStripMenuItem.Enabled = true;
-                    disableToolStripMenuItem.Enabled = false;
-                }
-            }
-        }
-
-
-        private void SetLimits()
-        {
-            _display.Scale = _scale;
-            _display.Aspect = _aspect;
-            int height = 39 + this.MainMenuStrip.Height;    // Must be some fixed elements to the form
-            int width = 16;                                 // Must have some fixed element to the form (8 pixels each side)
-            if (_aspect > 1)
-            {
-                height = height + _scale * _height * 8;
-                width = (int)(width + 400 * _scale * _aspect); 
-            }
-            else
-            {
-                height = (int)(height + _scale * _height * 8 / _aspect);
-                width = width + 400 * _scale;
-            }
-
-            // Height
-            // 296 = 37 x 8 - for small = 1
-            // 552 = 69 x 8 - for medium = 2
-            // 808 = 101 x 8 - for large = 3
-            // Width
-            // 417 - for small = 1
-            // 817 - For medium = 2
-            // 1217 - for large = 3
-
-            this.MinimumSize = new Size(width, height); // 40
-            this.MaximumSize = new Size(width, height);
-
-            this.consolePictureBox.Invalidate();
-        }
-
     }
 }
 

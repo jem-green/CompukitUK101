@@ -32,6 +32,7 @@ namespace UK101Library
 
         public VDU(IPeripheralIO peripheralIO)
         {
+            _name = "VDU";
             _peripheralIO = peripheralIO;
             _ramSize = 4096;
             _data = new byte[RAMSize];

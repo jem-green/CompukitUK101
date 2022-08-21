@@ -9,6 +9,9 @@ namespace UK101Library
     internal interface IMemoryBusDevice
     {
         #region Properties
+
+        string Name { get; set; }
+
         bool ReadOnly { get; set; }
 
         bool WriteOnly { get; set; }

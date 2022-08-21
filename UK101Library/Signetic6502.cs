@@ -59,12 +59,14 @@ namespace UK101Library
         byte siTest;
         byte ucTest;
 
-        public MemoryBus _memoryBus;
+        public AddressBus _addressBus;
+        public DataBus _dataBus;
         ushort AddressInEffect;
 
-        public Signetic6502(MemoryBus memoryBus)
+        public Signetic6502(AddressBus addressBus, DataBus dataBus)
         {
-            _memoryBus = memoryBus;
+            _addressBus = addressBus;
+            _dataBus = dataBus;
         }
 
         public void Reset()
@@ -74,18 +76,18 @@ namespace UK101Library
             //Address adr = new Address();
             //Address AddressInEffect = new Address();
             ushort adr = 0xFFFC;
-            _memoryBus.SetAddress(adr);
-            PC = _memoryBus.Read();
+            _addressBus.SetAddress(adr);
+            PC = _dataBus.Read();
             adr = 0xFFFD;
-            _memoryBus.SetAddress(adr);
-            PC = (ushort)(256 * _memoryBus.Read());
+            _addressBus.SetAddress(adr);
+            PC = (ushort)(256 * _dataBus.Read());
 
             // Clear screen even if CEGMON will do that, because we might 
             // have changed to 16 rows, and segmon will miss the bottom half.
             //_memoryBus.VDU.ClearScreen();
 
             // Reset the keyboard:
-            _memoryBus.Keyboard.Reset();
+            //_memoryBus.Keyboard.Reset();
 
             // Initiate stack pointer:
             //S = 0xFF;
@@ -98,65 +100,65 @@ namespace UK101Library
             Y = 0x00;
         }
 
-        public void Dissassemble()
-        {
-            byte addressBytes;
-            for (ushort i = 0; i < _memoryBus.ROM8000.Data.Length; i++)
-            {
-                //PC = new Address();
-                PC = (ushort)(0x8000 + i);
+        //public void Dissassemble()
+        //{
+        //    byte addressBytes;
+        //    for (ushort i = 0; i < _memoryBus.ROM8000.Data.Length; i++)
+        //    {
+        //        PC = new Address();
+        //        PC = (ushort)(0x8000 + i);
 
-                SingleStep();
-                addressBytes = 0;
-                switch (AddressMode_Debug)
-                {
-                    case ADDRESS_MODE_6502_ABSOLUTE:
-                        addressBytes = 2;
-                        break;
-                    case ADDRESS_MODE_6502_ZERO_PAGE:
-                        addressBytes = 1;
-                        break;
-                    case ADDRESS_MODE_6502_IMMEDIATE:
-                        addressBytes = 1;
-                        break;
-                    case ADDRESS_MODE_6502_ABS_X:
-                        addressBytes = 2;
-                        break;
-                    case ADDRESS_MODE_6502_ABS_Y:
-                        addressBytes = 2;
-                        break;
-                    case ADDRESS_MODE_6502_IND_X:
-                        addressBytes = 1;
-                        break;
-                    case ADDRESS_MODE_6502_IND_Y:
-                        addressBytes = 1;
-                        break;
-                    case ADDRESS_MODE_6502_Z_PAGE_X:
-                        addressBytes = 1;
-                        break;
-                    case ADDRESS_MODE_6502_RELATIVE:
-                        addressBytes = 1;
-                        break;
-                    case ADDRESS_MODE_6502_INDIRECT:
-                        addressBytes = 2;
-                        break;
-                    case ADDRESS_MODE_6502_Z_PAGE_Y:
-                        addressBytes = 1;
-                        break;
-                    case ADDRESS_MODE_6502_IMPLIED:
-                        addressBytes = 0;
-                        break;
-                }
+        //        SingleStep();
+        //        addressBytes = 0;
+        //        switch (AddressMode_Debug)
+        //        {
+        //            case ADDRESS_MODE_6502_ABSOLUTE:
+        //                addressBytes = 2;
+        //                break;
+        //            case ADDRESS_MODE_6502_ZERO_PAGE:
+        //                addressBytes = 1;
+        //                break;
+        //            case ADDRESS_MODE_6502_IMMEDIATE:
+        //                addressBytes = 1;
+        //                break;
+        //            case ADDRESS_MODE_6502_ABS_X:
+        //                addressBytes = 2;
+        //                break;
+        //            case ADDRESS_MODE_6502_ABS_Y:
+        //                addressBytes = 2;
+        //                break;
+        //            case ADDRESS_MODE_6502_IND_X:
+        //                addressBytes = 1;
+        //                break;
+        //            case ADDRESS_MODE_6502_IND_Y:
+        //                addressBytes = 1;
+        //                break;
+        //            case ADDRESS_MODE_6502_Z_PAGE_X:
+        //                addressBytes = 1;
+        //                break;
+        //            case ADDRESS_MODE_6502_RELATIVE:
+        //                addressBytes = 1;
+        //                break;
+        //            case ADDRESS_MODE_6502_INDIRECT:
+        //                addressBytes = 2;
+        //                break;
+        //            case ADDRESS_MODE_6502_Z_PAGE_Y:
+        //                addressBytes = 1;
+        //                break;
+        //            case ADDRESS_MODE_6502_IMPLIED:
+        //                addressBytes = 0;
+        //                break;
+        //        }
 
-                string addr = "";
-                for (byte ab = 0; ab < addressBytes; ab++)
-                {
-                    addr += "" + hexChars[_memoryBus.ROM8000.Data[i + ab + 1] / 16] + hexChars[_memoryBus.ROM8000.Data[i + ab + 1] % 16] + "\t";
-                }
-                i += addressBytes;
-                TraceInternal.TraceVerbose(DebugString + " " + addr);
-            }
-        }
+        //        string addr = "";
+        //        for (byte ab = 0; ab < addressBytes; ab++)
+        //        {
+        //            addr += "" + hexChars[_memoryBus.ROM8000.Data[i + ab + 1] / 16] + hexChars[_memoryBus.ROM8000.Data[i + ab + 1] % 16] + "\t";
+        //        }
+        //        i += addressBytes;
+        //        TraceInternal.TraceVerbose(DebugString + " " + addr);
+        //    }
+        //}
 
         //ushort test = 0x81d5;
         public int SingleStep()
@@ -174,8 +176,8 @@ namespace UK101Library
             //if (DebugEnabled) Debug.WriteLine("" + hexChars[PC.H / 16] + hexChars[PC.H % 16] + hexChars[(byte)(PC % 256) / 16] + hexChars[(byte)(PC % 256) % 16]);
 
             // Fetch next instruction:
-            _memoryBus.SetAddress(PC);
-            OpCode = _memoryBus.Read();
+            _addressBus.SetAddress(PC);
+            OpCode = _dataBus.Read();
 
             // Decode and branch to handler:
             // Add the clock cycles to the trip meter:
@@ -1415,9 +1417,9 @@ namespace UK101Library
             //	byte sign = 0x80 & A;
 
             // Calculate the result:
-            _memoryBus.SetAddress(AddressInEffect);
+            _addressBus.SetAddress(AddressInEffect);
 
-            byte M = _memoryBus.Read();
+            byte M = _dataBus.Read();
 
             // Decimal mode:
             if (IsSet(FLAG_6502_DECIMAL_MODE))
@@ -1601,8 +1603,8 @@ namespace UK101Library
             FetchAddress(AddressMode);
 
             // Calculate the result:
-            _memoryBus.SetAddress(AddressInEffect);
-            A = (byte)(A & _memoryBus.Read());
+            _addressBus.SetAddress(AddressInEffect);
+            A = (byte)(A & _dataBus.Read());
 
             // Set flags affected.
             // Negative:
@@ -1706,8 +1708,8 @@ namespace UK101Library
                 FetchAddress(AddressMode);
 
                 // Calculate the result:
-                _memoryBus.SetAddress(AddressInEffect);
-                byte M = _memoryBus.Read();
+                _addressBus.SetAddress(AddressInEffect);
+                byte M = _dataBus.Read();
 
                 // Store bit 7 (sign) for later evaluation:
                 byte msb = (byte)(0x80 & M);
@@ -1716,7 +1718,7 @@ namespace UK101Library
                 M = (byte)(M << 1);
 
                 // Store result:
-                _memoryBus.Write(M);
+                _dataBus.Write(M);
 
                 // Set flags affected.
                 // Carry:
@@ -1794,9 +1796,9 @@ namespace UK101Library
             if (!IsSet(FLAG_6502_CARRY))
             {
                 // Fetch branch offset:
-                _memoryBus.SetAddress(PC);
+                _addressBus.SetAddress(PC);
                 byte tmp;
-                tmp = _memoryBus.Read();
+                tmp = _dataBus.Read();
 
                 // Prepare branch:
                 if ((tmp & 0x80) == 0x00)
@@ -1853,9 +1855,9 @@ namespace UK101Library
             if (IsSet(FLAG_6502_CARRY))
             {
                 // Fetch next byte:
-                _memoryBus.SetAddress(PC);
+                _addressBus.SetAddress(PC);
                 //Address tmp = new Address();
-                byte tmp = _memoryBus.Read();
+                byte tmp = _dataBus.Read();
 
                 // Prepare branch:
                 if ((tmp & 0x80) == 0x00)
@@ -1912,8 +1914,8 @@ namespace UK101Library
             if (IsSet(FLAG_6502_ZERO))
             {
                 // Fetch next byte:
-                _memoryBus.SetAddress(PC);
-                byte tmp = _memoryBus.Read();
+                _addressBus.SetAddress(PC);
+                byte tmp = _dataBus.Read();
 
                 // Prepare branch:
                 if ((tmp & 0x80) == 0x00)
@@ -1978,8 +1980,8 @@ namespace UK101Library
             FetchAddress(AddressMode);
 
             // Calculate the result:
-            _memoryBus.SetAddress(AddressInEffect);
-            byte Byte = _memoryBus.Read();
+            _addressBus.SetAddress(AddressInEffect);
+            byte Byte = _dataBus.Read();
             //	Byte = Byte & A;
 
             // Does not apply to negative and overflow flag in immediate mode:
@@ -2063,8 +2065,8 @@ namespace UK101Library
             if (IsSet(FLAG_6502_NEGATIVE))
             {
                 // Fetch next byte:
-                _memoryBus.SetAddress(PC);
-                byte tmp = _memoryBus.Read();
+                _addressBus.SetAddress(PC);
+                byte tmp = _dataBus.Read();
 
                 // Prepare branch:
                 if ((tmp & 0x80) == 0x00)
@@ -2119,8 +2121,8 @@ namespace UK101Library
             if (!IsSet(FLAG_6502_ZERO))
             {
                 // Fetch next byte:
-                _memoryBus.SetAddress(PC);
-                byte tmp = _memoryBus.Read();
+                _addressBus.SetAddress(PC);
+                byte tmp = _dataBus.Read();
 
                 // Prepare branch:
                 if ((tmp & 0x80) == 0x00)
@@ -2176,8 +2178,8 @@ namespace UK101Library
             if (!IsSet(FLAG_6502_NEGATIVE))
             {
                 // Fetch next byte:
-                _memoryBus.SetAddress(PC);
-                byte tmp = _memoryBus.Read();
+                _addressBus.SetAddress(PC);
+                byte tmp = _dataBus.Read();
 
                 // Prepare branch:
                 if ((tmp & 0x80) == 0x00)
@@ -2260,11 +2262,11 @@ namespace UK101Library
             // Fetch interrupt vector and jump:
             //Address adr = new Address();
             ushort adr = 0xFFFE;
-            _memoryBus.SetAddress(adr);
-            PC = _memoryBus.Read();
+            _addressBus.SetAddress(adr);
+            PC = _dataBus.Read();
             adr = 0xFFFF;
-            _memoryBus.SetAddress(adr);
-            PC += (ushort)(256 * _memoryBus.Read());
+            _addressBus.SetAddress(adr);
+            PC += (ushort)(256 * _dataBus.Read());
         }
 
         public void BVC(int AddressMode)
@@ -2311,8 +2313,8 @@ namespace UK101Library
             if (!IsSet(FLAG_6502_OVERFLOW))
             {
                 // Fetch next byte:
-                _memoryBus.SetAddress(PC);
-                byte tmp = _memoryBus.Read();
+                _addressBus.SetAddress(PC);
+                byte tmp = _dataBus.Read();
 
                 // Prepare branch:
                 if ((tmp & 0x80) == 0x00)
@@ -2374,8 +2376,8 @@ namespace UK101Library
             if (IsSet(FLAG_6502_OVERFLOW))
             {
                 // Fetch next byte:
-                _memoryBus.SetAddress(PC);
-                byte tmp = _memoryBus.Read();
+                _addressBus.SetAddress(PC);
+                byte tmp = _dataBus.Read();
 
                 // Prepare branch:
                 if ((tmp & 0x80) == 0x00)
@@ -2591,8 +2593,8 @@ namespace UK101Library
             FetchAddress(AddressMode);
 
             // Fetch memory data:
-            _memoryBus.SetAddress(AddressInEffect);
-            byte M = _memoryBus.Read();
+            _addressBus.SetAddress(AddressInEffect);
+            byte M = _dataBus.Read();
 
             // Carry will be reset if result is lower than 0x00:
             byte tNewCarry = (byte)(((int)A < (int)M) ? 0 : 1);
@@ -2662,8 +2664,8 @@ namespace UK101Library
             FetchAddress(AddressMode);
 
             // Fetch memory data:
-            _memoryBus.SetAddress(AddressInEffect);
-            byte M = _memoryBus.Read();
+            _addressBus.SetAddress(AddressInEffect);
+            byte M = _dataBus.Read();
 
             // Carry will be reset if result is lower than 0x00:
             byte tNewCarry = (byte)(((int)X < (int)M) ? 0 : 1);
@@ -2733,8 +2735,8 @@ namespace UK101Library
             FetchAddress(AddressMode);
 
             // Fetch memory data:
-            _memoryBus.SetAddress(AddressInEffect);
-            byte M = _memoryBus.Read();
+            _addressBus.SetAddress(AddressInEffect);
+            byte M = _dataBus.Read();
 
             // Carry will be RESET if result is lower than 0x00:
             byte tNewCarry = (byte)(((int)Y < (int)M) ? 0 : 1); // Todo: ??? Why int?
@@ -2798,14 +2800,14 @@ namespace UK101Library
             FetchAddress(AddressMode);
 
             // Fetch memory data:
-            _memoryBus.SetAddress(AddressInEffect);
-            byte M = _memoryBus.Read();
+            _addressBus.SetAddress(AddressInEffect);
+            byte M = _dataBus.Read();
 
             // Decrement:
             M--;
 
             // Store result:
-            _memoryBus.Write(M);
+            _dataBus.Write(M);
 
             // Set flags affected.
             // Negative:
@@ -2950,8 +2952,8 @@ namespace UK101Library
             FetchAddress(AddressMode);
 
             // Calculate the result:
-            _memoryBus.SetAddress(AddressInEffect);
-            A = (byte)(A ^ _memoryBus.Read());
+            _addressBus.SetAddress(AddressInEffect);
+            A = (byte)(A ^ _dataBus.Read());
 
             // Set flags affected.
             // Negative:
@@ -3000,14 +3002,14 @@ namespace UK101Library
             FetchAddress(AddressMode);
 
             // Fetch memory data:
-            _memoryBus.SetAddress(AddressInEffect);
-            byte M = _memoryBus.Read();
+            _addressBus.SetAddress(AddressInEffect);
+            byte M = _dataBus.Read();
 
             // Inrement:
             M++;
 
             // Store result:
-            _memoryBus.Write(M);
+            _dataBus.Write(M);
 
             // Set flags affected.
             // Negative:
@@ -3193,8 +3195,8 @@ namespace UK101Library
             FetchAddress(AddressMode);
 
             // Calculate the result:
-            _memoryBus.SetAddress(AddressInEffect);
-            A = _memoryBus.Read();
+            _addressBus.SetAddress(AddressInEffect);
+            A = _dataBus.Read();
 
             // Set flags affected.
             // Negative:
@@ -3238,8 +3240,8 @@ namespace UK101Library
             FetchAddress(AddressMode);
 
             // Calculate the result:
-            _memoryBus.SetAddress(AddressInEffect);
-            X = _memoryBus.Read();
+            _addressBus.SetAddress(AddressInEffect);
+            X = _dataBus.Read();
 
             // Set flags affected.
             // Negative:
@@ -3283,8 +3285,8 @@ namespace UK101Library
             FetchAddress(AddressMode);
 
             // Calculate the result:
-            _memoryBus.SetAddress(AddressInEffect);
-            Y = _memoryBus.Read();
+            _addressBus.SetAddress(AddressInEffect);
+            Y = _dataBus.Read();
 
             // Set flags affected.
             // Negative:
@@ -3371,8 +3373,8 @@ namespace UK101Library
                 FetchAddress(AddressMode);
 
                 // Calculate the result:
-                _memoryBus.SetAddress(AddressInEffect);
-                byte M = _memoryBus.Read();
+                _addressBus.SetAddress(AddressInEffect);
+                byte M = _dataBus.Read();
 
                 // Store bit 7 (sign) for later evaluation:
                 byte lsb = (byte)(0x01 & M);
@@ -3381,7 +3383,7 @@ namespace UK101Library
                 M = (byte)(M >> 1);
 
                 // Store result:
-                _memoryBus.Write(M);
+                _dataBus.Write(M);
 
                 // Set flags affected.
                 // Carry:
@@ -3458,8 +3460,8 @@ namespace UK101Library
             FetchAddress(AddressMode);
 
             // Calculate the result:
-            _memoryBus.SetAddress(AddressInEffect);
-            A = (byte)(A | _memoryBus.Read());
+            _addressBus.SetAddress(AddressInEffect);
+            A = (byte)(A | _dataBus.Read());
 
             // Set flags affected.
             // Negative:
@@ -3672,8 +3674,8 @@ namespace UK101Library
                 FetchAddress(AddressMode);
 
                 // Calculate the result:
-                _memoryBus.SetAddress(AddressInEffect);
-                byte M = _memoryBus.Read();
+                _addressBus.SetAddress(AddressInEffect);
+                byte M = _dataBus.Read();
 
                 // Store bit msb for later evaluation:
                 byte msb = (byte)(0x80 & M);
@@ -3688,7 +3690,7 @@ namespace UK101Library
                 }
 
                 // Store result:
-                _memoryBus.Write(M);
+                _dataBus.Write(M);
 
                 // Set flags affected.
                 // Carry:
@@ -3798,8 +3800,8 @@ namespace UK101Library
                 FetchAddress(AddressMode);
 
                 // Calculate the result:
-                _memoryBus.SetAddress(AddressInEffect);
-                byte M = _memoryBus.Read();
+                _addressBus.SetAddress(AddressInEffect);
+                byte M = _dataBus.Read();
 
                 // Store bit 0 for later evaluation:
                 byte lsb = (byte)(0x01 & M);
@@ -3814,7 +3816,7 @@ namespace UK101Library
                 }
 
                 // Store result:
-                _memoryBus.Write(M);
+                _dataBus.Write(M);
 
                 // Set flags affected.
                 // Carry:
@@ -3966,10 +3968,10 @@ namespace UK101Library
             //	byte sign = 0x80 & A;
 
             // Calculate the address:
-            _memoryBus.SetAddress(AddressInEffect);
+            _addressBus.SetAddress(AddressInEffect);
 
             // Read effective data:
-            byte M = _memoryBus.Read();
+            byte M = _dataBus.Read();
 
             //Här måste vi ta hänsyn till decimal mode!
             if (IsSet(FLAG_6502_DECIMAL_MODE))
@@ -4208,8 +4210,8 @@ namespace UK101Library
             FetchAddress(AddressMode);
 
             // Store A at address:
-            _memoryBus.SetAddress(AddressInEffect);
-            _memoryBus.Write(A);
+            _addressBus.SetAddress(AddressInEffect);
+            _dataBus.Write(A);
 
             // Move to next instruction:
             PC++;
@@ -4231,8 +4233,8 @@ namespace UK101Library
             FetchAddress(AddressMode);
 
             // Store A at address:
-            _memoryBus.SetAddress(AddressInEffect);
-            _memoryBus.Write(X);
+            _addressBus.SetAddress(AddressInEffect);
+            _dataBus.Write(X);
 
             // Move to next instruction:
             PC++;
@@ -4254,8 +4256,8 @@ namespace UK101Library
             FetchAddress(AddressMode);
 
             // Store A at address:
-            _memoryBus.SetAddress(AddressInEffect);
-            _memoryBus.Write(Y);
+            _addressBus.SetAddress(AddressInEffect);
+            _dataBus.Write(Y);
 
             // Move to next instruction:
             PC++;
@@ -4567,11 +4569,11 @@ namespace UK101Library
         public void Fetch_ABSOLUTE()
         {//
             PC++;
-            _memoryBus.SetAddress(PC);
-            AddressInEffect = _memoryBus.Read();
+            _addressBus.SetAddress(PC);
+            AddressInEffect = _dataBus.Read();
             PC++;
-            _memoryBus.SetAddress(PC);
-            AddressInEffect += (ushort)(256 * _memoryBus.Read());
+            _addressBus.SetAddress(PC);
+            AddressInEffect += (ushort)(256 * _dataBus.Read());
 
             //if (DebugEnabled) CreateDebugBytes(2);
             //if (DebugEnabled) SetDebugByte(0, AddressInEffect.L);
@@ -4581,8 +4583,8 @@ namespace UK101Library
         public void Fetch_ZERO_PAGE()
         {//
             PC++;
-            _memoryBus.SetAddress(PC);
-            AddressInEffect = _memoryBus.Read();
+            _addressBus.SetAddress(PC);
+            AddressInEffect = _dataBus.Read();
             //AddressInEffect.H = 0x00;
 
             //if (DebugEnabled) CreateDebugBytes(1);
@@ -4601,11 +4603,11 @@ namespace UK101Library
         public void Fetch_ABS_X()
         {//
             PC++;
-            _memoryBus.SetAddress(PC);
-            AddressInEffect = _memoryBus.Read();
+            _addressBus.SetAddress(PC);
+            AddressInEffect = _dataBus.Read();
             PC++;
-            _memoryBus.SetAddress(PC);
-            AddressInEffect += (ushort)(256 * _memoryBus.Read());
+            _addressBus.SetAddress(PC);
+            AddressInEffect += (ushort)(256 * _dataBus.Read());
             AddressInEffect += X;
             //	AddressInEffect.L += X;
 
@@ -4617,11 +4619,11 @@ namespace UK101Library
         public void Fetch_ABS_Y()
         {//
             PC++;
-            _memoryBus.SetAddress(PC);
-            AddressInEffect = _memoryBus.Read();
+            _addressBus.SetAddress(PC);
+            AddressInEffect = _dataBus.Read();
             PC++;
-            _memoryBus.SetAddress(PC);
-            AddressInEffect += (ushort)(256 * _memoryBus.Read());
+            _addressBus.SetAddress(PC);
+            AddressInEffect += (ushort)(256 * _dataBus.Read());
             AddressInEffect += Y;
             //	AddressInEffect.L += Y;
 
@@ -4637,8 +4639,8 @@ namespace UK101Library
          // the offset in X, with wrap-around:
             //Address temp = new Address();
             PC++;
-            _memoryBus.SetAddress(PC);
-            ushort temp = (ushort)((X + _memoryBus.Read()) & 0x00ff);
+            _addressBus.SetAddress(PC);
+            ushort temp = (ushort)((X + _dataBus.Read()) & 0x00ff);
             //temp.H = 0x00;
 
             //if (DebugEnabled) CreateDebugBytes(1);
@@ -4646,12 +4648,12 @@ namespace UK101Library
 
             // Fetch address in effect from the data in zero page as
             // appointed by the temporary address:
-            _memoryBus.SetAddress(temp);
-            AddressInEffect = _memoryBus.Read();
+            _addressBus.SetAddress(temp);
+            AddressInEffect = _dataBus.Read();
             temp++;
             temp &= 0x00ff;
-            _memoryBus.SetAddress(temp);
-            AddressInEffect += (ushort)(256 * _memoryBus.Read());
+            _addressBus.SetAddress(temp);
+            AddressInEffect += (ushort)(256 * _dataBus.Read());
         }
 
         public void Fetch_IND_Y()
@@ -4660,8 +4662,8 @@ namespace UK101Library
          // byte, and store in a temporary address:
             //Address temp = new Address();
             PC++;
-            _memoryBus.SetAddress(PC);
-            ushort temp = _memoryBus.Read();
+            _addressBus.SetAddress(PC);
+            ushort temp = _dataBus.Read();
             //temp.H = 0x00;
 
             //if (DebugEnabled) CreateDebugBytes(1);
@@ -4669,12 +4671,12 @@ namespace UK101Library
 
             // Fetch address in effect from the data in zero page as
             // appointed by the temporary address:
-            _memoryBus.SetAddress(temp);
-            AddressInEffect = _memoryBus.Read();
+            _addressBus.SetAddress(temp);
+            AddressInEffect = _dataBus.Read();
             temp++;
 			temp &= 0x00ff;
-            _memoryBus.SetAddress(temp);
-            AddressInEffect += (ushort)(256 * _memoryBus.Read());
+            _addressBus.SetAddress(temp);
+            AddressInEffect += (ushort)(256 * _dataBus.Read());
 
             // Add index Y to form the actual address:
             AddressInEffect += Y;
@@ -4685,8 +4687,8 @@ namespace UK101Library
         public void Fetch_Z_PAGE_X()
         {//
             PC++;
-            _memoryBus.SetAddress(PC);
-            AddressInEffect = (byte)(X + _memoryBus.Read());
+            _addressBus.SetAddress(PC);
+            AddressInEffect = (byte)(X + _dataBus.Read());
 			//AddressInEffect &= 0x00ff;
             //AddressInEffect.H = 0x00;
         }
@@ -4695,8 +4697,8 @@ namespace UK101Library
         {//
             PC++;
             int temp;
-            _memoryBus.SetAddress(PC);
-            temp = _memoryBus.Read();
+            _addressBus.SetAddress(PC);
+            temp = _dataBus.Read();
 
             //if (DebugEnabled) CreateDebugBytes(1);
             //if (DebugEnabled) SetDebugByte(0, (byte)temp);
@@ -4718,33 +4720,33 @@ namespace UK101Library
 
             // Fetch address of indirect address stored:
             PC++;
-            _memoryBus.SetAddress(PC);
-            ushort temp = _memoryBus.Read();
+            _addressBus.SetAddress(PC);
+            ushort temp = _dataBus.Read();
             PC++;
-            _memoryBus.SetAddress(PC);
-            temp += (ushort)(256 * _memoryBus.Read());
-            _memoryBus.SetAddress(temp);
+            _addressBus.SetAddress(PC);
+            temp += (ushort)(256 * _dataBus.Read());
+            _addressBus.SetAddress(temp);
 
             //if (DebugEnabled) CreateDebugBytes(2);
             //if (DebugEnabled) SetDebugByte(0, temp.L);
             //if (DebugEnabled) SetDebugByte(0, temp.H);
 
             // Fetch address at that location:
-            AddressInEffect = _memoryBus.Read();
+            AddressInEffect = _dataBus.Read();
             temp++;
             //if (temp.L == 0x00) temp.H--; // The 'bug' described 17 lines above.
             if ((temp % 256) == 0x00) temp -= 256; // The 'bug' described 17 lines above.
-            _memoryBus.SetAddress(temp);
-            AddressInEffect += (ushort)(256 * _memoryBus.Read());
+            _addressBus.SetAddress(temp);
+            AddressInEffect += (ushort)(256 * _dataBus.Read());
         }
 
         public void Fetch_Z_PAGE_Y()
         {//
             PC++;
-            _memoryBus.SetAddress(PC);
+            _addressBus.SetAddress(PC);
             //AddressInEffect.H = 0x00;
             //AddressInEffect.W = (ushort)(Y + MemoryBus.Read());
-            AddressInEffect = (byte)(Y + _memoryBus.Read());
+            AddressInEffect = (byte)(Y + _dataBus.Read());
 			//AddressInEffect &= 0x00ff;
             //if (DebugEnabled) CreateDebugBytes(1);
             //if (DebugEnabled) SetDebugByte(0, MemoryBus.Read());
@@ -4874,8 +4876,8 @@ namespace UK101Library
             //adr.H = 0x01; // Stack always in page 1!
 
             // Write databyte to stack:
-            _memoryBus.SetAddress(adr);
-            _memoryBus.Write(Byte);
+            _addressBus.SetAddress(adr);
+            _dataBus.Write(Byte);
             //MemoryBus.RAM.pData[adr.W] = Byte;
 
             // Decrement stack pointer:
@@ -4893,8 +4895,8 @@ namespace UK101Library
             //adr.H = 0x01; // Stack always in page 1!
 
             // Fetch data from stack:
-            _memoryBus.SetAddress(adr);
-            return _memoryBus.Read();
+            _addressBus.SetAddress(adr);
+            return _dataBus.Read();
             //return MemoryBus.RAM.pData[adr.W];
         }
     }

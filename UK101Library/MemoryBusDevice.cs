@@ -8,6 +8,7 @@ namespace UK101Library
     {
         #region Fields
 
+        protected string _name;
         protected byte[] _data;
         protected bool _readOnly;
         protected bool _writeOnly;
@@ -28,6 +29,18 @@ namespace UK101Library
 
         #endregion
         #region Properies
+
+        public string Name
+        {
+            get
+            {
+                return (_name);
+            }
+            set
+            {
+                _name = value;
+            }
+        }
 
         public bool ReadOnly
         {

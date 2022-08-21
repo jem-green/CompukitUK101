@@ -239,7 +239,7 @@ namespace UK101Form
 
                     for (int r = 0; r < vbits; r++) // rows
                     {
-                        byte value = _chargen.pData[character * hbytes * vbits + r];
+                        byte value = _chargen.Data[character * hbytes * vbits + r];
 
                         for (int c = 0; c < hbits; c++) // columns
                         {

@@ -361,3 +361,6 @@ MigrationBackup/
 
 # Fody - auto-generated XML schema
 FodyWeavers.xsd
+/UK101Library/SysROMs/BasicX.ROM
+/UK101Library/SysROMs/BASICX.txt
+/UK101Library/Monitor

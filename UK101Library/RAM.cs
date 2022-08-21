@@ -17,6 +17,7 @@ namespace UK101Library
 
         public RAM()
         {
+            _name = "RAM";
             _data = new byte[0x8000];
             _readOnly = false;
         }

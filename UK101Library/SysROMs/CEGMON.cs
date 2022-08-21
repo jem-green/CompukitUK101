@@ -8,7 +8,8 @@ namespace UK101Library
 
 		public CEGMON(ushort address)
 		{
-			_address = address;
+            _name = "CEGMON";
+            _address = address;
 			_readOnly = true;
 
 			_data = new byte[] {

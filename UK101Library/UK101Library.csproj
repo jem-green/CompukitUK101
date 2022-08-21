@@ -54,7 +54,11 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="IMemoryBusDevice.cs" />
+    <Compile Include="IMicro.cs" />
     <Compile Include="Keyboard.cs" />
+    <Compile Include="AddressBus.cs" />
+    <Compile Include="DataBus.cs" />
+    <Compile Include="Micro.cs" />
     <Compile Include="Parameter.cs" />
     <Compile Include="SysROMs\BASICX.cs" />
     <Compile Include="SysROMs\MON01.cs" />
@@ -62,17 +66,14 @@
     <Compile Include="SysROMs\WEMON.cs" />
     <Compile Include="SysROMs\MON02.cs" />
     <Compile Include="TextEventArgs.cs" />
-    <Compile Include="UK101.cs" />
     <Compile Include="ACIA.cs" />
     <Compile Include="Clock.cs" />
     <Compile Include="CharGen\CHARGEN.cs" />
     <Compile Include="VDU.cs" />
     <Compile Include="IPeripheralIO.cs" />
-    <Compile Include="MemoryBus.cs" />
     <Compile Include="MemoryBusDevice.cs" />
     <Compile Include="RAM.cs" />
     <Compile Include="Signetic6502.cs" />
-    <Compile Include="MemoryMap.cs" />
     <Compile Include="NoDevice.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="ROMs\8000.cs" />
