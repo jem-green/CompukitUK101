@@ -25,6 +25,20 @@ namespace UK101Library
         private ushort _address = 0;
         private int _lines = 32;
 
+        // Devices
+
+        private CEGMON _monitor;        // CEGMON
+        private ACIA _acia;             // ACAI
+        private Keyboard keyboard;      // Keyboard
+        private VDU _vdu;               // Video
+        private BASIC4 basic4;          // Basic 4
+        private BASIC3 basic3;          // Basic 3
+        private BASIC2 basic2;          // Basic 2
+        private BASIC1 basic1;          // Basic 1
+        private ROM8000 rom9000;        // ROM8000
+        private NoDevice noDevice;      // Place holder
+        private RAM _ram;               // RAM 8K = 0x2000
+
         #endregion
         #region Constructor
         public Micro(IPeripheralIO peripheralIO)
@@ -114,72 +128,72 @@ namespace UK101Library
 
             byte deviceCount = 0;
 
-            CEGMON Monitor = new CEGMON(_address);               // Monitor
-            Monitor.StartsAt = 0xF800;
-            Monitor.EndsAt = 0xFFFF;
-            _devices[0] = Monitor;
+            _monitor = new CEGMON(_address);                 // Monitor
+            _monitor.StartsAt = 0xF800;
+            _monitor.EndsAt = 0xFFFF;
+            _devices[0] = _monitor;
             //_devices[deviceCount++] = Monitor;
 
-            ACIA ACIA = new ACIA(_peripheralIO);                // ACAI
-            ACIA.StartsAt = 0xF000;
-            ACIA.EndsAt = 0xF0FF;
-            _devices[1] = ACIA;
+            _acia = new ACIA(_peripheralIO);                 // ACAI
+            _acia.StartsAt = 0xF000;
+            _acia.EndsAt = 0xF0FF;
+            _devices[1] = _acia;
             //_devices[deviceCount++] = ACIA;
 
-            Keyboard keyboard = new Keyboard(_peripheralIO);    // Keyboard
+            keyboard = new Keyboard(_peripheralIO);         // Keyboard
             keyboard.StartsAt = 0xDF00;
             keyboard.EndsAt = 0xDF00;
             _devices[2] = keyboard;
             //_devices[deviceCount++] = keyboard;
 
-            VDU VDU = new VDU(_peripheralIO);                   // Video
-            VDU.StartsAt = 0xD000;
-            VDU.EndsAt = 0xD7FF;
-            _devices[3] = VDU;
+            _vdu = new VDU(_peripheralIO);                   // Video
+            _vdu.StartsAt = 0xD000;
+            _vdu.EndsAt = 0xD7FF;
+            _devices[3] = _vdu;
             //_devices[deviceCount++] = VDU;
 
-            BASIC4 Basic4 = new BASIC4(_address);               // Basic 4
-            Basic4.StartsAt = 0xB800;
-            Basic4.EndsAt = 0xBFFF;
-            _devices[4] = Basic4;
+            basic4 = new BASIC4(_address);                  // Basic 4
+            basic4.StartsAt = 0xB800;
+            basic4.EndsAt = 0xBFFF;
+            _devices[4] = basic4;
             //_devices[deviceCount++] = Basic4;
 
-            BASIC3 Basic3 = new BASIC3(_address);               // Basic 3
-            Basic3.StartsAt = 0xB000;
-            Basic3.EndsAt = 0xB7FF;
-            _devices[5] = Basic3;
+            basic3 = new BASIC3(_address);                  // Basic 3
+            basic3.StartsAt = 0xB000;
+            basic3.EndsAt = 0xB7FF;
+            _devices[5] = basic3;
             //_devices[deviceCount++] = Basic3;
 
-            BASIC2 Basic2 = new BASIC2(_address);               // Basic 2
-            Basic2.StartsAt = 0xA800;
-            Basic2.EndsAt = 0xAFFF;
-            _devices[6] = Basic2;
+            basic2 = new BASIC2(_address);                  // Basic 2
+            basic2.StartsAt = 0xA800;
+            basic2.EndsAt = 0xAFFF;
+            _devices[6] = basic2;
             //_devices[deviceCount++] = Basic2;
 
-            BASIC1 Basic1 = new BASIC1(_address);               // Basic 1
-            Basic1.StartsAt = 0xA000;
-            Basic1.EndsAt = 0xA7FF;
-            _devices[7] = Basic1;
+            basic1 = new BASIC1(_address);                  // Basic 1
+            basic1.StartsAt = 0xA000;
+            basic1.EndsAt = 0xA7FF;
+            _devices[7] = basic1;
             //_devices[deviceCount++] = Basic1;
 
-            ROM8000 ROM8000 = new ROM8000(_address);            // ROM8000
-            ROM8000.StartsAt = 0x8000;
-            ROM8000.EndsAt = 0x8FFF;
-            _devices[8] = ROM8000;
+            rom9000 = new ROM8000(_address);                // ROM8000
+            rom9000.StartsAt = 0x8000;
+            rom9000.EndsAt = 0x8FFF;
+            _devices[8] = rom9000;
             //_devices[deviceCount++] = ROM8000;
 
-            NoDevice noDevice = new NoDevice();                 // Was MIDI
+            noDevice = new NoDevice();                      // Was MIDI
             _devices[9] = noDevice;
             //_devices[deviceCount++] = noDevice;
 
-            RAM RAM = new RAM();                                // RAM 8K = 0x2000
-            RAM.StartsAt= 0x0000;
-            RAM.EndsAt = 0x1FFF;
-            RAM.SetSize(0x2000);
-            _devices[10] = RAM;
+            _ram = new RAM();                            // RAM 8K = 0x2000
+            _ram.StartsAt= 0x0000;
+            _ram.EndsAt = 0x1FFF;
+            _ram.SetSize(0x2000);
+            _devices[10] = _ram;
             //_devices[deviceCount++] = RAM;
 
-            _devices[11] = noDevice;                            // Not sure what this is for
+            _devices[11] = noDevice;                        // Not sure what this is for
             //_devices[deviceCount++] = noDevice;
 
             _dataBus = new DataBus(_devices);
@@ -189,33 +203,33 @@ namespace UK101Library
             _signetic6502 = new Signetic6502(_addressBus,_dataBus);
             _clock = new Clock(_signetic6502);
 
-            VDU.Init();
+            _vdu.Init();
 			
 			_lines = lines;
             if (_lines == 16)
             {
-                Monitor.Data[0x3bc] = 0x2f;
-                Monitor.Data[0x3bd] = 0x4c;
-                Monitor.Data[0x3be] = 0xd0;
-                Monitor.Data[0x3bf] = 0x8c;
-                Monitor.Data[0x3c0] = 0xd3;
-                Monitor.Data[0x0222] = 0x47;
-                RAM.Data[0x0223] = 0x0c;
-                RAM.Data[0x0224] = 0xd0;
-                RAM.Data[0x0225] = 0xcc;
-                RAM.Data[0x0226] = 0xd1;
+                _monitor.Data[0x3bc] = 0x2f;
+                _monitor.Data[0x3bd] = 0x4c;
+                _monitor.Data[0x3be] = 0xd0;
+                _monitor.Data[0x3bf] = 0x8c;
+                _monitor.Data[0x3c0] = 0xd3;
+                _monitor.Data[0x0222] = 0x47;
+                _ram.Data[0x0223] = 0x0c;
+                _ram.Data[0x0224] = 0xd0;
+                _ram.Data[0x0225] = 0xcc;
+                _ram.Data[0x0226] = 0xd1;
             }
             else
             {
-                Monitor.Data[0x3bc] = 0x2f;
-                Monitor.Data[0x3bd] = 0x4c;
-                Monitor.Data[0x3be] = 0xd0;
-                Monitor.Data[0x3bf] = 0x8c;
-                Monitor.Data[0x3c0] = 0xd7;
-                RAM.Data[0x0222] = 0x47;
-                RAM.Data[0x0223] = 0x0c;
-                RAM.Data[0x0224] = 0xd0;
-                RAM.Data[0x0226] = 0xd3;
+                _monitor.Data[0x3bc] = 0x2f;
+                _monitor.Data[0x3bd] = 0x4c;
+                _monitor.Data[0x3be] = 0xd0;
+                _monitor.Data[0x3bf] = 0x8c;
+                _monitor.Data[0x3c0] = 0xd7;
+                _ram.Data[0x0222] = 0x47;
+                _ram.Data[0x0223] = 0x0c;
+                _ram.Data[0x0224] = 0xd0;
+                _ram.Data[0x0226] = 0xd3;
             }
 
             Debug.WriteLine("Out Init()");
@@ -225,34 +239,31 @@ namespace UK101Library
         {
             // I think this is CEGMON specific
 
-            CEGMON monitor = (CEGMON)this["CEGMON"];
-            RAM RAM = (RAM)this["RAM"];
-
             _lines = lines;
             if (_lines == 16)
             {
-                monitor.Data[0x3bc] = 0x2f;
-                monitor.Data[0x3bd] = 0x4c;
-                monitor.Data[0x3be] = 0xd0;
-                monitor.Data[0x3bf] = 0x8c;
-                monitor.Data[0x3c0] = 0xd3;
-                RAM.Data[0x0222] = 0x47;
-                RAM.Data[0x0223] = 0x0c;
-                RAM.Data[0x0224] = 0xd0;
-                RAM.Data[0x0225] = 0xcc;
-                RAM.Data[0x0226] = 0xd1;
+                _monitor.Data[0x3bc] = 0x2f;
+                _monitor.Data[0x3bd] = 0x4c;
+                _monitor.Data[0x3be] = 0xd0;
+                _monitor.Data[0x3bf] = 0x8c;
+                _monitor.Data[0x3c0] = 0xd3;
+                _ram.Data[0x0222] = 0x47;
+                _ram.Data[0x0223] = 0x0c;
+                _ram.Data[0x0224] = 0xd0;
+                _ram.Data[0x0225] = 0xcc;
+                _ram.Data[0x0226] = 0xd1;
             }
             else
             {
-                monitor.Data[0x3bc] = 0x2f;
-                monitor.Data[0x3bd] = 0x4c;
-                monitor.Data[0x3be] = 0xd0;
-                monitor.Data[0x3bf] = 0x8c;
-                monitor.Data[0x3c0] = 0xd7;
-                RAM.Data[0x0222] = 0x47;
-                RAM.Data[0x0223] = 0x0c;
-                RAM.Data[0x0224] = 0xd0;
-                RAM.Data[0x0226] = 0xd3;
+                _monitor.Data[0x3bc] = 0x2f;
+                _monitor.Data[0x3bd] = 0x4c;
+                _monitor.Data[0x3be] = 0xd0;
+                _monitor.Data[0x3bf] = 0x8c;
+                _monitor.Data[0x3c0] = 0xd7;
+                _ram.Data[0x0222] = 0x47;
+                _ram.Data[0x0223] = 0x0c;
+                _ram.Data[0x0224] = 0xd0;
+                _ram.Data[0x0226] = 0xd3;
             }
         }
 
@@ -271,6 +282,7 @@ namespace UK101Library
         {
             Debug.WriteLine("In Reset()");
 
+            _ram.SetSize(0x2000);   // Clear the ram
             _signetic6502.Reset();
 
             Debug.WriteLine("Out Reset()");
@@ -278,8 +290,13 @@ namespace UK101Library
 
         public void Dispose()
         {
+            Debug.WriteLine("In Dispose()");
+
             Dispose(disposing: true);
             GC.SuppressFinalize(this);
+
+            Debug.WriteLine("Out Dispose()");
+
         }
 
         #endregion

@@ -392,18 +392,6 @@ namespace UK101Form
                 _tape.Path = path;
                 _tape.Name = name + "." + extension;
 
-                try
-                {
-                    // Start the simulator
-
-                    this.workerThread = new Thread(new ThreadStart(this.Run));
-                    this.workerThread.Start();
-
-                }
-                catch (Exception e1)
-                {
-                    TraceInternal.TraceError(e1.ToString());
-                }
             }
             else
             {

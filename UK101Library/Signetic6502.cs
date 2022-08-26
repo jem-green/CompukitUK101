@@ -73,8 +73,7 @@ namespace UK101Library
         {
             // The reset vector is located at 0xFFFC - 0xFFFD.
             // Load into PC:
-            //Address adr = new Address();
-            //Address AddressInEffect = new Address();
+
             ushort adr = 0xFFFC;
             _addressBus.SetAddress(adr);
             PC = _dataBus.Read();
@@ -82,14 +81,8 @@ namespace UK101Library
             _addressBus.SetAddress(adr);
             PC = (ushort)(256 * _dataBus.Read());
 
-            // Clear screen even if CEGMON will do that, because we might 
-            // have changed to 16 rows, and segmon will miss the bottom half.
-            //_memoryBus.VDU.ClearScreen();
-
-            // Reset the keyboard:
-            //_memoryBus.Keyboard.Reset();
-
             // Initiate stack pointer:
+
             //S = 0xFF;
             S = 0x40; // Stack is 0x0100 - 0x0140. Allocation starts at top. H is always 0x01.
 
