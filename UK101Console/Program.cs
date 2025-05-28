@@ -171,7 +171,7 @@ namespace UK101Console
                                 TraceInternal.TraceVerbose("Use command value Name=" + traceLevels);
                                 break;
                             }
-                        case "/AN":
+                        case "/N":
                         case "--name":
                             {
                                 appName.Value = args[item + 1];
@@ -181,7 +181,7 @@ namespace UK101Console
                                 TraceInternal.TraceVerbose("Use command value Name=" + appName);
                                 break;
                             }
-                        case "/AP":
+                        case "/P":
                         case "--path":
                             {
                                 appPath.Value = args[item + 1];
@@ -211,7 +211,7 @@ namespace UK101Console
                                 TraceInternal.TraceVerbose("Use command value logPath=" + logPath);
                                 break;
                             }                
-                        case "/N":
+                        case "/F":
                         case "--filename":
                             {
                                 filename.Value = args[item + 1];
@@ -221,7 +221,7 @@ namespace UK101Console
                                 TraceInternal.TraceVerbose("Use command value Name=" + filename);
                                 break;
                             }
-                        case "/P":
+                        case "/FP":
                         case "--filepath":
                             {
                                 filePath.Value = args[item + 1];

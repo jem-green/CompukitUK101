@@ -29,14 +29,14 @@ namespace UK101Library
 
         private CEGMON _monitor;        // CEGMON
         private ACIA _acia;             // ACAI
-        private Keyboard keyboard;      // Keyboard
+        private Keyboard _keyboard;     // Keyboard
         private VDU _vdu;               // Video
-        private BASIC4 basic4;          // Basic 4
-        private BASIC3 basic3;          // Basic 3
-        private BASIC2 basic2;          // Basic 2
-        private BASIC1 basic1;          // Basic 1
-        private ROM8000 rom9000;        // ROM8000
-        private NoDevice noDevice;      // Place holder
+        private BASIC4 _basic4;         // Basic 4
+        private BASIC3 _basic3;         // Basic 3
+        private BASIC2 _basic2;         // Basic 2
+        private BASIC1 _basic1;         // Basic 1
+        private ROM8000 _rom8000;       // ROM8000
+        private NoDevice _noDevice;     // Place holder
         private RAM _ram;               // RAM 8K = 0x2000
 
         #endregion
@@ -122,6 +122,9 @@ namespace UK101Library
         #endregion
         #region Methods
 
+        // The idea would be to support alternative
+        // devices and configure them from the uk101.xml
+
         public void Init(int lines)
         {
             Debug.WriteLine("In Init()");
@@ -131,70 +134,70 @@ namespace UK101Library
             _monitor = new CEGMON(_address);                 // Monitor
             _monitor.StartsAt = 0xF800;
             _monitor.EndsAt = 0xFFFF;
-            _devices[0] = _monitor;
-            //_devices[deviceCount++] = Monitor;
+            //_devices[0] = _monitor;
+            _devices[deviceCount++] = _monitor;
 
             _acia = new ACIA(_peripheralIO);                 // ACAI
             _acia.StartsAt = 0xF000;
             _acia.EndsAt = 0xF0FF;
-            _devices[1] = _acia;
-            //_devices[deviceCount++] = ACIA;
+            //_devices[1] = _acia;
+            _devices[deviceCount++] = _acia;
 
-            keyboard = new Keyboard(_peripheralIO);         // Keyboard
-            keyboard.StartsAt = 0xDF00;
-            keyboard.EndsAt = 0xDF00;
-            _devices[2] = keyboard;
-            //_devices[deviceCount++] = keyboard;
+            _keyboard = new Keyboard(_peripheralIO);         // Keyboard
+            _keyboard.StartsAt = 0xDF00;
+            _keyboard.EndsAt = 0xDF00;
+            //_devices[2] = _keyboard;
+            _devices[deviceCount++] = _keyboard;
 
             _vdu = new VDU(_peripheralIO);                   // Video
             _vdu.StartsAt = 0xD000;
             _vdu.EndsAt = 0xD7FF;
-            _devices[3] = _vdu;
-            //_devices[deviceCount++] = VDU;
+            //_devices[3] = _vdu;
+            _devices[deviceCount++] = _vdu;
 
-            basic4 = new BASIC4(_address);                  // Basic 4
-            basic4.StartsAt = 0xB800;
-            basic4.EndsAt = 0xBFFF;
-            _devices[4] = basic4;
-            //_devices[deviceCount++] = Basic4;
+            _basic4 = new BASIC4(_address);                  // Basic 4
+            _basic4.StartsAt = 0xB800;
+            _basic4.EndsAt = 0xBFFF;
+            //_devices[4] = _basic4;
+            _devices[deviceCount++] = _basic4;
 
-            basic3 = new BASIC3(_address);                  // Basic 3
-            basic3.StartsAt = 0xB000;
-            basic3.EndsAt = 0xB7FF;
-            _devices[5] = basic3;
-            //_devices[deviceCount++] = Basic3;
+            _basic3 = new BASIC3(_address);                  // Basic 3
+            _basic3.StartsAt = 0xB000;
+            _basic3.EndsAt = 0xB7FF;
+            //_devices[5] = _basic3;
+            _devices[deviceCount++] = _basic3;
 
-            basic2 = new BASIC2(_address);                  // Basic 2
-            basic2.StartsAt = 0xA800;
-            basic2.EndsAt = 0xAFFF;
-            _devices[6] = basic2;
-            //_devices[deviceCount++] = Basic2;
+            _basic2 = new BASIC2(_address);                  // Basic 2
+            _basic2.StartsAt = 0xA800;
+            _basic2.EndsAt = 0xAFFF;
+            //_devices[6] = _basic2;
+            _devices[deviceCount++] = _basic2;
 
-            basic1 = new BASIC1(_address);                  // Basic 1
-            basic1.StartsAt = 0xA000;
-            basic1.EndsAt = 0xA7FF;
-            _devices[7] = basic1;
-            //_devices[deviceCount++] = Basic1;
+            _basic1 = new BASIC1(_address);                  // Basic 1
+            _basic1.StartsAt = 0xA000;
+            _basic1.EndsAt = 0xA7FF;
+            //_devices[7] = _basic1;
+            _devices[deviceCount++] = _basic1;
 
-            rom9000 = new ROM8000(_address);                // ROM8000
-            rom9000.StartsAt = 0x8000;
-            rom9000.EndsAt = 0x8FFF;
-            _devices[8] = rom9000;
-            //_devices[deviceCount++] = ROM8000;
+            _rom8000 = new ROM8000(_address);                // ROM8000
+            _rom8000.StartsAt = 0x8000;
+            _rom8000.EndsAt = 0x8FFF;
+            //_devices[8] = _rom8000;
+            _devices[deviceCount++] = _rom8000;
 
-            noDevice = new NoDevice();                      // Was MIDI
-            _devices[9] = noDevice;
-            //_devices[deviceCount++] = noDevice;
+            _noDevice = new NoDevice();                      // Was MIDI
+            //_devices[9] = _noDevice;
+            _devices[deviceCount++] = _noDevice;
 
-            _ram = new RAM();                            // RAM 8K = 0x2000
+            _ram = new RAM();                               // RAM 8K = 0x2000
             _ram.StartsAt= 0x0000;
             _ram.EndsAt = 0x1FFF;
             _ram.SetSize(0x2000);
-            _devices[10] = _ram;
-            //_devices[deviceCount++] = RAM;
+            //_devices[10] = _ram;
+            _devices[deviceCount++] = _ram;
 
-            _devices[11] = noDevice;                        // Not sure what this is for
-            //_devices[deviceCount++] = noDevice;
+            //_devices[11] = _noDevice;                        // Not sure what this is for
+            _devices[deviceCount++] = _noDevice;
 
             _dataBus = new DataBus(_devices);
             _addressBus = new AddressBus(_devices, _dataBus);
