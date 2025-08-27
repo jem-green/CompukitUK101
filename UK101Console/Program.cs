@@ -13,8 +13,8 @@ namespace UK101Console
     {
         #region Fields
         static readonly IPeripheralIO _consoleIO = new ConsoleIO();
-        public static bool isclosing = false;
-        static private HandlerRoutine ctrlCHandler;
+        public static bool _isclosing = false;
+        static private HandlerRoutine _ctrlCHandler;
 
         #endregion
         #region unmanaged
@@ -60,8 +60,8 @@ namespace UK101Console
         {
             Debug.WriteLine("Enter Main()");
 			
-            ctrlCHandler = new HandlerRoutine(ConsoleCtrlCheck);
-            SetConsoleCtrlHandler(ctrlCHandler, true);
+            _ctrlCHandler = new HandlerRoutine(ConsoleCtrlCheck);
+            SetConsoleCtrlHandler(_ctrlCHandler, true);
 
             IntPtr handle = GetConsoleWindow();
             IntPtr sysMenu = GetSystemMenu(handle, false);
@@ -271,11 +271,11 @@ namespace UK101Console
 
 			// Start the simulator
 			
-            Micro _uk101 = new Micro(_consoleIO);
+            Computer uk101 = new Computer(_consoleIO);
             KeyboardMatrix _keyboardMatrix = new KeyboardMatrix();
-            _uk101.Init(32);
-            _uk101.Run();
-            Tape _tape = new Tape(_consoleIO);
+            uk101.Init(32);
+            uk101.Run();
+            Tape tape = new Tape(_consoleIO);
 
             // Not sure we will return from run here.
             // This is slightly different here as need to poll for the keyboard
@@ -301,13 +301,13 @@ namespace UK101Console
                     {
                         // I think this should be a key sequence as in the reset buttons
                         // rather than a direct call to the processor.
-                        _uk101.Reset();
+                        uk101.Reset();
                     }
                     else if (keyCode == ConsoleKey.F1)  // Enable tape mode
                     {
                         // Enable tape mode
                 		Debug.WriteLine("Enable Tape");
-                        ACIA ACIA = (ACIA)_uk101["ACIA"];
+                        ACIA ACIA = (ACIA)uk101["ACIA"];
                         ACIA.Mode = ACIA.IO_MODE_6820_TAPE;
                         // Would like to consider a _tape.Open() 
                     }
@@ -316,26 +316,26 @@ namespace UK101Console
                         // Play tape
                         Debug.WriteLine("Play tape");
                         filenamePath = Path.Combine(filePath.Value.ToString(), filename.ToString() + ".bas");
-                        _tape.Play(filenamePath);
+                        tape.Play(filenamePath);
 
                     }
                     else if (keyCode == ConsoleKey.F3)  // Record to the tape
                     {
                         // Record tape
                         Debug.WriteLine("Record to tape");
-                        _tape.Record();
+                        tape.Record();
                     }
                     else if (keyCode == ConsoleKey.F4)  // Stop the tape
                     {
                         // Stop tape
                         Debug.WriteLine("Stop tape");
-                        _tape.Stop("test.bas");
+                        tape.Stop("test.bas");
                     }
                     else if (keyCode == ConsoleKey.F5)  // Disble tape mode
                     {
                         // Disable tape mode
                 	    Debug.WriteLine("Disable tape");
-                        ACIA ACIA = (ACIA)_uk101["ACIA"];
+                        ACIA ACIA = (ACIA)uk101["ACIA"];
                         ACIA.Mode = ACIA.IO_MODE_6820_NONE;
                         // Would like to consider a _tape.Close() 
                     }
@@ -463,23 +463,23 @@ namespace UK101Console
             switch (ctrlType)
             {
                 case CtrlTypes.CTRL_C_EVENT:
-                    isclosing = true;
+                    _isclosing = true;
                     TraceInternal.TraceVerbose("CTRL+C received:");
                     break;
 
                 case CtrlTypes.CTRL_BREAK_EVENT:
-                    isclosing = true;
+                    _isclosing = true;
                     TraceInternal.TraceVerbose("CTRL+BREAK received:");
                     break;
 
                 case CtrlTypes.CTRL_CLOSE_EVENT:
-                    isclosing = true;
+                    _isclosing = true;
                     TraceInternal.TraceVerbose("Program being closed:");
                     break;
 
                 case CtrlTypes.CTRL_LOGOFF_EVENT:
                 case CtrlTypes.CTRL_SHUTDOWN_EVENT:
-                    isclosing = true;
+                    _isclosing = true;
                     TraceInternal.TraceVerbose("User is logging off:");
                     break;
 

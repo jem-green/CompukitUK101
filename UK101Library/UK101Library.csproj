@@ -54,11 +54,11 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="IMemoryBusDevice.cs" />
-    <Compile Include="IMicro.cs" />
+    <Compile Include="IComputer.cs" />
     <Compile Include="Keyboard.cs" />
     <Compile Include="AddressBus.cs" />
     <Compile Include="DataBus.cs" />
-    <Compile Include="Micro.cs" />
+    <Compile Include="Computer.cs" />
     <Compile Include="Parameter.cs" />
     <Compile Include="SysROMs\BASICX.cs" />
     <Compile Include="SysROMs\MON01.cs" />
@@ -83,6 +83,8 @@
     <Compile Include="SysROMs\BASIC4.cs" />
     <Compile Include="SysROMs\CEGMON.cs" />
   </ItemGroup>
-  <ItemGroup />
+  <ItemGroup>
+    <Folder Include="Monitor\" />
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

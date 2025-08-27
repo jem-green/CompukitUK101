@@ -10,7 +10,7 @@ using System.Threading.Tasks;
 
 namespace UK101Library
 {
-    public class Micro : IMicro, IDisposable
+    public class Computer : IComputer, IDisposable
     {
         #region Fields
 
@@ -28,7 +28,7 @@ namespace UK101Library
         // Devices
 
         private CEGMON _monitor;        // CEGMON
-        private ACIA _acia;             // ACAI
+        private ACIA _acia;             // ACIA
         private Keyboard _keyboard;     // Keyboard
         private VDU _vdu;               // Video
         private BASIC4 _basic4;         // Basic 4
@@ -41,7 +41,7 @@ namespace UK101Library
 
         #endregion
         #region Constructor
-        public Micro(IPeripheralIO peripheralIO)
+        public Computer(IPeripheralIO peripheralIO)
         {
             _peripheralIO = peripheralIO;
         }

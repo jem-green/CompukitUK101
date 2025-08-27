@@ -107,7 +107,7 @@
     <None Include="Resources\Start.ico" />
     <None Include="Images\Start.png" />
     <None Include="Images\Stop.png" />
-    <Content Include="wk101.xml" />
+    <Content Include="uk101.xml" />
     <None Include="Images\compukit.ico" />
     <None Include="Resources\Compukit.ico" />
   </ItemGroup>

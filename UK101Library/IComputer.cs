@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace UK101Library
 {
-    internal interface IMicro
+    internal interface IComputer
     {
         #region Properties
 

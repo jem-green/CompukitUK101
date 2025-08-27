@@ -14,8 +14,6 @@ namespace UK101Library
 
         bool ReadOnly { get; set; }
 
-        bool WriteOnly { get; set; }
-
         bool Accessible { get; set; }
 
         ushort Address { get; set; }

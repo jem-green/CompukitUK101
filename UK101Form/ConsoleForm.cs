@@ -16,7 +16,7 @@ namespace UK101Form
     {
         #region Fields
 
-        private Micro _uk101;
+        private Computer _uk101;
         private Tape _tape;
         private Display _display;
 
@@ -34,6 +34,8 @@ namespace UK101Form
 
         // Declare our worker thread
         private Thread workerThread = null;
+
+        // Form IO
         FormIO _formIO = null;
 
         // display updating fix
@@ -144,7 +146,7 @@ namespace UK101Form
         #region Methods
         private void Run()
         {
-            _uk101 = new Micro(_formIO);
+            _uk101 = new Computer(_formIO);
             _keyboardMatrix = new KeyboardMatrix();
             _uk101.Init(_height);
             VDU VDU = (VDU)_uk101["VDU"];

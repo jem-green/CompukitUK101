@@ -15,7 +15,7 @@ namespace UK101Form
         #region Event handling
 
         /// <summary>
-        /// Occurs when the Zmachine recives a message.
+        /// Occurs when the Peripheral recives a message.
         /// </summary>
         public event EventHandler<TextEventArgs> TextReceived;
 

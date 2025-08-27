@@ -11,7 +11,6 @@ namespace UK101Library
         protected string _name;
         protected byte[] _data;
         protected bool _readOnly;
-        protected bool _writeOnly;
         protected bool _accessible;
         protected ushort _address;
         protected ushort _startsAt;
@@ -23,7 +22,6 @@ namespace UK101Library
         public MemoryBusDevice()
         {
             _readOnly = false;
-            _writeOnly = false;
             _accessible = true;
         }
 
@@ -51,18 +49,6 @@ namespace UK101Library
             set
             {
                 _readOnly = value;
-            }
-        }
-
-        public bool WriteOnly
-        {
-            get
-            {
-                return (_writeOnly);
-            }
-            set
-            {
-                _writeOnly = value;
             }
         }
 

@@ -13,7 +13,6 @@ namespace UK101Library
         public CHARGEN(ushort Address)
         {
             this.ReadOnly = true;
-            this.WriteOnly = false;
             this.Address = Address;
             this.StartsAt = 0x000;
             this.EndsAt = 0x800;
