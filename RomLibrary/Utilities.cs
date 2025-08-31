@@ -5,7 +5,7 @@ using System.Text;
 
 namespace RomLibrary
 {
-    public class Utility
+    public class Utilities
     {
 
         byte[] _data;

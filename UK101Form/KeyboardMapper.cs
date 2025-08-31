@@ -9,7 +9,7 @@ using System.Windows.Forms;
 namespace UK101Form
 {
 
-    public class KeyboardMatrix
+    public class KeyboardMapper
     {
 
         /*
@@ -102,7 +102,7 @@ namespace UK101Form
         private Dictionary<Keys, Key> _normal;
         private Dictionary<Keys, Key> _shift;   // Fix issues with key mapping
 
-        public KeyboardMatrix()
+        public KeyboardMapper()
         {
             _normal = new Dictionary<Keys, Key>();
             _shift = new Dictionary<Keys, Key>();

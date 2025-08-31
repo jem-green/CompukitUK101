@@ -1,6 +1,59 @@
 ﻿<?xml version="1.0" encoding="utf-8" ?>
-<uk101>
-  <configuration>
-    
-  </configuration>
-</uk101>
+<computer name="uk101">
+  <monitor id="1">
+    <name>cegmon</name>
+    <start>0xF800</start>
+    <end>0xFFFF</end>
+    <size>0x800</size>
+  </monitor>
+  <aci id="2">
+    <name>ACI</name>
+    <start>0xF000</start>
+    <end>0xF0FF</end>
+  </aci>
+  <keyboard id="3">
+    <name>Keyboard</name>
+    <start>0xDF00</start>
+    <end>0xDF00</end>
+  </keyboard>
+  <vdu id="4">
+    <name>VDU</name>
+    <start>0xD000</start>
+    <end>0xD7FF</end>
+  </vdu>
+  <ram id="5">
+    <name>Basic4</name>
+    <start>0xB800</start>
+    <end>0xBFFF</end>
+    <size units="bytes">0x2000</size>
+  </ram>
+  <ram id="6">
+    <name>Basic3</name>
+    <start>0xB000</start>
+    <end>0xB7FF</end>
+    <size units="bytes">0x2000</size>
+  </ram>
+  <ram id="7">
+    <name>Basic2</name>
+    <start>0xA800</start>
+    <end>0xAFFF</end>
+    <size units="bytes">0x2000</size>
+  </ram>
+  <ram id="8">
+    <name>Basic1</name>
+    <start>0xA000</start>
+    <end>0xA7FF</end>
+    <size units="bytes">0x2000</size>
+  </ram>
+  <rom id="9">
+    <name>8000</name>
+    <start>0x0000</start>
+    <end>0x8FFF</end>
+    <!--<size units="bytes">0x2000</size>-->
+  </rom>
+  <ram id ="10">
+    <name>RAM</name>
+    <start>0x0000</start>
+    <end>0x1FFF</end>
+  </ram>
+</computer>

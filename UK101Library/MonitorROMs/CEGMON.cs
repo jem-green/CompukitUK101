@@ -4,9 +4,12 @@ namespace UK101Library
 {
     public class CEGMON : MemoryBusDevice, IMemoryBusDevice
     {
-		#region Contructor
+        #region Fields
 
-		public CEGMON(ushort address)
+        #endregion
+        #region Contructor
+
+        public CEGMON(ushort address)
 		{
             _name = "CEGMON";
             _address = address;

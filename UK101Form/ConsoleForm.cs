@@ -4,7 +4,7 @@ using System.Drawing;
 using System.Threading;
 using System.Windows.Forms;
 using UK101Library;
-using static UK101Form.KeyboardMatrix;
+using static UK101Form.KeyboardMapper;
 using TracerLibrary;
 using System.IO;
 using UK101Form.Properties;
@@ -21,7 +21,7 @@ namespace UK101Form
         private Display _display;
 
         //readonly IPeripheralIO _formIO;
-        KeyboardMatrix _keyboardMatrix;
+        KeyboardMapper _keyboardMap;
 
         [DllImport("user32.dll")]
 
@@ -33,7 +33,7 @@ namespace UK101Form
         private UpdateTextDelegate updateTextDelegate = null;
 
         // Declare our worker thread
-        private Thread workerThread = null;
+        private Thread _workerThread = null;
 
         // Form IO
         FormIO _formIO = null;
@@ -123,8 +123,8 @@ namespace UK101Form
                 {
                     // Start the simulator
 
-                    this.workerThread = new Thread(new ThreadStart(this.Run));
-                    this.workerThread.Start();
+                    this._workerThread = new Thread(new ThreadStart(this.Run));
+                    this._workerThread.Start();
 
                 }
                 catch (Exception e1)
@@ -136,8 +136,8 @@ namespace UK101Form
             {
                 // Start the simulator
 
-                this.workerThread = new Thread(new ThreadStart(this.Run));
-                this.workerThread.Start();
+                this._workerThread = new Thread(new ThreadStart(this.Run));
+                this._workerThread.Start();
             }
             Debug.WriteLine("Out ConsoleForm()");
         }
@@ -147,7 +147,7 @@ namespace UK101Form
         private void Run()
         {
             _uk101 = new Computer(_formIO);
-            _keyboardMatrix = new KeyboardMatrix();
+            _keyboardMap = new KeyboardMapper();
             _uk101.Init(_height);
             VDU VDU = (VDU)_uk101["VDU"];
             VDU.Init();
@@ -514,32 +514,32 @@ namespace UK101Form
                     TraceInternal.TraceVerbose("lshift=" + Convert.ToBoolean(GetAsyncKeyState(Keys.LShiftKey)));
                     TraceInternal.TraceVerbose("rshift=" + Convert.ToBoolean(GetAsyncKeyState(Keys.RShiftKey)));
 
-                    key = _keyboardMatrix.GetKey(keyCode, true);
+                    key = _keyboardMap.GetKey(keyCode, true);
                     if (key.KeyCode != Keys.NoName)
                     {
                         if (key.Shift == true)
                         {
                             TraceInternal.TraceVerbose("Apply shift");
-                            key = _keyboardMatrix.GetKey(Keys.LShiftKey, false);
+                            key = _keyboardMap.GetKey(Keys.LShiftKey, false);
                             _formIO.PressKey(key.Row, key.Column);
                         }
-                        key = _keyboardMatrix.GetKey(keyCode, true);
+                        key = _keyboardMap.GetKey(keyCode, true);
                         _formIO.PressKey(key.Row, key.Column);
                     }
                     //}
                 }
                 else
                 {
-                    key = _keyboardMatrix.GetKey(keyCode, false);
+                    key = _keyboardMap.GetKey(keyCode, false);
                     if (key.KeyCode != Keys.NoName)
                     {
                         if (key.Shift == true)
                         {
                             TraceInternal.TraceVerbose("Apply shift");
-                            key = _keyboardMatrix.GetKey(Keys.LShiftKey, false);
+                            key = _keyboardMap.GetKey(Keys.LShiftKey, false);
                             _formIO.PressKey(key.Row, key.Column);
                         }
-                        key = _keyboardMatrix.GetKey(keyCode, false);
+                        key = _keyboardMap.GetKey(keyCode, false);
                         _formIO.PressKey(key.Row, key.Column);
                     }
                 }
@@ -613,32 +613,32 @@ namespace UK101Form
                     TraceInternal.TraceVerbose("lshift=" + Convert.ToBoolean(GetAsyncKeyState(Keys.LShiftKey)));
                     TraceInternal.TraceVerbose("rshift=" + Convert.ToBoolean(GetAsyncKeyState(Keys.RShiftKey)));
 
-                    key = _keyboardMatrix.GetKey(keyCode, true);
+                    key = _keyboardMap.GetKey(keyCode, true);
                     if (key.KeyCode != Keys.NoName)
                     {
                         if (key.Shift == true)
                         {
                             TraceInternal.TraceVerbose("Release shift");
-                            key = _keyboardMatrix.GetKey(Keys.LShiftKey, false);
+                            key = _keyboardMap.GetKey(Keys.LShiftKey, false);
                             _formIO.ReleaseKey(key.Row, key.Column);
                         }
-                        key = _keyboardMatrix.GetKey(keyCode, true);
+                        key = _keyboardMap.GetKey(keyCode, true);
                         _formIO.ReleaseKey(key.Row, key.Column);
                     }
                     //}
                 }
                 else
                 {
-                    key = _keyboardMatrix.GetKey(keyCode, false);
+                    key = _keyboardMap.GetKey(keyCode, false);
                     if (key.KeyCode != Keys.NoName)
                     {
                         if (key.Shift == true)
                         {
                             TraceInternal.TraceVerbose("Release shift");
-                            key = _keyboardMatrix.GetKey(Keys.LShiftKey, false);
+                            key = _keyboardMap.GetKey(Keys.LShiftKey, false);
                             _formIO.ReleaseKey(key.Row, key.Column);
                         }
-                        key = _keyboardMatrix.GetKey(keyCode, false);
+                        key = _keyboardMap.GetKey(keyCode, false);
                         _formIO.ReleaseKey(key.Row, key.Column);
                     }
                 }
@@ -718,7 +718,7 @@ namespace UK101Form
 
             if (_stopped == false)
             {
-                workerThread.Abort();
+                _workerThread.Abort();
             }
 
             // Copy window location to app settings
@@ -780,7 +780,7 @@ namespace UK101Form
             //consolePictureBox.Visible = false;
             if (_stopped == false)
             {
-                workerThread.Abort();
+                _workerThread.Abort();
             }
 
             OpenFileDialog openFileDialog = new OpenFileDialog

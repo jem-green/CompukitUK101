@@ -11,7 +11,8 @@ namespace UK101Library
 
 		public WEMON(ushort address)
 		{
-			_address = address;
+			_name = "WEMON";
+            _address = address;
 			_readOnly = true;
 
 			_data = new byte[] {

@@ -12,7 +12,7 @@ namespace UK101Console
     /// Mapping the Console key events to the UK101 key matrix
     /// 
     /// </summary>
-    public class KeyboardMatrix
+    public class KeyboardMapper
     {
 
         /*
@@ -105,7 +105,7 @@ namespace UK101Console
         private Dictionary<ConsoleKey, Key> _normal;
         private Dictionary<ConsoleKey, Key> _shift;   // Fix issues with key mapping
 
-        public KeyboardMatrix()
+        public KeyboardMapper()
         {
             _normal = new Dictionary<ConsoleKey, Key>();
             _shift = new Dictionary<ConsoleKey, Key>();

@@ -11,6 +11,7 @@ namespace UK101Library
 
 		public EXMON(ushort address)
 		{
+			_name = "EXMON";
 			_address = address;
 			_readOnly = true;
 

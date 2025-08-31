@@ -7,9 +7,12 @@ namespace RomLibrary
     {
         static void Main(string[] args)
         {
-            Utility u = new Utility();
+            Utilities u = new Utilities();
+
+            // Monitors
+
             string fileName = "MONUK01";
-            string filePath = @"C:\SOURCE\GIT\cs.net\CompukitUK101\UK101Library\Monitor";
+            string filePath = @"C:\SOURCE\GIT\cs.net\CompukitUK101\RomLibrary\Monitor";
             string fileNamePath = Path.Combine(filePath, fileName);
             u.LoadRom(fileNamePath);
             u.OutputDeclaration(fileNamePath);
@@ -24,7 +27,18 @@ namespace RomLibrary
             u.LoadRom(fileNamePath);
             u.OutputDeclaration(fileNamePath);
 
-            filePath = @"C:\SOURCE\GIT\cs.net\CompukitUK101\UK101Library\SysROMs";
+            // Chargen
+
+            fileName = "CHGUK101";
+            filePath = @"C:\SOURCE\GIT\cs.net\CompukitUK101\RomLibrary\Chargen";
+            fileNamePath = Path.Combine(filePath, fileName);
+            u.LoadRom(fileNamePath);
+            u.OutputDeclaration(fileNamePath);
+
+
+            // Basic
+
+            filePath = @"C:\SOURCE\GIT\cs.net\CompukitUK101\RomLibrary\Basic";
             fileName = "BASICX";
             fileNamePath = Path.Combine(filePath, fileName);
             u.LoadRom(fileNamePath);

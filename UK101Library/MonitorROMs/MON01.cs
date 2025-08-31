@@ -11,7 +11,8 @@ namespace UK101Library
 
 		public MON01(ushort address)
 		{
-			_address = address;
+			_name = "MON01";
+            _address = address;
 			_readOnly = true;
 
 			_data = new byte[] {

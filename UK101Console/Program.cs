@@ -3,7 +3,7 @@ using System.IO;
 using System.Threading;
 using TracerLibrary;
 using UK101Library;
-using static UK101Console.KeyboardMatrix;
+using static UK101Console.KeyboardMapper;
 using System.Runtime.InteropServices;
 using System.Diagnostics;
 
@@ -272,7 +272,7 @@ namespace UK101Console
 			// Start the simulator
 			
             Computer uk101 = new Computer(_consoleIO);
-            KeyboardMatrix _keyboardMatrix = new KeyboardMatrix();
+            KeyboardMapper keyboardMap = new KeyboardMapper();
             uk101.Init(32);
             uk101.Run();
             Tape tape = new Tape(_consoleIO);
@@ -365,31 +365,31 @@ namespace UK101Console
                         Key key;
                         if ((modifiers & ConsoleModifiers.Shift) != 0)
                         { 
-                            key = _keyboardMatrix.GetKey(keyCode, true);
+                            key = keyboardMap.GetKey(keyCode, true);
                             if (key.KeyCode != ConsoleKey.NoName)
                             {
                                 if (key.Shift == true)
                                 {
                                     TraceInternal.TraceVerbose("Apply shift");
-                                    key = _keyboardMatrix.GetKey(ConsoleKey.Pause, false);
+                                    key = keyboardMap.GetKey(ConsoleKey.Pause, false);
                                     _consoleIO.PressKey(key.Row, key.Column); // press shift
                                 }
-                                key = _keyboardMatrix.GetKey(keyCode, true);
+                                key = keyboardMap.GetKey(keyCode, true);
                                 _consoleIO.PressKey(key.Row, key.Column);
                             }
                         }
                         else
                         {
-                            key = _keyboardMatrix.GetKey(keyCode, false);
+                            key = keyboardMap.GetKey(keyCode, false);
                             if (key.KeyCode != ConsoleKey.NoName)
                             {
                                 if (key.Shift == true)
                                 {
                                     TraceInternal.TraceVerbose("Apply shift");
-                                    key = _keyboardMatrix.GetKey(ConsoleKey.Pause, false);
+                                    key = keyboardMap.GetKey(ConsoleKey.Pause, false);
                                     _consoleIO.PressKey(key.Row, key.Column); // press shift
                                 }
-                                key = _keyboardMatrix.GetKey(keyCode, false);
+                                key = keyboardMap.GetKey(keyCode, false);
                                 _consoleIO.PressKey(key.Row, key.Column);
                             }
                         }
@@ -415,33 +415,33 @@ namespace UK101Console
                         Key key;
                         if ((keyInfo.Modifiers & ConsoleModifiers.Shift) != 0)
                         {
-                            key = _keyboardMatrix.GetKey(keyCode, true);
+                            key = keyboardMap.GetKey(keyCode, true);
                             if (key.KeyCode != ConsoleKey.NoName)
                             {
                                 //Debug.Print("Deselect shift");
                                 if (key.Shift == true)
                                 {
                                 	Debug.Print("Apply shift");
-                                    key = _keyboardMatrix.GetKey(ConsoleKey.Pause, false);
+                                    key = keyboardMap.GetKey(ConsoleKey.Pause, false);
                                     _consoleIO.ReleaseKey(key.Row, key.Column); // press shift
                                 }
-                                key = _keyboardMatrix.GetKey(keyCode, true);
+                                key = keyboardMap.GetKey(keyCode, true);
                                 _consoleIO.ReleaseKey(key.Row, key.Column);
                             }
                         }
                         else
                         {
-                            key = _keyboardMatrix.GetKey(keyCode, false);
+                            key = keyboardMap.GetKey(keyCode, false);
                             if (key.KeyCode != ConsoleKey.NoName)
                             {
                                 //Debug.Print("Release shift");
                                 if (key.Shift == true)
                                 {
                             		Debug.Print("Apply shift");
-                                    key = _keyboardMatrix.GetKey(ConsoleKey.Pause, false);
+                                    key = keyboardMap.GetKey(ConsoleKey.Pause, false);
                                     _consoleIO.ReleaseKey(key.Row, key.Column); // press shift
                                 }
-                                key = _keyboardMatrix.GetKey(keyCode, false);
+                                key = keyboardMap.GetKey(keyCode, false);
                                 _consoleIO.ReleaseKey(key.Row, key.Column);
                             }
                         }
